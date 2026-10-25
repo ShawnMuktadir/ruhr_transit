@@ -1,0 +1,41 @@
+# Base: flutter_lints. On top of that, a hand-picked subset of stricter rules
+# (very_good_analysis-style) that catch real bugs or keep the code consistent.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    # No implicit casts from dynamic, e.g. `final String s = json['name'];`
+    # must be written as `json['name'] as String`. Important for JSON mapping.
+    strict-casts: true
+    # Report places where a type could not be inferred and fell back to dynamic.
+    strict-inference: true
+    # Disallow raw generics like `List` or `Future` without type arguments.
+    strict-raw-types: true
+  exclude:
+    - lib/core/l10n/gen/**
+    - "**/*.g.dart"
+
+linter:
+  rules:
+    # Correctness
+    - avoid_dynamic_calls
+    - cancel_subscriptions
+    - close_sinks
+    - only_throw_errors
+    - test_types_in_equals
+    - unawaited_futures
+    # API clarity
+    - always_declare_return_types
+    - type_annotate_public_apis
+    - always_use_package_imports
+    # Style and consistency
+    - avoid_redundant_argument_values
+    - directives_ordering
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_final_fields
+    - prefer_final_locals
+    - prefer_single_quotes
+    - unnecessary_await_in_return
+    - unnecessary_lambdas
+    - use_super_parameters

@@ -1,0 +1,293 @@
+{
+  "serverInfo": {
+    "controllerVersion": "10.6.34.3",
+    "serverID": "EFA-X-DELFI19_",
+    "virtDir": "openservice",
+    "serverTime": "2026-10-25T18:24:25",
+    "calcTime": 10.534,
+    "logRequestId": "e6c723509fdebc3b"
+  },
+  "version": "11.0.6.72",
+  "locations": [
+    {
+      "id": "de:05911:5194",
+      "isGlobalId": true,
+      "name": "Hbf",
+      "type": "stop",
+      "coord": [
+        51.479466,
+        7.223335
+      ],
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "productClasses": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        7,
+        13,
+        17
+      ],
+      "properties": {
+        "distance": 0,
+        "STOP_GLOBAL_ID": "de:05911:5194",
+        "STOP_NAME_WITH_PLACE": "Bochum Hbf",
+        "STOP_MAJOR_MEANS": "6",
+        "STOP_MEANS_LIST": "6,2,1,4,3,104,101",
+        "STOP_MOT_LIST": "0,1,2,4,5,7,13,17",
+        "STOP_TARIFF_ZONES:vrr": "360",
+        "stopId": "20005194"
+      },
+      "infos": [
+        {
+          "timestamps": {
+            "creation": "2026-10-25T01:02:00Z"
+          },
+          "priority": "normal",
+          "id": "VRR-de:05911:5194:45",
+          "version": 183,
+          "type": "infrastructure",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "infrastructure",
+            "incidentDateTime": "25/10/2026 02:02 - 26/10/2026 02:00"
+          },
+          "infoLinks": [
+            {
+              "urlText": "",
+              "url": "http://ems.vrr.de/info-link/2a0808a6-3c99-5665-8881-0ba7c8dfabd8",
+              "content": "An der Haltestelle Bochum Hbf ist die Bho FT104 Vom Zwischengeschoss nach Gleis 2 bis auf Weiteres außer Betrieb.",
+              "subtitle": "Haltestelle Bochum Hbf: Rolltreppe außer Betrieb.",
+              "title": "Haltestelle Bochum Hbf: Rolltreppe außer Betrieb."
+            }
+          ]
+        },
+        {
+          "timestamps": {
+            "creation": "2026-10-25T01:02:00Z"
+          },
+          "priority": "normal",
+          "id": "VRR-de:05911:5194:48",
+          "version": 183,
+          "type": "infrastructure",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "infrastructure",
+            "incidentDateTime": "25/10/2026 02:02 - 26/10/2026 02:00"
+          },
+          "infoLinks": [
+            {
+              "urlText": "",
+              "url": "http://ems.vrr.de/info-link/de4531a5-c0ac-5d66-a6c3-4a9ae2646928",
+              "content": "An der Haltestelle Bochum Hbf ist die Bho FT-210 Verteilerebene -1 Massenbergstr. Ebene 0 bis auf Weiteres außer Betrieb.",
+              "subtitle": "Haltestelle Bochum Hbf: Rolltreppe außer Betrieb.",
+              "title": "Haltestelle Bochum Hbf: Rolltreppe außer Betrieb."
+            }
+          ]
+        },
+        {
+          "timestamps": {
+            "creation": "2026-10-25T01:02:00Z"
+          },
+          "priority": "normal",
+          "id": "VRR-de:05911:5194:50",
+          "version": 183,
+          "type": "infrastructure",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "infrastructure",
+            "incidentDateTime": "25/10/2026 02:02 - 26/10/2026 02:00"
+          },
+          "infoLinks": [
+            {
+              "urlText": "",
+              "url": "http://ems.vrr.de/info-link/a6336024-5e67-5fba-93fb-07f0eb0f85d6",
+              "content": "An der Haltestelle Bochum Hbf ist die Bho FT-101 Bahnsteig 308/318 Ri. Gerthe -2 nach Verteilerebene -1 bis auf Weiteres außer Betrieb.",
+              "subtitle": "Haltestelle Bochum Hbf: Rolltreppe außer Betrieb.",
+              "title": "Haltestelle Bochum Hbf: Rolltreppe außer Betrieb."
+            }
+          ]
+        },
+        {
+          "timestamps": {
+            "creation": "2026-10-25T01:02:00Z"
+          },
+          "priority": "normal",
+          "id": "VRR-de:05911:5194:31",
+          "version": 7761,
+          "type": "infrastructure",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "infrastructure",
+            "incidentDateTime": "25/10/2026 02:02 - 26/10/2026 02:00"
+          },
+          "infoLinks": [
+            {
+              "urlText": "",
+              "url": "http://ems.vrr.de/info-link/d89d48d1-eb3b-57ec-9a13-6a4ddf91fc0a",
+              "content": "An der Haltestelle Bochum Hbf ist der Bho26 - Aufzug Straßenebene 0 zur Verteilerebene -1 Kundencenter bis auf Weiteres außer Betrieb.",
+              "subtitle": "Haltestelle Bochum Hbf: Aufzug außer Betrieb.",
+              "title": "Haltestelle Bochum Hbf: Aufzug außer Betrieb."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "de:05911:5691",
+      "isGlobalId": true,
+      "name": "Bochum Hbf/Boulevard",
+      "type": "stop",
+      "coord": [
+        51.480199,
+        7.222401
+      ],
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "productClasses": [
+        5
+      ],
+      "properties": {
+        "distance": 167,
+        "STOP_GLOBAL_ID": "de:05911:5691",
+        "STOP_NAME_WITH_PLACE": "Bochum Hbf/Boulevard",
+        "STOP_MAJOR_MEANS": "3",
+        "STOP_MEANS_LIST": "3",
+        "STOP_MOT_LIST": "5",
+        "STOP_TARIFF_ZONES:vrr": "360",
+        "stopId": "20005691"
+      },
+      "infos": [
+        {
+          "timestamps": {
+            "creation": "2026-09-15T04:47:00Z"
+          },
+          "priority": "normal",
+          "id": "ems-54373",
+          "version": 326,
+          "type": "routeBlocking",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "routeBlocking",
+            "incidentDateTime": "15/09/2026 03:00 - 01/11/2026 03:00"
+          },
+          "infoLinks": [
+            {
+              "urlText": "Linie 355 - Haltestellenausfälle - zwischen (H) Bochum, West Bf und (H) Bochum, Ehrenfeld - Grund: Baumaßnahme",
+              "url": "http://ems.vrr.de/info-link/aa8505b0-e65e-5d48-97a0-4f4477d45e7a",
+              "content": "<p>\n\n\n        \n\nLinie 355: \nZwischen <b>(H) Bochum, West Bf</b> und <b>(H) Bochum, Ehrenfeld</b> kommt es zu <b>einem Haltestellenausfall</b>.\n<p>\nDauer: 15.09.26, 03:00 Uhr bis 01.11.26, 03:00 Uhr\n<p><b>Linie 355: </b>Alle Haltestellen von <b>(H) Bochum, West Bf</b> bis einschließlich <b>(H) Bochum, Ehrenfeld</b> werden nicht bedient.\n<br>Bitte nutzen Sie alternativ die <b>(H) BOCHUM RATHAUS</b> bzw. die <b>(H) YORCKSTR.</b><br>\nZusätzlich werden die <b>(H) JUNGGESELLENSTR.</b> und <b>(H) SÜDRING</b> der Linie 365 verlegt.<p>\n<b>Grund:</b> Einbahnstraße Alleestraße",
+              "subtitle": "Haltestellenausfälle durch Baumaßnahme",
+              "title": "Haltestellenausfälle durch Baumaßnahme",
+              "additionalText": "Die beschriebenen Änderungen sind in der elektronischen Fahrplanauskunft (EFA) <b>nicht</b> berücksichtigt.",
+              "smsText": "Linie 355 - Haltestellenausfälle - zwischen (H) Bochum, West Bf und (H) Bochum, Ehrenfeld - Grund: Baumaßnahme",
+              "attachments": [
+                {
+                  "ID": "0",
+                  "type": "image/jpeg",
+                  "path": "https://ems.vrr.de/s/Iz_mO.jpg",
+                  "virtPath": "https://ems.vrr.de/s/Iz_mO.jpg",
+                  "linkText": "Linie 355: Fahrweg Einbahnstraße Alleestraße",
+                  "linkTarget": "_blank",
+                  "size": 209163
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "de:05911:5494",
+      "isGlobalId": true,
+      "name": "Bochum Hbf/Buddenbergplatz",
+      "type": "stop",
+      "coord": [
+        51.477441,
+        7.224566
+      ],
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "productClasses": [
+        5,
+        17
+      ],
+      "properties": {
+        "distance": 387,
+        "STOP_GLOBAL_ID": "de:05911:5494",
+        "STOP_NAME_WITH_PLACE": "Bochum Hbf/Buddenbergplatz",
+        "STOP_MAJOR_MEANS": "3",
+        "STOP_MEANS_LIST": "3",
+        "STOP_MOT_LIST": "5,17",
+        "STOP_TARIFF_ZONES:vrr": "360",
+        "stopId": "20005494"
+      }
+    },
+    {
+      "id": "de:05911:5496",
+      "isGlobalId": true,
+      "name": "BP/Aral-Haus",
+      "type": "stop",
+      "coord": [
+        51.478045,
+        7.227503
+      ],
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "productClasses": [
+        5
+      ],
+      "properties": {
+        "distance": 529,
+        "STOP_GLOBAL_ID": "de:05911:5496",
+        "STOP_NAME_WITH_PLACE": "Bochum BP/Aral-Haus",
+        "STOP_MAJOR_MEANS": "3",
+        "STOP_MEANS_LIST": "3",
+        "STOP_MOT_LIST": "5",
+        "STOP_TARIFF_ZONES:vrr": "360",
+        "stopId": "20005496"
+      }
+    },
+    {
+      "id": "de:05911:5094",
+      "isGlobalId": true,
+      "name": "Bongardstr.",
+      "type": "stop",
+      "coord": [
+        51.481536,
+        7.219886
+      ],
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "productClasses": [
+        5
+      ],
+      "properties": {
+        "distance": 533,
+        "STOP_GLOBAL_ID": "de:05911:5094",
+        "STOP_NAME_WITH_PLACE": "Bochum Bongardstr.",
+        "STOP_MAJOR_MEANS": "3",
+        "STOP_MEANS_LIST": "3",
+        "STOP_MOT_LIST": "5",
+        "STOP_TARIFF_ZONES:vrr": "360",
+        "stopId": "20005094"
+      }
+    }
+  ]
+}

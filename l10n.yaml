@@ -1,0 +1,6 @@
+arb-dir: lib/core/l10n/arb
+template-arb-file: app_de.arb
+output-dir: lib/core/l10n/gen
+output-localization-file: app_localizations.dart
+# Lets us write AppLocalizations.of(context).x instead of ...of(context)!.x
+nullable-getter: false

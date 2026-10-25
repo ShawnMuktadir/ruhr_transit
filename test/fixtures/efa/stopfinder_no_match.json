@@ -1,0 +1,20 @@
+{
+  "serverInfo": {
+    "controllerVersion": "10.6.34.3",
+    "serverID": "EFA-X-DELFI06_",
+    "virtDir": "openservice",
+    "serverTime": "2026-10-25T18:24:26",
+    "calcTime": 44.657,
+    "logRequestId": "36d435679de7ee8c"
+  },
+  "version": "11.0.6.72",
+  "systemMessages": [
+    {
+      "type": "error",
+      "module": "BROKER",
+      "code": -8020,
+      "text": ""
+    }
+  ],
+  "locations": []
+}

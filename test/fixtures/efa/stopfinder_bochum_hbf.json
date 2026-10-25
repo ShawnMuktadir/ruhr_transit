@@ -1,0 +1,241 @@
+{
+  "serverInfo": {
+    "controllerVersion": "10.6.34.3",
+    "serverID": "EFA-X-DELFI11_",
+    "virtDir": "openservice",
+    "serverTime": "2026-10-25T18:24:25",
+    "calcTime": 35.085,
+    "logRequestId": "1a85c5df80acb13b"
+  },
+  "version": "11.0.6.72",
+  "systemMessages": [
+    {
+      "type": "error",
+      "module": "BROKER",
+      "code": -8011,
+      "text": ""
+    }
+  ],
+  "locations": [
+    {
+      "id": "de:05911:5194",
+      "isGlobalId": true,
+      "name": "Bochum, Hbf",
+      "disassembledName": "Hbf",
+      "coord": [
+        51.479466,
+        7.223335
+      ],
+      "type": "stop",
+      "matchQuality": 998,
+      "isBest": true,
+      "productClasses": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        7,
+        13,
+        17
+      ],
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "properties": {
+        "additionalTariffData": {
+          "area": "",
+          "zones": "",
+          "layer1": "",
+          "layer2": ""
+        },
+        "stopId": "20005194",
+        "mainLocality": "Bochum"
+      }
+    },
+    {
+      "id": "de:05911:5691",
+      "isGlobalId": true,
+      "name": "Bochum, Bochum Hbf/Boulevard",
+      "disassembledName": "Bochum Hbf/Boulevard",
+      "coord": [
+        51.480199,
+        7.222401
+      ],
+      "type": "stop",
+      "matchQuality": 991,
+      "isBest": false,
+      "productClasses": [
+        5
+      ],
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "properties": {
+        "additionalTariffData": {
+          "area": "",
+          "zones": "",
+          "layer1": "",
+          "layer2": ""
+        },
+        "stopId": "20005691",
+        "mainLocality": "Bochum"
+      }
+    },
+    {
+      "id": "de:05911:5494",
+      "isGlobalId": true,
+      "name": "Bochum, Bochum Hbf/Buddenbergplatz",
+      "disassembledName": "Bochum Hbf/Buddenbergplatz",
+      "coord": [
+        51.477441,
+        7.224566
+      ],
+      "type": "stop",
+      "matchQuality": 242,
+      "isBest": false,
+      "productClasses": [
+        5,
+        17
+      ],
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "properties": {
+        "additionalTariffData": {
+          "area": "",
+          "zones": "",
+          "layer1": "",
+          "layer2": ""
+        },
+        "stopId": "20005494",
+        "mainLocality": "Bochum"
+      }
+    },
+    {
+      "id": "poiID:66152:5911000:-1:P6 Hauptbahnhof / Buddenbergplatz:Bochum:P6 Hauptbahnhof / Buddenbergplatz:ANY:POI:804209:5293766:MRCV:nrw",
+      "name": "Bochum, P6 Hauptbahnhof / Buddenbergplatz",
+      "disassembledName": "P6 Hauptbahnhof / Buddenbergplatz",
+      "coord": [
+        51.477709,
+        7.224332
+      ],
+      "type": "poi",
+      "matchQuality": 241,
+      "isBest": false,
+      "parent": {
+        "id": "placeID:5911000:-1",
+        "name": "Bochum",
+        "type": "locality"
+      }
+    },
+    {
+      "id": "poiID:301460:5911000:-1:Hauptbahnhof:Bochum:Hauptbahnhof:ANY:POI:803988:5293446:MRCV:nrw",
+      "name": "Bochum, Hauptbahnhof",
+      "disassembledName": "Hauptbahnhof",
+      "coord": [
+        51.4795,
+        7.222347
+      ],
+      "type": "poi",
+      "matchQuality": 250,
+      "isBest": false,
+      "parent": {
+        "id": "placeID:5911000:-1",
+        "name": "Bochum",
+        "type": "locality"
+      }
+    },
+    {
+      "id": "poiID:181626:5911000:-1:Bochum Hauptbahnhof:Bochum:Bochum Hauptbahnhof:ANY:POI:803962:5293576:MRCV:nrw",
+      "name": "Bochum, Bochum Hauptbahnhof",
+      "disassembledName": "Bochum Hauptbahnhof",
+      "coord": [
+        51.478772,
+        7.222114
+      ],
+      "type": "poi",
+      "matchQuality": 250,
+      "isBest": false,
+      "parent": {
+        "id": "placeID:5911000:-1",
+        "name": "Bochum",
+        "type": "locality"
+      }
+    },
+    {
+      "id": "poiID:301138:5911000:-1:stadtmobil Bochum HBF:Bochum:stadtmobil Bochum HBF:ANY:POI:803816:5293910:MRCV:nrw",
+      "name": "Bochum, stadtmobil Bochum HBF",
+      "disassembledName": "stadtmobil Bochum HBF",
+      "coord": [
+        51.476904,
+        7.220802
+      ],
+      "type": "poi",
+      "matchQuality": 244,
+      "isBest": false,
+      "parent": {
+        "id": "placeID:5911000:-1",
+        "name": "Bochum",
+        "type": "locality"
+      }
+    },
+    {
+      "id": "poiID:250265:5911000:-1:B&R, Bochum Hauptbahnhof:Bochum:B&R, Bochum Hauptbahnhof:ANY:POI:804041:5293527:MRCV:nrw",
+      "name": "Bochum, B&R, Bochum Hauptbahnhof",
+      "disassembledName": "B&R, Bochum Hauptbahnhof",
+      "coord": [
+        51.479047,
+        7.222823
+      ],
+      "type": "poi",
+      "matchQuality": 245,
+      "isBest": false,
+      "parent": {
+        "id": "placeID:5911000:-1",
+        "name": "Bochum",
+        "type": "locality"
+      }
+    },
+    {
+      "id": "poiID:238158:5911000:-1:Radbox Hauptbahnhof Nord:Bochum:Radbox Hauptbahnhof Nord:ANY:POI:804194:5293445:MRCV:nrw",
+      "name": "Bochum, Radbox Hauptbahnhof Nord",
+      "disassembledName": "Radbox Hauptbahnhof Nord",
+      "coord": [
+        51.479505,
+        7.224198
+      ],
+      "type": "poi",
+      "matchQuality": 243,
+      "isBest": false,
+      "parent": {
+        "id": "placeID:5911000:-1",
+        "name": "Bochum",
+        "type": "locality"
+      }
+    },
+    {
+      "id": "poiID:206732:5911000:-1:Radstation Bochum Hbf:Bochum:Radstation Bochum Hbf:ANY:POI:803978:5293607:MRCV:nrw",
+      "name": "Bochum, Radstation Bochum Hbf",
+      "disassembledName": "Radstation Bochum Hbf",
+      "coord": [
+        51.478599,
+        7.222257
+      ],
+      "type": "poi",
+      "matchQuality": 244,
+      "isBest": false,
+      "parent": {
+        "id": "placeID:5911000:-1",
+        "name": "Bochum",
+        "type": "locality"
+      }
+    }
+  ]
+}

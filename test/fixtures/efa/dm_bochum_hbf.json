@@ -1,0 +1,2018 @@
+{
+  "serverInfo": {
+    "controllerVersion": "10.6.34.3",
+    "serverID": "EFA-X-DELFI11_",
+    "virtDir": "openservice",
+    "serverTime": "2026-10-25T18:24:25",
+    "calcTime": 206.029,
+    "logRequestId": "1a85c5df80acb13d"
+  },
+  "version": "11.0.6.72",
+  "systemMessages": [],
+  "locations": [
+    {
+      "id": "de:05911:5194",
+      "isGlobalId": true,
+      "name": "Bochum, Hbf",
+      "disassembledName": "Hbf",
+      "coord": [
+        51.479466,
+        7.223335
+      ],
+      "type": "stop",
+      "parent": {
+        "id": "placeID:5911000:3",
+        "name": "Bochum",
+        "type": "locality"
+      },
+      "assignedStops": [
+        {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "coord": [
+            51.479466,
+            7.223335
+          ],
+          "parent": {
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "productClasses": [
+            0,
+            1,
+            2,
+            4,
+            5,
+            7,
+            13,
+            17
+          ],
+          "connectingMode": 100,
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      ],
+      "properties": {
+        "additionalTariffData": {
+          "area": "",
+          "zones": "",
+          "layer1": "",
+          "layer2": ""
+        },
+        "stopId": "20005194"
+      }
+    }
+  ],
+  "stopEvents": [
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:91:3",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "3",
+        "type": "platform",
+        "pointType": "TRACK",
+        "coord": [
+          51.478437,
+          7.222599
+        ],
+        "properties": {
+          "occupancy": "FEW_SEATS",
+          "stopId": "20005194",
+          "area": "91",
+          "platform": "3",
+          "platformName": "3",
+          "plannedPlatformName": "3"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:13:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:13:00Z",
+      "departureTimeEstimated": "2026-10-25T17:25:00Z",
+      "transportation": {
+        "id": "ddb:90E16: :R:j26",
+        "name": "Regionalzug RE 16",
+        "disassembledName": "RE16",
+        "number": "RE 16",
+        "description": "Iserlohn - Hagen - Witten - Bochum - Essen",
+        "product": {
+          "id": 8,
+          "class": 13,
+          "name": "Regionalzug",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "VIA",
+          "id": "R4",
+          "name": "VIAS GmbH"
+        },
+        "destination": {
+          "id": "20009289",
+          "name": "Essen Hauptbahnhof",
+          "type": "stop"
+        },
+        "properties": {
+          "trainName": "Ruhr-Lenne-Express",
+          "trainType": "RE",
+          "trainNumber": "31329",
+          "tripCode": 242,
+          "lineDisplay": "LINE",
+          "FrequencyLine": "1"
+        },
+        "origin": {
+          "id": "24200505",
+          "name": "Iserlohn",
+          "type": "stop"
+        }
+      },
+      "hints": [
+        {
+          "content": "Vorfahrt eines anderen Zuges",
+          "providerCode": "ddb90E16_R_IncidentCall242_20005194_1",
+          "type": "RTIncidentCall",
+          "properties": {
+            "subnet": "ddb"
+          }
+        }
+      ],
+      "properties": {
+        "AVMSTripID": "31329",
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:92:6",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "6",
+        "type": "platform",
+        "pointType": "TRACK",
+        "coord": [
+          51.478191,
+          7.222886
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "92",
+          "platform": "6",
+          "platformName": "6",
+          "plannedPlatformName": "6"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:21:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:21:00Z",
+      "departureTimeEstimated": "2026-10-25T17:27:00Z",
+      "transportation": {
+        "id": "ddb:90RB4:H:H:j26",
+        "name": "Regionalzug RB 40",
+        "disassembledName": "RB40",
+        "number": "RB 40",
+        "product": {
+          "id": 8,
+          "class": 13,
+          "name": "Regionalzug",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "DBNW",
+          "id": "8003",
+          "name": "DB Regio AG NRW"
+        },
+        "destination": {
+          "id": "20002007",
+          "name": "Hagen Hbf",
+          "type": "stop"
+        },
+        "properties": {
+          "trainName": "Ruhr-Lenne-Bahn",
+          "trainType": "NRB",
+          "trainNumber": "30783",
+          "tripCode": 65,
+          "lineDisplay": "LINE",
+          "globalId": "de:nrw:rb40:",
+          "FrequencyLine": "1"
+        },
+        "origin": {
+          "id": "20009289",
+          "name": "Essen Hauptbahnhof",
+          "type": "stop"
+        }
+      },
+      "infos": [
+        {
+          "timestamps": {
+            "creation": "2026-10-21T03:31:00Z"
+          },
+          "priority": "normal",
+          "id": "ZTP-PROD-140135",
+          "version": 120,
+          "type": "tripMessage",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "tripMessage",
+            "incidentDateTime": "21/10/2026 04:00 - 26/10/2026 04:00"
+          },
+          "infoLinks": [
+            {
+              "urlText": "",
+              "url": "http://ems.vrr.de/info-link/328e4d5f-7336-599b-adb0-97b2b2f9856b",
+              "content": "Strecke zw. Hagen-Vorhalle und Wetter (Ruhr) beeinträchtigt. Voraussichtliche Dauer bis in die Morgenstunden des 26.10.2026. Grund: Reparatur an der Strecke. Die Züge fahren im betroffenen Bereich langsamer. In der Folge kommt es jetzt zu Verspätungen.",
+              "subtitle": "Strecke zw. Hagen-Vorhalle und Wetter (Ruhr) beeinträchtigt - Reparatur an der Strecke",
+              "title": "Strecke zw. Hagen-Vorhalle und Wetter (Ruhr) beeinträchtigt - Reparatur an der Strecke"
+            }
+          ]
+        }
+      ],
+      "hints": [
+        {
+          "content": "Linie RB40: WLAN verfügbar",
+          "providerCode": "A__WV",
+          "type": "Timetable",
+          "properties": {
+            "subnet": "ddb"
+          }
+        },
+        {
+          "content": "Witterungsbedingte Beeinträchtigungen",
+          "providerCode": "ddb90RB4HH_IncidentCall65_20005194_1",
+          "type": "RTIncidentCall",
+          "properties": {
+            "subnet": "ddb"
+          }
+        }
+      ],
+      "properties": {
+        "AVMSTripID": "30783-8003L1-8000098-180700",
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:4:41",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "Gleis 5 (U)",
+        "type": "platform",
+        "coord": [
+          51.479304,
+          7.222563
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "4",
+          "platform": "41",
+          "platformName": "Gleis 5 (U)",
+          "plannedPlatformName": "Gleis 5 (U)"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:23:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:23:00Z",
+      "departureTimeEstimated": "2026-10-25T17:25:24Z",
+      "transportation": {
+        "id": "bgs:33318: :H:j26",
+        "name": "Straßenbahn 318",
+        "disassembledName": "318",
+        "number": "318",
+        "description": "BO-Dahlhausen - Linden - Weitmar - Bochum Hbf - Gerthe",
+        "product": {
+          "id": 1,
+          "class": 4,
+          "name": "Straßenbahn",
+          "iconId": 4
+        },
+        "operator": {
+          "code": "BGST",
+          "id": "33",
+          "name": "BOGESTRA STRAB"
+        },
+        "destination": {
+          "id": "20005134",
+          "name": "Bochum Schürbankstr.",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 254,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:318:BGS-33-318",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20005418",
+          "name": "Bochum Dahlhausen",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11181809_318",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:5:42",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "Gleis 6 (U)",
+        "type": "platform",
+        "coord": [
+          51.479326,
+          7.222482
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "5",
+          "platform": "42",
+          "platformName": "Gleis 6 (U)",
+          "plannedPlatformName": "Gleis 6 (U)"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:24:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:24:00Z",
+      "departureTimeEstimated": "2026-10-25T17:24:00Z",
+      "transportation": {
+        "id": "bgs:33308: :R:j26",
+        "name": "Straßenbahn 308",
+        "disassembledName": "308",
+        "number": "308",
+        "description": "BO-Gerthe - Bochum Hbf - Weitmar - Linden - Hattingen Mitte",
+        "product": {
+          "id": 1,
+          "class": 4,
+          "name": "Straßenbahn",
+          "iconId": 4
+        },
+        "operator": {
+          "code": "BGST",
+          "id": "33",
+          "name": "BOGESTRA STRAB"
+        },
+        "destination": {
+          "id": "20008437",
+          "name": "Hattingen Mitte",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 770,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:308:BGS-33-308",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20005134",
+          "name": "Bochum Schürbankstr.",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11182119_308",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "isCancelled": true,
+      "realtimeStatus": [
+        "TRIP_CANCELLED",
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:92:5",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "5",
+        "type": "platform",
+        "pointType": "TRACK",
+        "coord": [
+          51.478302,
+          7.222778
+        ],
+        "properties": {
+          "realtimeStatus": [
+            "TRIP_CANCELLED"
+          ],
+          "stopId": "20005194",
+          "area": "92",
+          "platform": "5",
+          "platformName": "5",
+          "plannedPlatformName": "5"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:24:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:24:00Z",
+      "transportation": {
+        "id": "ddb:90RE1:1:H:j26",
+        "name": "Regionalzug RE11",
+        "disassembledName": "RE11",
+        "number": "RE11",
+        "product": {
+          "id": 8,
+          "class": 13,
+          "name": "Regionalzug",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "NX",
+          "id": "NX",
+          "name": "National Express"
+        },
+        "destination": {
+          "id": "10000022",
+          "name": "Kassel Bahnhof Wilhelmshöhe",
+          "type": "stop"
+        },
+        "properties": {
+          "trainName": "RRX Rhein-Ruhr-Express",
+          "trainType": "RE",
+          "trainNumber": "26729",
+          "tripCode": 164,
+          "lineDisplay": "LINE",
+          "globalId": "de:nrw:re11:",
+          "FrequencyLine": "1"
+        },
+        "origin": {
+          "id": "20014022",
+          "name": "Oberhausen Hbf",
+          "type": "stop"
+        }
+      },
+      "hints": [
+        {
+          "content": "Linie RE11: WLAN verfügbar",
+          "providerCode": "A__WV",
+          "type": "Timetable",
+          "properties": {
+            "subnet": "ddb"
+          }
+        },
+        {
+          "content": "Linie RE11: Klimaanlage",
+          "providerCode": "A__KL",
+          "type": "Timetable",
+          "properties": {
+            "subnet": "ddb"
+          }
+        }
+      ],
+      "properties": {
+        "AVMSTripID": "26729",
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "EXTRA_TRIP",
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:92:5",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "5",
+        "type": "platform",
+        "coord": [
+          51.478302,
+          7.222778
+        ],
+        "properties": {
+          "realtimeStatus": [
+            "EXTRA_TRIP"
+          ],
+          "stopId": "20005194",
+          "area": "92",
+          "platform": "5",
+          "platformName": "5",
+          "plannedPlatformName": "5"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:24:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:24:00Z",
+      "departureTimeEstimated": "2026-10-25T17:29:00Z",
+      "transportation": {
+        "id": "ddb:90RE1:1:H:j26",
+        "name": "RE RE 11 (RRX)",
+        "disassembledName": "RE11",
+        "number": "RE 11 (RRX)",
+        "product": {
+          "id": 8,
+          "class": 13,
+          "name": "RE",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "NX",
+          "id": "NX",
+          "name": "National Express"
+        },
+        "destination": {
+          "id": "10000022",
+          "name": "Kassel-Wilhelmshöhe",
+          "type": "stop"
+        },
+        "properties": {
+          "trainType": "RE",
+          "trainNumber": "267290",
+          "tripCode": 64635,
+          "lineDisplay": "LINE",
+          "globalId": "de:nrw:re11:",
+          "FrequencyLine": "1"
+        },
+        "origin": {
+          "id": "20014022",
+          "name": "Oberhausen Hbf",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "267290",
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:91:3",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "3",
+        "type": "platform",
+        "pointType": "TRACK",
+        "coord": [
+          51.478437,
+          7.222599
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "91",
+          "platform": "3",
+          "platformName": "3",
+          "plannedPlatformName": "3"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:27:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:27:00Z",
+      "departureTimeEstimated": "2026-10-25T17:41:00Z",
+      "transportation": {
+        "id": "ddb:98X10:P:R:j26",
+        "name": "ICE 546 InterCityExpress",
+        "number": "546",
+        "description": "Berlin - Hannover - Oldenburg / Wuppertal / Essen - Köln (- Aachen)",
+        "product": {
+          "id": 0,
+          "class": 16,
+          "name": "Zug",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "DBFV",
+          "id": "80",
+          "name": "DB Fernverkehr AG"
+        },
+        "destination": {
+          "id": "20009289",
+          "name": "Essen Hauptbahnhof",
+          "type": "stop"
+        },
+        "properties": {
+          "trainName": "InterCityExpress",
+          "trainType": "ICE",
+          "trainNumber": "546",
+          "tripCode": 491,
+          "specialFares": "ICE_ROUTE",
+          "lineDisplay": "TRAIN",
+          "FrequencyLine": "1",
+          "attributes": [
+            "HIGHSPEEDTRAIN",
+            "LONG_DISTANCE_TRAINS",
+            "SUPPLEMENT"
+          ]
+        },
+        "origin": {
+          "id": "40003200",
+          "name": "S+U Berlin Hauptbahnhof [Gleis 1-8]",
+          "type": "stop"
+        }
+      },
+      "hints": [
+        {
+          "content": "Komfort Check-in verfügbar - wenn möglich bitte einchecken",
+          "providerCode": "A__CK",
+          "type": "Timetable",
+          "properties": {
+            "subnet": "ddb"
+          }
+        }
+      ],
+      "properties": {
+        "AVMSTripID": "546-80-8098160-133200",
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:3:22",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "Gleis 2 (U)",
+        "type": "platform",
+        "coord": [
+          51.478823,
+          7.222617
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "3",
+          "platform": "22",
+          "platformName": "Gleis 2 (U)",
+          "plannedPlatformName": "Gleis 2 (U)"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:29:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:29:00Z",
+      "departureTimeEstimated": "2026-10-25T17:30:30Z",
+      "transportation": {
+        "id": "bgs:33302: :R:j26",
+        "name": "Straßenbahn 302",
+        "disassembledName": "302",
+        "number": "302",
+        "description": "GE- Buer - Schalke - Gelsenkirchen Hbf - Ückendorf - BO-Wattenscheid - Bochum Hbf - Altenbochum - Laer - Langendreer",
+        "product": {
+          "id": 1,
+          "class": 4,
+          "name": "Straßenbahn",
+          "iconId": 4
+        },
+        "operator": {
+          "code": "BGST",
+          "id": "33",
+          "name": "BOGESTRA STRAB"
+        },
+        "destination": {
+          "id": "20005455",
+          "name": "Bochum Langendreer S",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 2269,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:302:BGS-33-302",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20006686",
+          "name": "GE Heinrich-König-Platz",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11182246_302",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:2:03",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "03",
+        "type": "platform",
+        "pointType": "PLATFORM",
+        "coord": [
+          51.479662,
+          7.223452
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "2",
+          "platform": "03",
+          "platformName": "03",
+          "plannedPlatformName": "03"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:30:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:30:00Z",
+      "departureTimeEstimated": "2026-10-25T17:30:00Z",
+      "transportation": {
+        "id": "bgs:34349: :R:j26",
+        "name": "Niederflurbus 349",
+        "disassembledName": "349",
+        "number": "349",
+        "description": "Bochum Hbf - Wiemelhausen - Weitmar/Stiepel",
+        "product": {
+          "id": 13,
+          "class": 5,
+          "name": "Niederflurbus",
+          "iconId": 5
+        },
+        "operator": {
+          "code": "BGSB",
+          "id": "34",
+          "name": "BOGESTRA BUS"
+        },
+        "destination": {
+          "id": "20005414",
+          "name": "Bochum Blankensteiner Str.",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 127,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:349:BGS-34-349",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20005194",
+          "name": "Bochum Hbf",
+          "type": "stop"
+        }
+      },
+      "infos": [
+        {
+          "timestamps": {
+            "creation": "2026-07-21T04:46:00Z"
+          },
+          "priority": "normal",
+          "id": "ems-52168",
+          "version": 2887,
+          "type": "lineInfo",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "lineInfo",
+            "incidentDateTime": "03/08/2026 03:00 - 28/11/2026 03:00"
+          },
+          "infoLinks": [
+            {
+              "urlText": "Linien E25, E49, E56, E61, 345, 349, 356 - Umleitungen - (H) Bochum, Querenburger Str. - Grund: Baumaßnahme",
+              "url": "http://ems.vrr.de/info-link/b8dfd863-8049-5d2b-b962-ed1f017540da",
+              "content": "<p>\n\n\n        \n        \n        \n        \n        \n        \n        \n\nLinien E25, E49, E56, E61, 345, 349, 356: \nAn der <b>(H) Bochum, Querenburger Str.</b> kommt es zu <b>Umleitungen</b>.\n<p>\nDauer: 03.08.26, 03:00 Uhr bis 28.11.26, 03:00 Uhr\n<p><div>\n<div>Aufgrund von Stra&szlig;enbauarbeiten im Bereich der <strong>(H) QUERENBURGER STR.</strong> werden die betroffenen Linien umgeleitet.</div>\n<div>Die Busse fahren &uuml;ber den Steinring und links in die Stra&szlig;e An der Schalwiese.</div>\n<div>&nbsp;</div>\n<div>Dadurch kommt es zu folgenden Haltestellenverlegungen:<br /><strong>(H) QUERENBURGER STR.</strong> in Ri. Bochum Hbf wird zur gleichnamigen Haltestelle der Linie 339 auf dem Steinring verlegt.</div>\n<div><strong>(H) QUERENBURGER STR.</strong> aus Ri. Bochum Hbf kommend wird auf den Steinring auf H&ouml;he der Hausnummer 74 verlegt.&nbsp;</div>\n<div>&nbsp;</div>\n<div>&nbsp;</div>\n</div>",
+              "subtitle": "Umleitungen durch Baumaßnahme",
+              "title": "Umleitungen durch Baumaßnahme",
+              "additionalText": "Die beschriebenen Änderungen sind in der elektronischen Fahrplanauskunft (EFA) <b>nicht</b> berücksichtigt.",
+              "smsText": "Linien E25, E49, E56, E61, 345, 349, 356 - Umleitungen - (H) Bochum, Querenburger Str. - Grund: Baumaßnahme",
+              "attachments": [
+                {
+                  "ID": "0",
+                  "type": "image/png",
+                  "path": "https://ems.vrr.de/s/uiuK4.png",
+                  "virtPath": "https://ems.vrr.de/s/uiuK4.png",
+                  "linkText": "Fahrweg Umleitung",
+                  "linkTarget": "_blank",
+                  "size": 630860
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11181181_349",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:1:21",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "Gleis 1 (U)",
+        "type": "platform",
+        "coord": [
+          51.478991,
+          7.223093
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "1",
+          "platform": "21",
+          "platformName": "Gleis 1 (U)",
+          "plannedPlatformName": "Gleis 1 (U)"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:31:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:31:00Z",
+      "departureTimeEstimated": "2026-10-25T17:32:42Z",
+      "transportation": {
+        "id": "bgs:33302: :H:j26",
+        "name": "Straßenbahn 302",
+        "disassembledName": "302",
+        "number": "302",
+        "description": "BO-Langendreer - Laer - Altenbochum - Bochum Hbf - Wattenscheid - GE-Ückendorf - Gelsenkirchen Hbf - Schalke - Buer",
+        "product": {
+          "id": 1,
+          "class": 4,
+          "name": "Straßenbahn",
+          "iconId": 4
+        },
+        "operator": {
+          "code": "BGST",
+          "id": "33",
+          "name": "BOGESTRA STRAB"
+        },
+        "destination": {
+          "id": "20006686",
+          "name": "GE Heinrich-König-Platz",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 198,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:302:BGS-33-302",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20005455",
+          "name": "Bochum Langendreer S",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11182151_302",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "EXTRA_TRIP",
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "5",
+        "type": "platform",
+        "coord": [
+          51.479466,
+          7.223335
+        ],
+        "properties": {
+          "realtimeStatus": [
+            "EXTRA_TRIP"
+          ],
+          "stopId": "20005194",
+          "area": "0",
+          "platform": "5",
+          "platformName": "5",
+          "plannedPlatformName": "5"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:32:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:32:00Z",
+      "departureTimeEstimated": "2026-10-25T17:45:00Z",
+      "transportation": {
+        "id": "ddb:98X10:P:H:j26",
+        "name": "ICE 945",
+        "number": "945",
+        "description": "(Aachen -) Köln - Essen / Wuppertal / Oldenburg - Hannover - Berlin",
+        "product": {
+          "id": 0,
+          "class": 16,
+          "name": "ICE",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "DBFV",
+          "id": "80",
+          "name": "DB Fernverkehr AG"
+        },
+        "destination": {
+          "id": "40058101",
+          "name": "Berlin Südkreuz",
+          "type": "stop"
+        },
+        "properties": {
+          "trainType": "ICE",
+          "trainNumber": "945",
+          "tripCode": 65418,
+          "specialFares": "ICE_ROUTE",
+          "lineDisplay": "TRAIN",
+          "FrequencyLine": "1",
+          "attributes": [
+            "HIGHSPEEDTRAIN",
+            "LONG_DISTANCE_TRAINS",
+            "SUPPLEMENT"
+          ]
+        },
+        "origin": {
+          "id": "20009289",
+          "name": "Essen Hauptbahnhof",
+          "type": "stop"
+        }
+      },
+      "infos": [
+        {
+          "timestamps": {
+            "creation": "2026-10-25T01:33:00Z"
+          },
+          "priority": "normal",
+          "id": "DBProd-2711395",
+          "version": 3,
+          "type": "tripMessage",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "tripMessage",
+            "incidentDateTime": "25/10/2026 12:39 - 25/10/2026 23:35"
+          },
+          "infoLinks": [
+            {
+              "urlText": "",
+              "url": "http://ems.vrr.de/info-link/93ecf64e-4466-53ee-843a-76cad8f89bb9",
+              "content": "Keine fahrzeuggebundene Einstiegshilfe in Wagen 25. Bei erforderlichen Umbuchungen an Mobilitätsservice-Zentrale wenden.",
+              "subtitle": "Information.",
+              "title": "Information."
+            }
+          ]
+        }
+      ],
+      "hints": [
+        {
+          "content": "Verspätung eines vorausfahrenden Zuges",
+          "providerCode": "ddb98X10PH_IncidentCall65418_20005194_1",
+          "type": "RTIncidentCall",
+          "properties": {
+            "subnet": "ddb"
+          }
+        }
+      ],
+      "properties": {
+        "AVMSTripID": "945-80-8000098-182100",
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "location": {
+        "id": "de:05911:5194:2:08",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "08",
+        "type": "platform",
+        "pointType": "PLATFORM",
+        "coord": [
+          51.479175,
+          7.222958
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "2",
+          "platform": "08",
+          "platformName": "08",
+          "plannedPlatformName": "08"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:32:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:32:00Z",
+      "transportation": {
+        "id": "bgs:34336: :R:j26",
+        "name": "Niederflurbus 336",
+        "disassembledName": "336",
+        "number": "336",
+        "description": "Bochum Hbf - Rathaus - Grumme - Harpen - DO-Lütgendortmund",
+        "product": {
+          "id": 13,
+          "class": 5,
+          "name": "Niederflurbus",
+          "iconId": 5
+        },
+        "operator": {
+          "code": "BGSB",
+          "id": "34",
+          "name": "BOGESTRA BUS"
+        },
+        "destination": {
+          "id": "20000328",
+          "name": "Dortmund Lütgendortmund S",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 509,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:336:BGS-34-336",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20005194",
+          "name": "Bochum Hbf",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "location": {
+        "id": "de:05911:5194:92:5",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "5",
+        "type": "platform",
+        "pointType": "TRACK",
+        "coord": [
+          51.478302,
+          7.222778
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "92",
+          "platform": "5",
+          "platformName": "5",
+          "plannedPlatformName": "5"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:32:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:32:00Z",
+      "transportation": {
+        "id": "ddb:98X10:P:H:j26",
+        "name": "ICE 945 InterCityExpress",
+        "number": "945",
+        "description": "(Aachen -) Köln - Essen / Wuppertal / Oldenburg - Hannover - Berlin",
+        "product": {
+          "id": 0,
+          "class": 16,
+          "name": "Zug",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "DBFV",
+          "id": "80",
+          "name": "DB Fernverkehr AG"
+        },
+        "destination": {
+          "id": "40058101",
+          "name": "S Südkreuz Bhf (Berlin)",
+          "type": "stop"
+        },
+        "properties": {
+          "trainName": "InterCityExpress",
+          "trainType": "ICE",
+          "trainNumber": "945",
+          "tripCode": 343,
+          "specialFares": "ICE_ROUTE",
+          "lineDisplay": "TRAIN",
+          "FrequencyLine": "1",
+          "attributes": [
+            "HIGHSPEEDTRAIN",
+            "LONG_DISTANCE_TRAINS",
+            "SUPPLEMENT"
+          ]
+        },
+        "origin": {
+          "id": "20009289",
+          "name": "Essen Hauptbahnhof",
+          "type": "stop"
+        }
+      },
+      "infos": [
+        {
+          "timestamps": {
+            "creation": "2026-10-25T01:33:00Z"
+          },
+          "priority": "normal",
+          "id": "DBProd-2711395",
+          "version": 3,
+          "type": "tripMessage",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "tripMessage",
+            "incidentDateTime": "25/10/2026 12:39 - 25/10/2026 23:35"
+          },
+          "infoLinks": [
+            {
+              "urlText": "",
+              "url": "http://ems.vrr.de/info-link/93ecf64e-4466-53ee-843a-76cad8f89bb9",
+              "content": "Keine fahrzeuggebundene Einstiegshilfe in Wagen 25. Bei erforderlichen Umbuchungen an Mobilitätsservice-Zentrale wenden.",
+              "subtitle": "Information.",
+              "title": "Information."
+            }
+          ]
+        }
+      ],
+      "hints": [
+        {
+          "content": "Komfort Check-in verfügbar - wenn möglich bitte einchecken",
+          "providerCode": "A__CK",
+          "type": "Timetable",
+          "properties": {
+            "subnet": "ddb"
+          }
+        },
+        {
+          "content": "Fahrradmitnahme reservierungspflichtig",
+          "providerCode": "A__FR",
+          "type": "Timetable",
+          "properties": {
+            "subnet": "ddb"
+          }
+        }
+      ],
+      "properties": {
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "EXTRA_TRIP",
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:91:3",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "3",
+        "type": "platform",
+        "pointType": "TRACK",
+        "coord": [
+          51.478437,
+          7.222599
+        ],
+        "properties": {
+          "realtimeStatus": [
+            "EXTRA_TRIP"
+          ],
+          "stopId": "20005194",
+          "area": "91",
+          "platform": "3",
+          "platformName": "3",
+          "plannedPlatformName": "3"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:33:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:33:00Z",
+      "departureTimeEstimated": "2026-10-25T17:41:00Z",
+      "transportation": {
+        "id": "ddb:90RE1:1:R:j26",
+        "name": "RE RE 11 (RRX)",
+        "disassembledName": "RE11",
+        "number": "RE 11 (RRX)",
+        "product": {
+          "id": 8,
+          "class": 13,
+          "name": "RE",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "NX",
+          "id": "NX",
+          "name": "National Express"
+        },
+        "destination": {
+          "id": "20014022",
+          "name": "Oberhausen Hbf",
+          "type": "stop"
+        },
+        "properties": {
+          "trainType": "RE",
+          "trainNumber": "98573",
+          "tripCode": 65524,
+          "lineDisplay": "LINE",
+          "globalId": "de:nrw:re11:",
+          "FrequencyLine": "1"
+        },
+        "origin": {
+          "id": "24007756",
+          "name": "Hamm (Westf.) Hbf",
+          "type": "stop"
+        }
+      },
+      "hints": [
+        {
+          "content": "Verspätung aus vorheriger Fahrt",
+          "providerCode": "ddb90RE11R_IncidentCall65524_20005194_1",
+          "type": "RTIncidentCall",
+          "properties": {
+            "subnet": "ddb"
+          }
+        }
+      ],
+      "properties": {
+        "AVMSTripID": "98573",
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "isCancelled": true,
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:91:4",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "4",
+        "type": "platform",
+        "pointType": "TRACK",
+        "coord": [
+          51.478319,
+          7.222715
+        ],
+        "properties": {
+          "realtimeStatus": [
+            "DEPARTURE_CANCELLED"
+          ],
+          "stopId": "20005194",
+          "area": "91",
+          "platform": "4",
+          "platformName": "4",
+          "plannedPlatformName": "4"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:33:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:33:00Z",
+      "transportation": {
+        "id": "ddb:90RE1:1:R:j26",
+        "name": "Regionalzug RE 11 (RRX)",
+        "disassembledName": "RE11",
+        "number": "RE 11 (RRX)",
+        "product": {
+          "id": 8,
+          "class": 13,
+          "name": "Regionalzug",
+          "iconId": 6
+        },
+        "operator": {
+          "code": "NX",
+          "id": "NX",
+          "name": "National Express"
+        },
+        "destination": {
+          "id": "20014022",
+          "name": "Oberhausen Hbf",
+          "type": "stop"
+        },
+        "properties": {
+          "trainName": "RRX Rhein-Ruhr-Express",
+          "trainType": "RE",
+          "trainNumber": "26726",
+          "tripCode": 416,
+          "lineDisplay": "LINE",
+          "globalId": "de:nrw:re11:",
+          "FrequencyLine": "1"
+        },
+        "origin": {
+          "id": "10000022",
+          "name": "Kassel Bahnhof Wilhelmshöhe",
+          "type": "stop"
+        }
+      },
+      "infos": [
+        {
+          "timestamps": {
+            "creation": "2026-10-25T01:34:00Z"
+          },
+          "priority": "normal",
+          "id": "ZTP-PROD-140317",
+          "version": 258,
+          "type": "tripMessage",
+          "properties": {
+            "publisher": "ems.comm.addinfo",
+            "infoType": "tripMessage",
+            "incidentDateTime": "23/10/2026 22:50 - 26/10/2026 02:00"
+          },
+          "infoLinks": [
+            {
+              "urlText": "",
+              "url": "http://ems.vrr.de/info-link/f4969ced-3789-5f0d-ad4f-1774e7623d17",
+              "content": "Region Soest aktuell gesperrt. Das Ende können wir leider noch nicht abschätzen. Grund: Baum auf der Strecke. Verspätungen, Teilausfälle und Ausfälle auf dem kompletten Laufweg. Bitte Reiseverbindung vor Abfahrt prüfen. Ein Ersatzverkehr (SEV) ist eingerichtet.",
+              "subtitle": "Region Soest gesperrt - Baum auf der Strecke",
+              "title": "Region Soest gesperrt - Baum auf der Strecke"
+            }
+          ]
+        }
+      ],
+      "hints": [
+        {
+          "content": "Linie RE11: WLAN verfügbar",
+          "providerCode": "A__WV",
+          "type": "Timetable",
+          "properties": {
+            "subnet": "ddb"
+          }
+        },
+        {
+          "content": "Linie RE11: Klimaanlage",
+          "providerCode": "A__KL",
+          "type": "Timetable",
+          "properties": {
+            "subnet": "ddb"
+          }
+        }
+      ],
+      "properties": {
+        "EarlyTermination": "Lippstadt, Bustreff Bahnhof",
+        "AVMSTripID": "26726",
+        "FrequencyLine": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:2:05",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "05",
+        "type": "platform",
+        "pointType": "PLATFORM",
+        "coord": [
+          51.479522,
+          7.22373
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "2",
+          "platform": "05",
+          "platformName": "05",
+          "plannedPlatformName": "05"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:35:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:35:00Z",
+      "departureTimeEstimated": "2026-10-25T17:35:00Z",
+      "transportation": {
+        "id": "ver:45S37: :R:j26",
+        "name": "Bus SB37",
+        "disassembledName": "SB37",
+        "number": "SB37",
+        "description": "Bochum Hbf.\\(S) - Ennepetal Bus-Bf.",
+        "product": {
+          "id": 2,
+          "class": 5,
+          "name": "Bus",
+          "iconId": 3
+        },
+        "operator": {
+          "code": "VER",
+          "id": "45",
+          "name": "VER"
+        },
+        "destination": {
+          "id": "20008038",
+          "name": "Sprockh. Haßlingh. Busbahnhof",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 113,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:SB37:VER-45-S37",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20005194",
+          "name": "Bochum Hbf",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "-561236188_37",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:3:22",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "Gleis 2 (U)",
+        "type": "platform",
+        "coord": [
+          51.478823,
+          7.222617
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "3",
+          "platform": "22",
+          "platformName": "Gleis 2 (U)",
+          "plannedPlatformName": "Gleis 2 (U)"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:35:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:35:00Z",
+      "departureTimeEstimated": "2026-10-25T17:35:00Z",
+      "transportation": {
+        "id": "bgs:33310: :R:j26",
+        "name": "Straßenbahn 310",
+        "disassembledName": "310",
+        "number": "310",
+        "description": "BO-WAT-Höntrop - Bochum Hbf - Altenbochum - Laer - Langendreer - WIT-Papenholz - Rathaus - Heven",
+        "product": {
+          "id": 1,
+          "class": 4,
+          "name": "Straßenbahn",
+          "iconId": 4
+        },
+        "operator": {
+          "code": "BGST",
+          "id": "33",
+          "name": "BOGESTRA STRAB"
+        },
+        "destination": {
+          "id": "20005076",
+          "name": "Witten Heven Dorf",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 139,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:310:BGS-33-310",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20005366",
+          "name": "BO Höntrop Kirche",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11181883_310",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:3:32",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "Gleis 4 (U)",
+        "type": "platform",
+        "coord": [
+          51.478918,
+          7.222742
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "3",
+          "platform": "32",
+          "platformName": "Gleis 4 (U)",
+          "plannedPlatformName": "Gleis 4 (U)"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:35:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:35:00Z",
+      "departureTimeEstimated": "2026-10-25T17:35:00Z",
+      "transportation": {
+        "id": "bgs:32U35: :R:j26",
+        "name": "U-Bahn U35",
+        "disassembledName": "U35",
+        "number": "U35",
+        "description": "Schloß Strünkede - Herne Bf - BO-Riemke - Bochum Hbf - Querenburg",
+        "product": {
+          "id": 0,
+          "class": 2,
+          "name": "U-Bahn",
+          "iconId": 1
+        },
+        "operator": {
+          "code": "BGSU",
+          "id": "32",
+          "name": "BOGESTRA U-Bahn"
+        },
+        "destination": {
+          "id": "20005254",
+          "name": "Bochum Hustadt (TQ)",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 195,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:U35:BGS-32-U35",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20007564",
+          "name": "Herne Schloß Strünkede",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11182842_35",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:1:31",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "Gleis 3 (U)",
+        "type": "platform",
+        "coord": [
+          51.478884,
+          7.222976
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "1",
+          "platform": "31",
+          "platformName": "Gleis 3 (U)",
+          "plannedPlatformName": "Gleis 3 (U)"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:35:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:35:00Z",
+      "departureTimeEstimated": "2026-10-25T17:35:00Z",
+      "transportation": {
+        "id": "bgs:32U35: :H:j26",
+        "name": "U-Bahn U35",
+        "disassembledName": "U35",
+        "number": "U35",
+        "description": "BO-Querenburg - Bochum Hbf - Riemke - Herne Bf - Schloß Strünkede",
+        "product": {
+          "id": 0,
+          "class": 2,
+          "name": "U-Bahn",
+          "iconId": 1
+        },
+        "operator": {
+          "code": "BGSU",
+          "id": "32",
+          "name": "BOGESTRA U-Bahn"
+        },
+        "destination": {
+          "id": "20007564",
+          "name": "Herne Schloß Strünkede",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 602,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:U35:BGS-32-U35",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20005254",
+          "name": "Bochum Hustadt (TQ)",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11182977_35",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    },
+    {
+      "realtimeStatus": [
+        "MONITORED"
+      ],
+      "isRealtimeControlled": true,
+      "location": {
+        "id": "de:05911:5194:2:01",
+        "isGlobalId": true,
+        "name": "Bochum Hbf",
+        "disassembledName": "01",
+        "type": "platform",
+        "pointType": "PLATFORM",
+        "coord": [
+          51.479326,
+          7.222742
+        ],
+        "properties": {
+          "stopId": "20005194",
+          "area": "2",
+          "platform": "01",
+          "platformName": "01",
+          "plannedPlatformName": "01"
+        },
+        "parent": {
+          "id": "de:05911:5194",
+          "isGlobalId": true,
+          "name": "Bochum Hbf",
+          "disassembledName": "Hbf",
+          "type": "stop",
+          "parent": {
+            "id": "placeID:5911000:3",
+            "name": "Bochum",
+            "type": "locality"
+          },
+          "properties": {
+            "stopId": "20005194"
+          }
+        }
+      },
+      "departureTimePlanned": "2026-10-25T17:36:00Z",
+      "departureTimeBaseTimetable": "2026-10-25T17:36:00Z",
+      "departureTimeEstimated": "2026-10-25T17:36:00Z",
+      "transportation": {
+        "id": "bgs:34354: :R:j26",
+        "name": "Niederflurbus 354",
+        "disassembledName": "354",
+        "number": "354",
+        "description": "BO-Riemke - Hofstede - Bochum Hbf - Weitmar",
+        "product": {
+          "id": 13,
+          "class": 5,
+          "name": "Niederflurbus",
+          "iconId": 5
+        },
+        "operator": {
+          "code": "BGSB",
+          "id": "34",
+          "name": "BOGESTRA BUS"
+        },
+        "destination": {
+          "id": "20005876",
+          "name": "Bochum Sundern",
+          "type": "stop"
+        },
+        "properties": {
+          "isSTT": true,
+          "tripCode": 48,
+          "lineDisplay": "LINE",
+          "globalId": "de:vrr:354:BGS-34-354",
+          "FrequencyLine": "1",
+          "attributes": [
+            "PLAN_LOWFLOORVEHICLE"
+          ]
+        },
+        "origin": {
+          "id": "20006795",
+          "name": "Bochum Keplerweg Wendeschleife",
+          "type": "stop"
+        }
+      },
+      "properties": {
+        "AVMSTripID": "bogestra_rbl_prod.-11180816_354",
+        "FrequencyLine": "1",
+        "PlanLowFloorVehicle": "1"
+      }
+    }
+  ]
+}
