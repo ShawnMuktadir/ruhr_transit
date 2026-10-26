@@ -1,6 +1,20 @@
 {
   "@@locale": "en",
   "appTitle": "RuhrTransit",
-  "homePlaceholder": "Stop search and departures are coming soon.",
-  "dataAttribution": "Timetable information provided by Verkehrsverbund Rhein-Ruhr (VRR). All information without guarantee."
+  "dataAttribution": "Timetable information provided by Verkehrsverbund Rhein-Ruhr (VRR). All information without guarantee.",
+  "stopSearchHint": "Search for a stop",
+  "stopSearchClear": "Clear search",
+  "stopSearchIdle": "Type at least two letters of a stop name, e.g. “Bochum Hbf”.",
+  "stopSearchEmpty": "No stops found for “{query}”.",
+  "errorNetwork": "No internet connection. Please check your connection.",
+  "errorTimeout": "The timetable service is not responding. Please try again.",
+  "errorServer": "The timetable service is currently unavailable.",
+  "errorParse": "The timetable service sent a response that could not be read.",
+  "retry": "Try again",
+  "departuresComingSoon": "Departures for this stop will appear here soon.",
+  "modeTrain": "Train",
+  "modeSuburbanTrain": "S-Bahn",
+  "modeSubway": "U-Bahn",
+  "modeTram": "Tram",
+  "modeBus": "Bus"
 }

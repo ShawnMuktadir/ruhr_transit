@@ -4,12 +4,74 @@
   "@appTitle": {
     "description": "App name shown in the app bar and the Android task switcher."
   },
-  "homePlaceholder": "Haltestellensuche und Abfahrten folgen in Kürze.",
-  "@homePlaceholder": {
-    "description": "Temporary text on the start screen until stop search exists."
-  },
   "dataAttribution": "Fahrplanauskünfte werden durch den Verkehrsverbund Rhein-Ruhr (VRR) zur Verfügung gestellt. Alle Angaben ohne Gewähr.",
   "@dataAttribution": {
     "description": "Source credit required by the VRR open data API usage agreement."
+  },
+  "stopSearchHint": "Haltestelle suchen",
+  "@stopSearchHint": {
+    "description": "Placeholder text in the stop search field."
+  },
+  "stopSearchClear": "Suche löschen",
+  "@stopSearchClear": {
+    "description": "Tooltip of the button that clears the search field."
+  },
+  "stopSearchIdle": "Mindestens zwei Buchstaben eines Haltestellennamens eingeben, z. B. „Bochum Hbf“.",
+  "@stopSearchIdle": {
+    "description": "Shown before a search, or while the query is too short."
+  },
+  "stopSearchEmpty": "Keine Haltestelle gefunden für „{query}“.",
+  "@stopSearchEmpty": {
+    "description": "Shown when the search returned no stops.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "Bochun"
+      }
+    }
+  },
+  "errorNetwork": "Keine Internetverbindung. Bitte Verbindung prüfen.",
+  "@errorNetwork": {
+    "description": "The device is offline or the server could not be reached."
+  },
+  "errorTimeout": "Die Fahrplanauskunft antwortet nicht. Bitte erneut versuchen.",
+  "@errorTimeout": {
+    "description": "The server did not answer in time."
+  },
+  "errorServer": "Die Fahrplanauskunft ist gerade nicht verfügbar.",
+  "@errorServer": {
+    "description": "The server answered with an error."
+  },
+  "errorParse": "Die Antwort der Fahrplanauskunft konnte nicht gelesen werden.",
+  "@errorParse": {
+    "description": "The server response had an unexpected format."
+  },
+  "retry": "Erneut versuchen",
+  "@retry": {
+    "description": "Button that repeats a failed request."
+  },
+  "departuresComingSoon": "Abfahrten für diese Haltestelle werden bald hier angezeigt.",
+  "@departuresComingSoon": {
+    "description": "Temporary text on the departures screen until departures exist."
+  },
+  "modeTrain": "Zug",
+  "@modeTrain": {
+    "description": "Screen reader label: regional or long-distance train."
+  },
+  "modeSuburbanTrain": "S-Bahn",
+  "@modeSuburbanTrain": {
+    "description": "Screen reader label: S-Bahn (suburban train)."
+  },
+  "modeSubway": "U-Bahn",
+  "@modeSubway": {
+    "description": "Screen reader label: U-Bahn / Stadtbahn."
+  },
+  "modeTram": "Straßenbahn",
+  "@modeTram": {
+    "description": "Screen reader label: tram."
+  },
+  "modeBus": "Bus",
+  "@modeBus": {
+    "description": "Screen reader label: bus."
   }
 }
