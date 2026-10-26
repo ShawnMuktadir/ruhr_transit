@@ -1,4 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:ruhr_transit/core/network/dio_factory.dart';
+import 'package:ruhr_transit/features/stop_search/data/efa_stop_remote_source.dart';
+import 'package:ruhr_transit/features/stop_search/data/stop_repository_impl.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 
 /// App-wide service locator. Only used at the composition root (here and
 /// where pages create their cubits); classes get dependencies through their
@@ -6,7 +11,12 @@ import 'package:get_it/get_it.dart';
 final GetIt getIt = GetIt.instance;
 
 /// Registers all dependencies. Called once from `main()` before `runApp`.
-///
-/// Empty in Phase 0. The network client, database and repositories are
-/// registered here as their phases add them.
-void configureDependencies() {}
+void configureDependencies() {
+  getIt
+    // One HTTP client for the whole app, so connections are reused.
+    ..registerLazySingleton<Dio>(createEfaDio)
+    ..registerLazySingleton(() => EfaStopRemoteSource(getIt()))
+    // A factory, because the repository tracks its own running search:
+    // two pages must not cancel each other's requests.
+    ..registerFactory<StopRepository>(() => StopRepositoryImpl(getIt()));
+}
