@@ -3,7 +3,8 @@ import 'package:ruhr_transit/core/network/efa_product.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
 
 /// Maps an `XML_DM_REQUEST` response (`depType=stopEvents`) to departures,
-/// in the order EFA sends them (by planned time).
+/// in the order EFA sends them. That is not strictly by planned time: live
+/// responses put a heavily delayed departure first.
 ///
 /// Throws [EfaServerException] when EFA reports an error without
 /// departures, and [FormatException] when the shape is wrong.

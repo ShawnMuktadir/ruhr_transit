@@ -34,8 +34,8 @@ void main() {
 
     test('keeps all departures in EFA order', () {
       expect(departures, hasLength(20));
-      final times = departures.map((d) => d.plannedTime).toList();
-      expect(times, [...times]..sort());
+      expect(departures.first.line, 'RE16');
+      expect(departures.last.line, '354');
     });
 
     test('maps a delayed train with realtime data', () {
