@@ -1,19 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
-import 'package:ruhr_transit/features/departures/presentation/departures_placeholder_page.dart';
+import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
+import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 
+import '../../../helpers/fake_departure_repository.dart';
 import '../../../helpers/fake_stop_repository.dart';
 
 void main() {
   late FakeStopRepository repository;
 
-  setUp(() => repository = FakeStopRepository());
+  setUp(() {
+    repository = FakeStopRepository();
+    // Tapping a stop opens the real departures page, which resolves its
+    // repository through get_it.
+    getIt.registerFactory<DepartureRepository>(
+      () => FakeDepartureRepository()..autoReply = const Ok([]),
+    );
+  });
+  tearDown(getIt.reset);
 
   Future<void> pumpPage(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -42,7 +53,7 @@ void main() {
     expect(find.byTooltip('Clear search'), findsNothing);
   });
 
-  testWidgets('shows results and opens the placeholder on tap', (tester) async {
+  testWidgets('shows results and opens the departures on tap', (tester) async {
     // Needed to find the transport icons by their screen reader labels.
     // ListTile merges them into one label per row, e.g. "Hbf\nBochum\nTrain…".
     final semantics = tester.ensureSemantics();
@@ -64,7 +75,7 @@ void main() {
     await tester.tap(find.text('Bochum'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(DeparturesPlaceholderPage), findsOneWidget);
+    expect(find.byType(DeparturesPage), findsOneWidget);
     expect(find.text('Bochum, Hbf'), findsOneWidget);
     expect(find.textContaining('All information without guarantee'), findsOne);
   });

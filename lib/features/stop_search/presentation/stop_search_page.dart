@@ -4,8 +4,10 @@ import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
-import 'package:ruhr_transit/features/departures/presentation/departures_placeholder_page.dart';
+import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
+import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
@@ -80,15 +82,15 @@ class _StopSearchViewState extends State<StopSearchView> {
           Expanded(
             child: BlocBuilder<StopSearchCubit, StopSearchState>(
               builder: (context, state) => switch (state) {
-                StopSearchIdle() => _Message(l10n.stopSearchIdle),
+                StopSearchIdle() => CenteredMessage(l10n.stopSearchIdle),
                 StopSearchLoading() => const Center(
                   child: CircularProgressIndicator(),
                 ),
                 StopSearchLoaded(:final stops) => _StopList(stops),
-                StopSearchEmpty(:final query) => _Message(
+                StopSearchEmpty(:final query) => CenteredMessage(
                   l10n.stopSearchEmpty(query),
                 ),
-                StopSearchFailed(:final failure) => _Message(
+                StopSearchFailed(:final failure) => CenteredMessage(
                   failureMessage(l10n, failure),
                   action: FilledButton.tonal(
                     onPressed: context.read<StopSearchCubit>().retry,
@@ -126,9 +128,7 @@ class _StopList extends StatelessWidget {
           },
           trailing: _ModeIcons(stop.modes),
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => DeparturesPlaceholderPage(stop: stop),
-            ),
+            MaterialPageRoute<void>(builder: (_) => DeparturesPage(stop: stop)),
           ),
         );
       },
@@ -143,7 +143,6 @@ class _ModeIcons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final color = Theme.of(context).colorScheme.onSurfaceVariant;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -153,56 +152,9 @@ class _ModeIcons extends StatelessWidget {
           if (modes.contains(mode))
             Padding(
               padding: const EdgeInsets.only(left: 4),
-              child: Icon(
-                switch (mode) {
-                  TransportMode.train => Icons.train,
-                  TransportMode.suburbanTrain => Icons.directions_railway,
-                  TransportMode.subway => Icons.subway,
-                  TransportMode.tram => Icons.tram,
-                  TransportMode.bus => Icons.directions_bus,
-                },
-                size: 20,
-                color: color,
-                semanticLabel: switch (mode) {
-                  TransportMode.train => l10n.modeTrain,
-                  TransportMode.suburbanTrain => l10n.modeSuburbanTrain,
-                  TransportMode.subway => l10n.modeSubway,
-                  TransportMode.tram => l10n.modeTram,
-                  TransportMode.bus => l10n.modeBus,
-                },
-              ),
+              child: TransportModeIcon(mode, size: 20, color: color),
             ),
       ],
-    );
-  }
-}
-
-class _Message extends StatelessWidget {
-  const _Message(this.text, {this.action});
-
-  final String text;
-  final Widget? action;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              text,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
-            if (action case final action?) ...[
-              const SizedBox(height: 16),
-              action,
-            ],
-          ],
-        ),
-      ),
     );
   }
 }
