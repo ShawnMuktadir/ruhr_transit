@@ -34,3 +34,9 @@ final class ParseFailure extends Failure {
 
   final String message;
 }
+
+/// The request was cancelled because a newer one replaced it (e.g. the user
+/// kept typing). Callers drop these results; it is never shown to the user.
+final class CancelledFailure extends Failure {
+  const CancelledFailure();
+}

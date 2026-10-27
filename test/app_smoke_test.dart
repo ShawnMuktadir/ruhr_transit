@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/app.dart';
+import 'package:ruhr_transit/core/di/injection.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
+
+import 'helpers/fake_stop_repository.dart';
 
 void main() {
+  // The real app resolves the repository through get_it; a fake keeps the
+  // smoke tests off the network.
+  setUp(() => getIt.registerFactory<StopRepository>(FakeStopRepository.new));
+  tearDown(getIt.reset);
+
   group('RuhrTransitApp localization', () {
     testWidgets('falls back to German for an unsupported device locale', (
       tester,
@@ -14,10 +23,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('RuhrTransit'), findsOneWidget);
-      expect(
-        find.text('Haltestellensuche und Abfahrten folgen in Kürze.'),
-        findsOneWidget,
-      );
+      expect(find.text('Haltestelle suchen'), findsOneWidget);
       expect(find.textContaining('Alle Angaben ohne Gewähr'), findsOneWidget);
     });
 
@@ -28,10 +34,7 @@ void main() {
       await tester.pumpWidget(const RuhrTransitApp());
       await tester.pumpAndSettle();
 
-      expect(
-        find.text('Stop search and departures are coming soon.'),
-        findsOneWidget,
-      );
+      expect(find.text('Search for a stop'), findsOneWidget);
       expect(
         find.textContaining('All information without guarantee'),
         findsOneWidget,
