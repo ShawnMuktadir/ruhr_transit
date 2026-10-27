@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
   "appTitle": "RuhrTransit",
-  "dataAttribution": "Timetable information provided by Verkehrsverbund Rhein-Ruhr (VRR). All information without guarantee.",
+  "dataAttribution": "Timetable information provided by Verkehrsverbund Rhein-Ruhr (VRR, www.vrr.de). All information without guarantee.",
   "stopSearchHint": "Search for a stop",
   "stopSearchClear": "Clear search",
   "stopSearchIdle": "Type at least two letters of a stop name, e.g. “Bochum Hbf”.",

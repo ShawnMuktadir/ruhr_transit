@@ -4,7 +4,7 @@
   "@appTitle": {
     "description": "App name shown in the app bar and the Android task switcher."
   },
-  "dataAttribution": "Fahrplanauskünfte werden durch den Verkehrsverbund Rhein-Ruhr (VRR) zur Verfügung gestellt. Alle Angaben ohne Gewähr.",
+  "dataAttribution": "Fahrplanauskünfte werden durch den Verkehrsverbund Rhein-Ruhr (VRR, www.vrr.de) zur Verfügung gestellt. Alle Angaben ohne Gewähr.",
   "@dataAttribution": {
     "description": "Source credit required by the VRR open data API usage agreement."
   },
