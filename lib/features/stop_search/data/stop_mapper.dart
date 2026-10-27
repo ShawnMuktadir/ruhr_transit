@@ -1,20 +1,9 @@
 import 'package:ruhr_transit/core/network/efa_json.dart';
+import 'package:ruhr_transit/core/network/efa_product.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 
 /// EFA code for "no location matches the input".
 const _noMatchCode = -8020;
-
-/// EFA product classes, verified against `transportation.product` in the
-/// departure and trip fixtures. Classes seen on stops but not verified
-/// (0, 7, 17) are intentionally missing.
-const _modesByProductClass = {
-  1: TransportMode.suburbanTrain, // S-Bahn
-  2: TransportMode.subway, // U-Bahn (Stadtbahn)
-  4: TransportMode.tram, // Straßenbahn
-  5: TransportMode.bus, // Bus, Niederflurbus
-  13: TransportMode.train, // RE, Regionalzug
-  16: TransportMode.train, // ICE, Zug
-};
 
 /// Maps an `XML_STOPFINDER_REQUEST` response to stops, best match first.
 ///
@@ -93,7 +82,7 @@ Stop _mapStop(Map<String, Object?> json) {
       modes: switch (json['productClasses']) {
         final List<Object?> classes => {
           for (final productClass in classes)
-            ?_modesByProductClass[productClass],
+            ?transportModeForProductClass(productClass),
         },
         _ => const {},
       },
