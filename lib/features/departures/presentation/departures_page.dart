@@ -10,6 +10,7 @@ import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
+import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 
 /// Composition root of the departure board: creates the cubit and starts
@@ -43,6 +44,7 @@ class DeparturesView extends StatelessWidget {
       appBar: AppBar(
         title: Text(stop.fullName),
         actions: [
+          _FavouriteButton(stop),
           // Pull-to-refresh is not discoverable or usable for everyone.
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -100,6 +102,27 @@ class DeparturesView extends StatelessWidget {
         },
       ),
       bottomNavigationBar: const DataAttribution(),
+    );
+  }
+}
+
+class _FavouriteButton extends StatelessWidget {
+  const _FavouriteButton(this.stop);
+
+  final Stop stop;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isFavourite = context.select<FavouritesCubit, bool>(
+      (cubit) => cubit.isFavourite(stop),
+    );
+    return IconButton(
+      isSelected: isFavourite,
+      icon: const Icon(Icons.star_border),
+      selectedIcon: const Icon(Icons.star),
+      tooltip: isFavourite ? l10n.favouriteRemove : l10n.favouriteAdd,
+      onPressed: () => context.read<FavouritesCubit>().toggle(stop),
     );
   }
 }

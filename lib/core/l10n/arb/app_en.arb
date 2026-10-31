@@ -22,5 +22,10 @@
   "departureLate": "{minutes} min late",
   "departureEarly": "{minutes} min early",
   "departurePlatform": "Platform {platform}",
-  "departurePlatformChanged": "Platform changed to {platform}"
+  "departurePlatformChanged": "Platform changed to {platform}",
+  "favouritesTitle": "Favourites",
+  "favouriteAdd": "Add to favourites",
+  "favouriteRemove": "Remove from favourites",
+  "favouriteRemoved": "Removed “{stop}” from favourites",
+  "undo": "Undo"
 }

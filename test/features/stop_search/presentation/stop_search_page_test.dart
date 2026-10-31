@@ -7,17 +7,21 @@ import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
+import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 
 import '../../../helpers/fake_departure_repository.dart';
+import '../../../helpers/fake_favourites_repository.dart';
 import '../../../helpers/fake_stop_repository.dart';
 
 void main() {
   late FakeStopRepository repository;
+  late FakeFavouritesRepository favourites;
 
   setUp(() {
     repository = FakeStopRepository();
+    favourites = FakeFavouritesRepository();
     // Tapping a stop opens the real departures page, which resolves its
     // repository through get_it.
     getIt.registerFactory<DepartureRepository>(
@@ -28,13 +32,17 @@ void main() {
 
   Future<void> pumpPage(WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: BlocProvider(
-          create: (_) => StopSearchCubit(repository),
-          child: const StopSearchView(),
+      // Above MaterialApp like in the app, so pushed routes see it too.
+      BlocProvider(
+        create: (_) => FavouritesCubit(favourites, initial: favourites.saved),
+        child: MaterialApp(
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: BlocProvider(
+            create: (_) => StopSearchCubit(repository),
+            child: const StopSearchView(),
+          ),
         ),
       ),
     );
@@ -117,6 +125,79 @@ void main() {
     await tester.pump();
 
     expect(find.byType(ListTile), findsNothing);
+    expect(find.textContaining('at least two letters'), findsOneWidget);
+  });
+
+  testWidgets('shows favourites instead of the hint before searching', (
+    tester,
+  ) async {
+    favourites.saved = [dortmundHbf, bochumHbf];
+    await pumpPage(tester);
+
+    expect(find.text('Favourites'), findsOneWidget);
+    expect(find.textContaining('at least two letters'), findsNothing);
+    final localities = tester
+        .widgetList<Text>(
+          find.descendant(
+            of: find.byType(ListTile),
+            matching: find.byType(Text),
+          ),
+        )
+        .map((t) => t.data)
+        .where((text) => text == 'Bochum' || text == 'Dortmund');
+    expect(localities, ['Dortmund', 'Bochum']);
+
+    await tester.tap(find.text('Dortmund'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DeparturesPage), findsOneWidget);
+    expect(find.text('Dortmund, Hbf'), findsOneWidget);
+    // The star on the board knows the stop is a favourite.
+    expect(find.byTooltip('Remove from favourites'), findsOneWidget);
+  });
+
+  testWidgets('search results replace the favourites while typing', (
+    tester,
+  ) async {
+    favourites.saved = [bochumHbf];
+    repository.autoReply = const Ok([dortmundHbf]);
+    await pumpPage(tester);
+
+    await search(tester, 'Dortmund');
+
+    expect(find.text('Favourites'), findsNothing);
+    expect(find.byType(ListTile), findsOneWidget);
+  });
+
+  testWidgets('swiping removes a favourite, undo brings it back', (
+    tester,
+  ) async {
+    favourites.saved = [bochumHbf, dortmundHbf];
+    await pumpPage(tester);
+
+    await tester.drag(find.text('Bochum'), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bochum'), findsNothing);
+    expect(favourites.saved, [dortmundHbf]);
+    expect(find.text('Removed “Bochum, Hbf” from favourites'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+
+    expect(favourites.saved, [bochumHbf, dortmundHbf]);
+    expect(find.text('Bochum'), findsOneWidget);
+  });
+
+  testWidgets('removing the last favourite shows the hint again', (
+    tester,
+  ) async {
+    favourites.saved = [bochumHbf];
+    await pumpPage(tester);
+
+    await tester.drag(find.text('Bochum'), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+
     expect(find.textContaining('at least two letters'), findsOneWidget);
   });
 }

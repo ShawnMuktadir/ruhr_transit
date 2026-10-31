@@ -121,5 +121,31 @@
         "example": "3"
       }
     }
+  },
+  "favouritesTitle": "Favoriten",
+  "@favouritesTitle": {
+    "description": "Heading of the favourite stops on the start screen."
+  },
+  "favouriteAdd": "Zu Favoriten hinzufügen",
+  "@favouriteAdd": {
+    "description": "Tooltip of the star button when the stop is not a favourite."
+  },
+  "favouriteRemove": "Aus Favoriten entfernen",
+  "@favouriteRemove": {
+    "description": "Tooltip of the star button when the stop is a favourite."
+  },
+  "favouriteRemoved": "„{stop}“ aus Favoriten entfernt",
+  "@favouriteRemoved": {
+    "description": "Snack bar after swiping a favourite away.",
+    "placeholders": {
+      "stop": {
+        "type": "String",
+        "example": "Bochum, Hbf"
+      }
+    }
+  },
+  "undo": "Rückgängig",
+  "@undo": {
+    "description": "Snack bar action that reverts the last change."
   }
 }
