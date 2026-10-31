@@ -5,17 +5,42 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
+import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
 import 'package:ruhr_transit/features/departures/data/departure_repository_impl.dart';
 import 'package:ruhr_transit/features/departures/data/efa_departure_remote_source.dart';
-import 'package:ruhr_transit/features/departures/domain/departure.dart';
+import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../helpers/fake_http_adapter.dart';
 import '../../../helpers/fixtures.dart';
 
 const _bochumHbf = 'de:05911:5194';
+final _now = DateTime.utc(2026, 10, 25, 17, 2);
+
+/// Storage that fails, e.g. because the device is full.
+class _BrokenCache extends DepartureCache {
+  _BrokenCache() : super(SharedPreferencesAsync());
+
+  @override
+  Future<DepartureBoard?> read(String stopId) =>
+      Future.error(Exception('disk error'));
+
+  @override
+  Future<void> write(String stopId, DepartureBoard board) =>
+      Future.error(Exception('disk full'));
+}
 
 void main() {
   late FakeHttpAdapter adapter;
+  late DepartureCache cache;
+
+  setUp(() {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    cache = DepartureCache(SharedPreferencesAsync());
+  });
 
   DepartureRepositoryImpl repositoryAnswering(
     Future<ResponseBody> Function(RequestOptions options) handler,
@@ -23,10 +48,14 @@ void main() {
     adapter = FakeHttpAdapter(handler);
     final dio = createEfaDio(baseUrl: 'https://efa.test/openservice')
       ..httpClientAdapter = adapter;
-    return DepartureRepositoryImpl(EfaDepartureRemoteSource(dio));
+    return DepartureRepositoryImpl(
+      EfaDepartureRemoteSource(dio),
+      cache,
+      now: () => _now,
+    );
   }
 
-  Failure failureOf(Result<List<Departure>> result) => switch (result) {
+  Failure failureOf(Result<DepartureBoard> result) => switch (result) {
     Err(:final failure) => failure,
     Ok() => fail('Expected Err, got $result'),
   };
@@ -49,7 +78,53 @@ void main() {
       'depType': 'stopEvents',
       'limit': '30',
     });
-    expect((result as Ok<List<Departure>>).value, hasLength(20));
+    final board = (result as Ok<DepartureBoard>).value;
+    expect(board.departures, hasLength(20));
+    expect(board.fetchedAt, _now);
+  });
+
+  test('saves a fetched board for lastBoard', () async {
+    final repository = repositoryAnswering(
+      (_) async => textResponse(readEfaFixture('dm_bochum_hbf')),
+    );
+    expect(await repository.lastBoard(_bochumHbf), isNull);
+
+    await repository.departuresAt(_bochumHbf);
+
+    final saved = await repository.lastBoard(_bochumHbf);
+    expect(saved?.departures, hasLength(20));
+    expect(saved?.fetchedAt, _now);
+  });
+
+  test('a failed fetch keeps the saved board', () async {
+    var fail = false;
+    final repository = repositoryAnswering(
+      (options) async => fail
+          ? throw DioException.connectionError(
+              requestOptions: options,
+              reason: 'Failed host lookup',
+            )
+          : textResponse(readEfaFixture('dm_bochum_hbf')),
+    );
+    await repository.departuresAt(_bochumHbf);
+
+    fail = true;
+    await repository.departuresAt(_bochumHbf);
+
+    expect((await repository.lastBoard(_bochumHbf))?.departures, hasLength(20));
+  });
+
+  test('broken storage neither fails the fetch nor lastBoard', () async {
+    cache = _BrokenCache();
+    final repository = repositoryAnswering(
+      (_) async => textResponse(readEfaFixture('dm_bochum_hbf')),
+    );
+
+    expect(
+      await repository.departuresAt(_bochumHbf),
+      isA<Ok<DepartureBoard>>(),
+    );
+    expect(await repository.lastBoard(_bochumHbf), isNull);
   });
 
   test('an EFA error message becomes ServerFailure', () async {
@@ -108,6 +183,8 @@ void main() {
     firstResponse.complete(textResponse('{"stopEvents":[]}'));
 
     expect(failureOf(await first), isA<CancelledFailure>());
-    expect(second, isA<Ok<List<Departure>>>());
+    expect(second, isA<Ok<DepartureBoard>>());
+    // The saved board is the newer answer, not the empty cancelled one.
+    expect((await repository.lastBoard(_bochumHbf))?.departures, hasLength(20));
   });
 }

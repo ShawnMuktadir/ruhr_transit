@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
+import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
 import 'package:ruhr_transit/features/departures/data/departure_repository_impl.dart';
 import 'package:ruhr_transit/features/departures/data/efa_departure_remote_source.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
@@ -29,9 +30,12 @@ void configureDependencies() {
     // A factory for the same reason: each departure board cancels only its
     // own refreshes.
     ..registerFactory<DepartureRepository>(
-      () => DepartureRepositoryImpl(getIt()),
+      () => DepartureRepositoryImpl(getIt(), getIt()),
     )
     ..registerLazySingleton(SharedPreferencesAsync.new)
+    // A singleton, because it queues its own writes: two instances could
+    // overwrite each other's boards.
+    ..registerLazySingleton(() => DepartureCache(getIt()))
     ..registerLazySingleton<FavouritesRepository>(
       () => FavouritesRepositoryImpl(getIt()),
     );

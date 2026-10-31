@@ -147,5 +147,25 @@
   "undo": "Rückgängig",
   "@undo": {
     "description": "Snack bar action that reverts the last change."
+  },
+  "departuresUpdatedAt": "Stand: {time}",
+  "@departuresUpdatedAt": {
+    "description": "Above the departure board: when it was fetched.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "14:32"
+      }
+    }
+  },
+  "departuresOutdated": "Nicht aktualisiert – Stand: {time}",
+  "@departuresOutdated": {
+    "description": "Above the departure board when loading failed and an older board is shown.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "14:32"
+      }
+    }
   }
 }

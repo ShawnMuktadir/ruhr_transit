@@ -27,5 +27,7 @@
   "favouriteAdd": "Add to favourites",
   "favouriteRemove": "Remove from favourites",
   "favouriteRemoved": "Removed “{stop}” from favourites",
-  "undo": "Undo"
+  "undo": "Undo",
+  "departuresUpdatedAt": "Updated {time}",
+  "departuresOutdated": "Not updated – departures as of {time}"
 }

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
+import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
 
@@ -12,10 +15,12 @@ void main() {
   late FakeDepartureRepository repository;
   late DeparturesCubit cubit;
   late List<DeparturesState> states;
+  late DateTime now;
 
   setUp(() {
     repository = FakeDepartureRepository();
-    cubit = DeparturesCubit(repository, _stopId);
+    now = boardTime;
+    cubit = DeparturesCubit(repository, _stopId, now: () => now);
     states = [];
     cubit.stream.listen(states.add);
   });
@@ -40,7 +45,22 @@ void main() {
             delayedRe16,
             cancelledRe11,
           ])
+          .having((s) => s.fetchedAt, 'fetchedAt', boardTime)
           .having((s) => s.refreshFailure, 'refreshFailure', isNull),
+    );
+  });
+
+  test('shows a fresh board as sent, even if the clock is ahead', () async {
+    now = DateTime.utc(2026, 10, 25, 18);
+    repository.autoReply = Ok([delayedRe16]);
+
+    await cubit.load();
+
+    expect(
+      cubit.state,
+      isA<DeparturesLoaded>().having((s) => s.departures, 'departures', [
+        delayedRe16,
+      ]),
     );
   });
 
@@ -169,5 +189,120 @@ void main() {
 
     await pumpEventQueue();
     expect(states.whereType<DeparturesLoaded>(), isEmpty);
+  });
+
+  group('when loading fails', () {
+    final savedAt = DateTime.utc(2026, 10, 25, 16, 50);
+
+    setUp(() {
+      repository
+        ..autoReply = const Err(NetworkFailure())
+        ..savedBoard = DepartureBoard([
+          delayedRe16,
+          cancelledRe11,
+          movedU35,
+        ], fetchedAt: savedAt);
+    });
+
+    test('shows the saved board with the failure', () async {
+      await cubit.load();
+
+      expect(
+        cubit.state,
+        isA<DeparturesLoaded>()
+            .having((s) => s.departures, 'departures', [
+              delayedRe16,
+              cancelledRe11,
+              movedU35,
+            ])
+            .having((s) => s.fetchedAt, 'fetchedAt', savedAt)
+            .having((s) => s.isOutdated, 'isOutdated', isTrue)
+            .having(
+              (s) => s.refreshFailure,
+              'refreshFailure',
+              isA<NetworkFailure>(),
+            ),
+      );
+    });
+
+    test('drops saved departures that have left, by estimate', () async {
+      // RE11 was planned for 17:24; RE16 was planned for 17:13 but is
+      // expected at 17:25.
+      now = DateTime.utc(2026, 10, 25, 17, 24, 30);
+
+      await cubit.load();
+
+      expect(
+        cubit.state,
+        isA<DeparturesLoaded>().having((s) => s.departures, 'departures', [
+          delayedRe16,
+          movedU35,
+        ]),
+      );
+    });
+
+    test('shows the error if every saved departure has left', () async {
+      now = DateTime.utc(2026, 10, 25, 18);
+
+      await cubit.load();
+
+      expect(
+        cubit.state,
+        isA<DeparturesFailed>().having(
+          (s) => s.failure,
+          'failure',
+          isA<NetworkFailure>(),
+        ),
+      );
+    });
+
+    test('shows the error if nothing is saved', () async {
+      repository.savedBoard = null;
+
+      await cubit.load();
+
+      expect(cubit.state, isA<DeparturesFailed>());
+    });
+
+    test('a failed refresh drops departures that left meanwhile', () async {
+      repository.autoReply = Ok([delayedRe16, movedU35]);
+      await cubit.load();
+
+      now = DateTime.utc(2026, 10, 25, 17, 30);
+      repository.autoReply = const Err(TimeoutFailure());
+      await cubit.refresh();
+
+      expect(
+        cubit.state,
+        isA<DeparturesLoaded>()
+            // The board of this page, not the saved one.
+            .having((s) => s.departures, 'departures', [movedU35])
+            .having((s) => s.fetchedAt, 'fetchedAt', boardTime)
+            .having(
+              (s) => s.refreshFailure,
+              'refreshFailure',
+              isA<TimeoutFailure>(),
+            ),
+      );
+    });
+
+    test('a newer load wins over a slow read of the saved board', () async {
+      final savedBoard = repository.savedBoard;
+      final pending = repository.pendingLastBoard = Completer();
+      final first = cubit.load();
+      await pumpEventQueue();
+
+      repository.autoReply = Ok([movedU35]);
+      await cubit.load();
+      pending.complete(savedBoard);
+      await first;
+
+      expect(
+        cubit.state,
+        isA<DeparturesLoaded>()
+            .having((s) => s.departures, 'departures', [movedU35])
+            .having((s) => s.refreshFailure, 'refreshFailure', isNull),
+      );
+    });
   });
 }

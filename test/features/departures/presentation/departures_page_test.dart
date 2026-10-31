@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
@@ -36,7 +37,9 @@ void main() {
             child: child!,
           ),
           home: BlocProvider(
-            create: (_) => DeparturesCubit(repository, bochumHbf.id)..load(),
+            create: (_) =>
+                DeparturesCubit(repository, bochumHbf.id, now: () => boardTime)
+                  ..load(),
             child: const DeparturesView(stop: bochumHbf),
           ),
         ),
@@ -65,6 +68,8 @@ void main() {
     expect(find.text('+12'), findsOneWidget);
     expect(find.text('Vorfahrt eines anderen Zuges'), findsOneWidget);
     expect(find.textContaining('All information without guarantee'), findsOne);
+    expect(find.text('Updated ${localTime(boardTime)}'), findsOneWidget);
+    expect(find.byIcon(Icons.cloud_off), findsNothing);
   });
 
   testWidgets('marks cancelled departures and platform changes', (
@@ -165,5 +170,38 @@ void main() {
 
     expect(find.byIcon(Icons.star_border), findsOneWidget);
     expect(favourites.saved, isEmpty);
+  });
+
+  testWidgets('without a connection shows the saved board as outdated', (
+    tester,
+  ) async {
+    final savedAt = DateTime.utc(2026, 10, 25, 16, 50);
+    repository
+      ..autoReply = const Err(NetworkFailure())
+      ..savedBoard = DepartureBoard([movedU35], fetchedAt: savedAt);
+    await pumpPage(tester);
+
+    expect(find.text('U35'), findsOneWidget);
+    expect(
+      find.text('Not updated – departures as of ${localTime(savedAt)}'),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.cloud_off), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.textContaining('No internet connection'),
+      ),
+      findsOneWidget,
+    );
+
+    // Back online: the board is live again.
+    repository.autoReply = Ok([delayedRe16]);
+    await tester.tap(find.byTooltip('Refresh'));
+    await tester.pump();
+
+    expect(find.text('RE16'), findsOneWidget);
+    expect(find.text('Updated ${localTime(boardTime)}'), findsOneWidget);
+    expect(find.byIcon(Icons.cloud_off), findsNothing);
   });
 }
