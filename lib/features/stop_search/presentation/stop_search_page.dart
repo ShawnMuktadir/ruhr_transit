@@ -8,6 +8,7 @@ import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
+import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
@@ -82,7 +83,7 @@ class _StopSearchViewState extends State<StopSearchView> {
           Expanded(
             child: BlocBuilder<StopSearchCubit, StopSearchState>(
               builder: (context, state) => switch (state) {
-                StopSearchIdle() => CenteredMessage(l10n.stopSearchIdle),
+                StopSearchIdle() => const _Favourites(),
                 StopSearchLoading() => const Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -107,6 +108,69 @@ class _StopSearchViewState extends State<StopSearchView> {
   }
 }
 
+/// Shown before searching: the favourites, or the search hint if there are
+/// none yet.
+class _Favourites extends StatelessWidget {
+  const _Favourites();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final favourites = context.watch<FavouritesCubit>().state;
+    if (favourites.isEmpty) return CenteredMessage(l10n.stopSearchIdle);
+
+    return ListView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Text(
+            l10n.favouritesTitle,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+        ),
+        for (final stop in favourites)
+          Dismissible(
+            key: ValueKey(stop.id),
+            direction: DismissDirection.endToStart,
+            background: ColoredBox(
+              color: Theme.of(context).colorScheme.errorContainer,
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 24),
+                  child: Icon(
+                    Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+            ),
+            onDismissed: (_) => _removeWithUndo(context, stop),
+            child: _StopTile(stop, isFavourite: true),
+          ),
+      ],
+    );
+  }
+
+  void _removeWithUndo(BuildContext context, Stop stop) {
+    final l10n = AppLocalizations.of(context);
+    final cubit = context.read<FavouritesCubit>();
+    final index = cubit.remove(stop);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.favouriteRemoved(stop.fullName)),
+          action: SnackBarAction(
+            label: l10n.undo,
+            onPressed: () => cubit.restore(stop, index),
+          ),
+        ),
+      );
+  }
+}
+
 class _StopList extends StatelessWidget {
   const _StopList(this.stops);
 
@@ -117,21 +181,30 @@ class _StopList extends StatelessWidget {
     return ListView.builder(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       itemCount: stops.length,
-      itemBuilder: (context, index) {
-        final stop = stops[index];
-        return ListTile(
-          leading: const Icon(Icons.place_outlined),
-          title: Text(stop.name),
-          subtitle: switch (stop.locality) {
-            final locality? => Text(locality),
-            null => null,
-          },
-          trailing: _ModeIcons(stop.modes),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => DeparturesPage(stop: stop)),
-          ),
-        );
+      itemBuilder: (context, index) => _StopTile(stops[index]),
+    );
+  }
+}
+
+class _StopTile extends StatelessWidget {
+  const _StopTile(this.stop, {this.isFavourite = false});
+
+  final Stop stop;
+  final bool isFavourite;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(isFavourite ? Icons.star : Icons.place_outlined),
+      title: Text(stop.name),
+      subtitle: switch (stop.locality) {
+        final locality? => Text(locality),
+        null => null,
       },
+      trailing: _ModeIcons(stop.modes),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => DeparturesPage(stop: stop)),
+      ),
     );
   }
 }

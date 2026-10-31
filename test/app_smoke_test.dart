@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/app.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
+import 'package:ruhr_transit/features/favourites/domain/favourites_repository.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 
+import 'helpers/fake_favourites_repository.dart';
 import 'helpers/fake_stop_repository.dart';
 
 void main() {
   // The real app resolves the repository through get_it; a fake keeps the
   // smoke tests off the network.
-  setUp(() => getIt.registerFactory<StopRepository>(FakeStopRepository.new));
+  setUp(() {
+    getIt
+      ..registerFactory<StopRepository>(FakeStopRepository.new)
+      ..registerSingleton<FavouritesRepository>(FakeFavouritesRepository());
+  });
   tearDown(getIt.reset);
 
   group('RuhrTransitApp localization', () {

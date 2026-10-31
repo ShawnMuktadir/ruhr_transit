@@ -6,30 +6,39 @@ import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
+import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 
 import '../../../helpers/fake_departure_repository.dart';
+import '../../../helpers/fake_favourites_repository.dart';
 import '../../../helpers/fake_stop_repository.dart';
 
 void main() {
   late FakeDepartureRepository repository;
+  late FakeFavouritesRepository favourites;
 
-  setUp(() => repository = FakeDepartureRepository());
+  setUp(() {
+    repository = FakeDepartureRepository();
+    favourites = FakeFavouritesRepository();
+  });
 
   Future<void> pumpPage(WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        // Times are shown in the device time zone, which differs between
-        // machines; 24-hour format at least fixes the pattern.
-        builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
-        ),
-        home: BlocProvider(
-          create: (_) => DeparturesCubit(repository, bochumHbf.id)..load(),
-          child: const DeparturesView(stop: bochumHbf),
+      BlocProvider(
+        create: (_) => FavouritesCubit(favourites, initial: favourites.saved),
+        child: MaterialApp(
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          // Times are shown in the device time zone, which differs between
+          // machines; 24-hour format at least fixes the pattern.
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child!,
+          ),
+          home: BlocProvider(
+            create: (_) => DeparturesCubit(repository, bochumHbf.id)..load(),
+            child: const DeparturesView(stop: bochumHbf),
+          ),
         ),
       ),
     );
@@ -136,5 +145,25 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('the star adds and removes the stop from favourites', (
+    tester,
+  ) async {
+    repository.autoReply = const Ok([]);
+    await pumpPage(tester);
+    expect(find.byIcon(Icons.star), findsNothing);
+
+    await tester.tap(find.byTooltip('Add to favourites'));
+    await tester.pump();
+
+    expect(find.byIcon(Icons.star), findsOneWidget);
+    expect(favourites.saved, [bochumHbf]);
+
+    await tester.tap(find.byTooltip('Remove from favourites'));
+    await tester.pump();
+
+    expect(find.byIcon(Icons.star_border), findsOneWidget);
+    expect(favourites.saved, isEmpty);
   });
 }
