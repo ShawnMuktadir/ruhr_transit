@@ -50,10 +50,6 @@
   "@retry": {
     "description": "Button that repeats a failed request."
   },
-  "departuresComingSoon": "Abfahrten für diese Haltestelle werden bald hier angezeigt.",
-  "@departuresComingSoon": {
-    "description": "Temporary text on the departures screen until departures exist."
-  },
   "modeTrain": "Zug",
   "@modeTrain": {
     "description": "Screen reader label: regional or long-distance train."
@@ -73,5 +69,57 @@
   "modeBus": "Bus",
   "@modeBus": {
     "description": "Screen reader label: bus."
+  },
+  "refresh": "Aktualisieren",
+  "@refresh": {
+    "description": "Tooltip of the button that reloads the departure board."
+  },
+  "departuresEmpty": "Derzeit keine Abfahrten an dieser Haltestelle.",
+  "@departuresEmpty": {
+    "description": "Shown when EFA returned no departures for the stop."
+  },
+  "departureCancelled": "Fällt aus",
+  "@departureCancelled": {
+    "description": "Label on a cancelled departure."
+  },
+  "departureLate": "{minutes} Min. später",
+  "@departureLate": {
+    "description": "Screen reader label for the delay shown as e.g. +5.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "departureEarly": "{minutes} Min. früher",
+  "@departureEarly": {
+    "description": "Screen reader label for an early departure shown as e.g. -1.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "departurePlatform": "Gleis/Steig {platform}",
+  "@departurePlatform": {
+    "description": "Screen reader label for the platform. EFA sends values like 3, 03 or Gleis 5 (U).",
+    "placeholders": {
+      "platform": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "departurePlatformChanged": "Gleiswechsel auf {platform}",
+  "@departurePlatformChanged": {
+    "description": "Screen reader label for a platform that differs from the timetable.",
+    "placeholders": {
+      "platform": {
+        "type": "String",
+        "example": "3"
+      }
+    }
   }
 }

@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
+import 'package:ruhr_transit/features/departures/data/departure_repository_impl.dart';
+import 'package:ruhr_transit/features/departures/data/efa_departure_remote_source.dart';
+import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/stop_search/data/efa_stop_remote_source.dart';
 import 'package:ruhr_transit/features/stop_search/data/stop_repository_impl.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
@@ -18,5 +21,11 @@ void configureDependencies() {
     ..registerLazySingleton(() => EfaStopRemoteSource(getIt()))
     // A factory, because the repository tracks its own running search:
     // two pages must not cancel each other's requests.
-    ..registerFactory<StopRepository>(() => StopRepositoryImpl(getIt()));
+    ..registerFactory<StopRepository>(() => StopRepositoryImpl(getIt()))
+    ..registerLazySingleton(() => EfaDepartureRemoteSource(getIt()))
+    // A factory for the same reason: each departure board cancels only its
+    // own refreshes.
+    ..registerFactory<DepartureRepository>(
+      () => DepartureRepositoryImpl(getIt()),
+    );
 }

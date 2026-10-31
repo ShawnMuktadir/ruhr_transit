@@ -11,10 +11,16 @@
   "errorServer": "The timetable service is currently unavailable.",
   "errorParse": "The timetable service sent a response that could not be read.",
   "retry": "Try again",
-  "departuresComingSoon": "Departures for this stop will appear here soon.",
   "modeTrain": "Train",
   "modeSuburbanTrain": "S-Bahn",
   "modeSubway": "U-Bahn",
   "modeTram": "Tram",
-  "modeBus": "Bus"
+  "modeBus": "Bus",
+  "refresh": "Refresh",
+  "departuresEmpty": "No departures from this stop right now.",
+  "departureCancelled": "Cancelled",
+  "departureLate": "{minutes} min late",
+  "departureEarly": "{minutes} min early",
+  "departurePlatform": "Platform {platform}",
+  "departurePlatformChanged": "Platform changed to {platform}"
 }

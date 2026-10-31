@@ -3,8 +3,9 @@
 A public transport departure board for the Ruhr area (Bochum, Dortmund, VRR),
 built with Flutter. Android first; iOS is planned.
 
-**Status:** Phase 1 – stop search. Picking a stop opens a placeholder;
-departures follow in Phase 2.
+**Status:** Phase 2 – search a stop and see its live departure board
+(delays, cancellations, platform changes). Refresh is manual only, as the
+VRR terms allow user-triggered queries.
 
 ## Data source
 

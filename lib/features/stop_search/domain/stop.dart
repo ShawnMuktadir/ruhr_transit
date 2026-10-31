@@ -1,9 +1,4 @@
-/// Kinds of transport that serve a stop, as far as the app shows them.
-///
-/// Only modes whose EFA product class was verified against real responses
-/// are listed (see `stop_mapper.dart`); unknown classes are left out rather
-/// than guessed.
-enum TransportMode { train, suburbanTrain, subway, tram, bus }
+import 'package:ruhr_transit/core/domain/transport_mode.dart';
 
 /// A public transport stop that departures can be requested for.
 class Stop {

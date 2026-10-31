@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/network/efa_json.dart';
 import 'package:ruhr_transit/features/stop_search/data/stop_mapper.dart';
-import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 
 import '../../../helpers/fixtures.dart';
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
