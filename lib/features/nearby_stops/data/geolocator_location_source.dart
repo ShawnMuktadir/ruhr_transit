@@ -13,6 +13,13 @@ class GeolocatorLocationSource implements LocationSource {
   static const timeLimit = Duration(seconds: 15);
 
   @override
+  Future<bool> hasPermission() async =>
+      switch (await Geolocator.checkPermission()) {
+        LocationPermission.whileInUse || LocationPermission.always => true,
+        _ => false,
+      };
+
+  @override
   Future<LocationResult> currentLocation() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       return const LocationOff();

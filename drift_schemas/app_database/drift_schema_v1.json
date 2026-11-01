@@ -1,0 +1,108 @@
+{
+  "_meta": {
+    "description": "This file contains a serialized version of schema entities for drift.",
+    "version": "1.3.0"
+  },
+  "options": {
+    "store_date_time_values_as_text": false
+  },
+  "entities": [
+    {
+      "id": 0,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "favourite_journeys",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "from_id",
+            "getter_name": "fromId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "to_id",
+            "getter_name": "toId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "from_stop",
+            "getter_name": "fromStop",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const StopConverter()",
+              "dart_type_name": "Stop"
+            }
+          },
+          {
+            "name": "to_stop",
+            "getter_name": "toStop",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const StopConverter()",
+              "dart_type_name": "Stop"
+            }
+          },
+          {
+            "name": "label",
+            "getter_name": "label",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "saved_at",
+            "getter_name": "savedAt",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "from_id",
+          "to_id"
+        ]
+      }
+    }
+  ],
+  "fixed_sql": [
+    {
+      "name": "favourite_journeys",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"favourite_journeys\" (\"from_id\" TEXT NOT NULL, \"to_id\" TEXT NOT NULL, \"from_stop\" TEXT NOT NULL, \"to_stop\" TEXT NOT NULL, \"label\" TEXT NULL, \"saved_at\" INTEGER NOT NULL, PRIMARY KEY (\"from_id\", \"to_id\"));"
+        }
+      ]
+    }
+  ]
+}

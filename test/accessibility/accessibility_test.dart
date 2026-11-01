@@ -8,10 +8,22 @@ import 'package:ruhr_transit/core/theme/app_theme.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
+import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journey.dart';
+import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
+import 'package:ruhr_transit/features/home/presentation/favourites_tab.dart';
+import 'package:ruhr_transit/features/home/presentation/home_shell.dart';
+import 'package:ruhr_transit/features/language/presentation/locale_cubit.dart';
+import 'package:ruhr_transit/features/legal/presentation/legal_page.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_cubit.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
+import 'package:ruhr_transit/features/onboarding/presentation/onboarding_cubit.dart';
+import 'package:ruhr_transit/features/onboarding/presentation/onboarding_page.dart';
+import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
+import 'package:ruhr_transit/features/profile/presentation/profile_page.dart';
+import 'package:ruhr_transit/features/settings/presentation/settings_page.dart';
+import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
@@ -22,17 +34,53 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cub
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 
 import '../helpers/fake_departure_repository.dart';
+import '../helpers/fake_favourite_journeys_repository.dart';
 import '../helpers/fake_favourites_repository.dart';
 import '../helpers/fake_nearby_stops.dart';
+import '../helpers/fake_settings.dart';
 import '../helpers/fake_stop_repository.dart';
 import '../helpers/fake_trip_repository.dart';
 import '../helpers/fake_widget_sync.dart';
 
-/// Every screen, in light and dark, at normal and 200 % font size, on a
+/// Every screen, in light and dark, at 100, 130 and 200 % font size, on a
 /// phone-sized screen: no layout overflow (an overflow fails the test by
 /// itself), and Android's tap target, label and contrast guidelines.
 void main() {
+  Widget onboarding() => MultiBlocProvider(
+    providers: [
+      BlocProvider(create: (_) => LocaleCubit(FakeLanguageRepository())),
+      BlocProvider(
+        create: (_) =>
+            OnboardingCubit(FakeOnboardingRepository(), completed: false),
+      ),
+    ],
+    child: const OnboardingPage(),
+  );
+
+  Widget favouritesTab(FavouritesSegment segment) => FavouritesTab(
+    segment: ValueNotifier(segment),
+    onOpenJourney: (_) {},
+    stops: BlocProvider(
+      create: (_) => StopSearchCubit(FakeStopRepository()),
+      child: const StopSearchBody(),
+    ),
+  );
+
+  Widget settings(Widget page) => MultiBlocProvider(
+    providers: [
+      BlocProvider(create: (_) => LocaleCubit(FakeLanguageRepository())),
+      BlocProvider(create: (_) => ThemeCubit(FakeThemeRepository())),
+      BlocProvider(
+        create: (_) =>
+            ProfileCubit(FakeProfileRepository('Kim'), FakeAuthRepository()),
+      ),
+    ],
+    child: page,
+  );
+
   final screens = <String, Widget Function()>{
+    'welcome': onboarding,
+    'language choice': onboarding,
     'start screen without favourites': () => BlocProvider(
       create: (_) => StopSearchCubit(FakeStopRepository()),
       child: const StopSearchView(),
@@ -100,12 +148,47 @@ void main() {
         query: TripQuery(from: bochumHbf, to: dortmundHbf, time: LeaveNow()),
       ),
     ),
-    'journey details': () => JourneyDetailsPage(journey: withWalk),
+    'journey details': () => JourneyDetailsPage(
+      journey: withWalk,
+      query: const TripQuery(
+        from: bochumHbf,
+        to: dortmundHbf,
+        time: LeaveNow(),
+      ),
+    ),
+    'nearby stops, before asking': () => BlocProvider(
+      create: (_) =>
+          NearbyStopsCubit(FakeLocationSource(), FakeNearbyStopsRepository())
+            ..start(),
+      child: const NearbyStopsView(),
+    ),
+    'favourites, no saved journeys': () =>
+        favouritesTab(FavouritesSegment.journeys),
+    'favourites, saved journeys': () =>
+        favouritesTab(FavouritesSegment.journeys),
+    'favourites, stops': () => favouritesTab(FavouritesSegment.stops),
+    'settings': () =>
+        settings(const SettingsPage(packageInfo: fakePackageInfo)),
+    'profile': () => settings(const ProfilePage()),
+    'privacy policy': () => const LegalPage(LegalDocument.privacy),
+    'terms and conditions': () => const LegalPage(LegalDocument.terms),
+    'home with navigation bar': () => BlocProvider(
+      create: (_) => LocaleCubit(FakeLanguageRepository()),
+      child: const HomeShell(),
+    ),
+  };
+
+  /// Steps to reach a screen that has no page of its own.
+  final reach = <String, Future<void> Function(WidgetTester)>{
+    'language choice': (tester) async {
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+    },
   };
 
   for (final MapEntry(key: name, value: build) in screens.entries) {
     for (final brightness in Brightness.values) {
-      for (final textScale in [1.0, 2.0]) {
+      for (final textScale in [1.0, 1.3, 2.0]) {
         testWidgets('$name, ${brightness.name}, text ×$textScale', (
           tester,
         ) async {
@@ -119,9 +202,33 @@ void main() {
           );
 
           await tester.pumpWidget(
-            BlocProvider(
-              create: (_) =>
-                  FavouritesCubit(favourites, initial: favourites.saved),
+            MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) =>
+                      FavouritesCubit(favourites, initial: favourites.saved),
+                ),
+                BlocProvider(
+                  create: (_) => FavouriteJourneysCubit(
+                    FakeFavouriteJourneysRepository([
+                      if (name.contains('saved journeys') &&
+                          !name.contains('no saved')) ...[
+                        FavouriteJourney(
+                          from: bochumHbf,
+                          to: dortmundHbf,
+                          savedAt: DateTime.utc(2026, 11, 2),
+                          label: 'Work, RE1 at 7:40',
+                        ),
+                        FavouriteJourney(
+                          from: dortmundHbf,
+                          to: bochumHbf,
+                          savedAt: DateTime.utc(2026, 11, 2),
+                        ),
+                      ],
+                    ]),
+                  ),
+                ),
+              ],
               child: MaterialApp(
                 locale: const Locale('de'),
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -142,6 +249,7 @@ void main() {
             ),
           );
           await tester.pumpAndSettle();
+          await reach[name]?.call(tester);
 
           await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
           await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));

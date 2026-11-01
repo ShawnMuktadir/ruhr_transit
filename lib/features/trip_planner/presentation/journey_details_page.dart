@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
+import 'package:ruhr_transit/core/widgets/platform_chip.dart';
+import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
 
 /// Less spare time than this after walking is flagged as a short
@@ -11,15 +15,24 @@ const shortConnection = Duration(minutes: 3);
 
 /// Every leg of one journey, with the time to change between rides.
 class JourneyDetailsPage extends StatelessWidget {
-  const JourneyDetailsPage({required this.journey, super.key});
+  const JourneyDetailsPage({required this.journey, this.query, super.key});
 
   final Journey journey;
+
+  /// What was searched; its stops can be saved as a favourite journey.
+  final TripQuery? query;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tripDetailsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.tripDetailsTitle),
+        actions: [
+          if (query case final query?)
+            FavouriteJourneyButton(from: query.from, to: query.to),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
@@ -104,8 +117,8 @@ class _RideTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          _StopRow(leg.origin),
-          _StopRow(leg.destination),
+          _StopRow(leg.origin, mode: leg.mode),
+          _StopRow(leg.destination, mode: leg.mode),
           for (final note in leg.notes)
             Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -122,17 +135,18 @@ class _RideTile extends StatelessWidget {
   }
 }
 
-/// `17:14 +3   Bochum Hbf   Platform 8`
+/// `17:14 +3   Bochum Hbf`, with a [Gleis 8] chip under the name.
 class _StopRow extends StatelessWidget {
-  const _StopRow(this.stop);
+  const _StopRow(this.stop, {this.mode});
 
   final TripStop stop;
 
+  /// Of the leg, so a bus stop gets "Steig" instead of "Gleis".
+  final TransportMode? mode;
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final platform = stop.platform;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -157,20 +171,14 @@ class _StopRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(stop.name, style: theme.textTheme.bodyLarge),
-                if (platform != null)
-                  // As on the departure board: EFA's value as is ("8",
-                  // "Gleis 3 (U)"), "platform" only for screen readers.
-                  Text(
-                    platform,
-                    semanticsLabel: stop.platformChanged
-                        ? l10n.departurePlatformChanged(platform)
-                        : l10n.departurePlatform(platform),
-                    style: stop.platformChanged
-                        ? theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.error,
-                            fontWeight: FontWeight.bold,
-                          )
-                        : theme.textTheme.bodySmall,
+                if (stop.platform != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: PlatformChip(
+                      platform: stop.platform,
+                      plannedPlatform: stop.plannedPlatform,
+                      mode: mode,
+                    ),
                   ),
               ],
             ),

@@ -13,7 +13,7 @@ import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_sta
 import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
 
 /// Composition root of the nearby stops page: creates the cubit and starts
-/// locating, then hands over to [NearbyStopsView], which tests can pump with
+/// it (see [NearbyStopsCubit.start]), then hands over to [NearbyStopsView], which tests can pump with
 /// their own cubit.
 class NearbyStopsPage extends StatelessWidget {
   const NearbyStopsPage({super.key});
@@ -24,7 +24,7 @@ class NearbyStopsPage extends StatelessWidget {
       create: (_) => NearbyStopsCubit(
         getIt<LocationSource>(),
         getIt<NearbyStopsRepository>(),
-      )..load(),
+      )..start(),
       child: const NearbyStopsView(),
     );
   }
@@ -54,6 +54,15 @@ class NearbyStopsView extends StatelessWidget {
       ),
       body: BlocBuilder<NearbyStopsCubit, NearbyStopsState>(
         builder: (context, state) => switch (state) {
+          NearbyIntro() => CenteredMessage(
+            l10n.nearbyIntro,
+            icon: Icons.near_me_outlined,
+            action: FilledButton.icon(
+              icon: const Icon(Icons.my_location),
+              label: Text(l10n.nearbyUseLocation),
+              onPressed: cubit.load,
+            ),
+          ),
           NearbyLocating() => _Progress(l10n.nearbyLocating),
           NearbyLoading() => const _Progress(null),
           NearbyLoaded(:final stops) when stops.isEmpty => CenteredMessage(

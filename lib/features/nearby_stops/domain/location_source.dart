@@ -1,5 +1,8 @@
 /// The device's current location, read once when the user asks for it.
 abstract interface class LocationSource {
+  /// Whether the location permission is already granted. Never asks.
+  Future<bool> hasPermission();
+
   /// Asks for the permission if needed, then reads the location once.
   Future<LocationResult> currentLocation();
 

@@ -1,10 +1,17 @@
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stop.dart';
+import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_cubit.dart';
 
 /// Sealed, so the page's `switch` must render every state.
 sealed class NearbyStopsState {
   const NearbyStopsState();
+}
+
+/// Before asking for the location: explains why it is needed, with a
+/// button that starts [NearbyStopsCubit.load].
+final class NearbyIntro extends NearbyStopsState {
+  const NearbyIntro();
 }
 
 /// Waiting for the permission dialog or a position fix.

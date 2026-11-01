@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/app.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
+import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/features/favourites/domain/favourites_repository.dart';
+import 'package:ruhr_transit/features/language/domain/language_repository.dart';
+import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
+import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
+import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 Future<void> main() async {
@@ -12,7 +17,20 @@ Future<void> main() async {
   // a change can never race the load. It is a single local read.
   final favourites = await getIt<FavouritesRepository>().load();
   final launchedStop = await getIt<WidgetSync>().launchedStop();
+  // Also read up front, so the first frame is already in the right language,
+  // theme and screen.
+  final language = AppLanguages.byCode(
+    await getIt<LanguageRepository>().load(),
+  );
+  final onboarded = await getIt<OnboardingRepository>().isCompleted();
+  final themeMode = ThemeCubit.parse(await getIt<ThemeRepository>().load());
   runApp(
-    RuhrTransitApp(initialFavourites: favourites, launchedStop: launchedStop),
+    RuhrTransitApp(
+      initialFavourites: favourites,
+      launchedStop: launchedStop,
+      language: language,
+      showOnboarding: !onboarded,
+      themeMode: themeMode,
+    ),
   );
 }

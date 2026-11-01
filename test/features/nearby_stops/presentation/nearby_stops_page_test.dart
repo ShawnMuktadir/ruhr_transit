@@ -36,7 +36,9 @@ void main() {
   });
   tearDown(getIt.reset);
 
-  Future<void> pumpPage(WidgetTester tester) async {
+  /// [start] opens the page like the app does (NearbyStopsCubit.start);
+  /// otherwise it locates right away.
+  Future<void> pumpPage(WidgetTester tester, {bool start = false}) async {
     final favourites = FakeFavouritesRepository();
     await tester.pumpWidget(
       BlocProvider(
@@ -46,7 +48,11 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: BlocProvider(
-            create: (_) => NearbyStopsCubit(location, repository)..load(),
+            create: (_) {
+              final cubit = NearbyStopsCubit(location, repository);
+              unawaited(start ? cubit.start() : cubit.load());
+              return cubit;
+            },
             child: const NearbyStopsView(),
           ),
         ),
@@ -70,6 +76,31 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DeparturesPage), findsOneWidget);
+  });
+
+  testWidgets('explains before asking for the location', (tester) async {
+    await pumpPage(tester, start: true);
+    await tester.pump();
+
+    expect(find.textContaining('reads your location once'), findsOneWidget);
+    expect(location.calls, 0);
+
+    await tester.tap(find.text('Use my location'));
+    await tester.pumpAndSettle();
+
+    expect(location.calls, 1);
+    expect(find.text('Bochum · 40 m away'), findsOneWidget);
+  });
+
+  testWidgets('with the permission granted before, searches at once', (
+    tester,
+  ) async {
+    location.permissionGranted = true;
+    await pumpPage(tester, start: true);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Use my location'), findsNothing);
+    expect(find.text('Bochum · 40 m away'), findsOneWidget);
   });
 
   testWidgets('shows progress while locating', (tester) async {

@@ -102,13 +102,33 @@
       }
     }
   },
-  "departurePlatform": "Gleis/Steig {platform}",
-  "@departurePlatform": {
-    "description": "Screen reader label for the platform. EFA sends values like 3, 03 or Gleis 5 (U).",
+  "platformLabel": "Gleis {platform}",
+  "@platformLabel": {
+    "description": "A bare platform number from EFA (e.g. 5, 7 A-D) for trains, trams and subways. Values that already name themselves (Gleis 2 (U), Steig 1) are shown as they are.",
     "placeholders": {
       "platform": {
         "type": "String",
-        "example": "3"
+        "example": "5"
+      }
+    }
+  },
+  "platformLabelBus": "Steig {platform}",
+  "@platformLabelBus": {
+    "description": "A bare platform number for a bus (EFA sends e.g. 03).",
+    "placeholders": {
+      "platform": {
+        "type": "String",
+        "example": "03"
+      }
+    }
+  },
+  "platformChangedHint": "{platform} (geändert)",
+  "@platformChangedHint": {
+    "description": "Platform chip text when the platform differs from the timetable.",
+    "placeholders": {
+      "platform": {
+        "type": "String",
+        "example": "Gleis 2"
       }
     }
   },
@@ -403,5 +423,225 @@
   "tripWalkLabel": "Fußweg",
   "@tripWalkLabel": {
     "description": "A walk in the list of lines read by screen readers."
+  },
+  "onboardingDescription": "Abfahrten in Echtzeit, Verbindungen und Haltestellen in der Nähe – für Bus und Bahn im VRR.",
+  "@onboardingDescription": {
+    "description": "One-line description on the welcome screen, shown on first launch."
+  },
+  "onboardingContinue": "Weiter",
+  "@onboardingContinue": {
+    "description": "Primary button on the welcome screen."
+  },
+  "onboardingLanguageTitle": "Sprache wählen",
+  "@onboardingLanguageTitle": {
+    "description": "Heading of the language step on first launch."
+  },
+  "onboardingLanguageHint": "Die Sprache lässt sich später in den Einstellungen ändern.",
+  "@onboardingLanguageHint": {
+    "description": "Below the language list on first launch."
+  },
+  "onboardingStart": "Los geht's",
+  "@onboardingStart": {
+    "description": "Button that finishes the first-launch flow and opens the app."
+  },
+  "navPlan": "Verbindung",
+  "@navPlan": {
+    "description": "Bottom navigation tab: the journey planner. Keep short."
+  },
+  "navNearby": "In der Nähe",
+  "@navNearby": {
+    "description": "Bottom navigation tab: stops around the user. Keep short."
+  },
+  "navFavourites": "Favoriten",
+  "@navFavourites": {
+    "description": "Bottom navigation tab: saved journeys and stops."
+  },
+  "navSettings": "Einstellungen",
+  "@navSettings": {
+    "description": "Bottom navigation tab and settings page title."
+  },
+  "favouritesJourneys": "Verbindungen",
+  "@favouritesJourneys": {
+    "description": "Segment in the Favourites tab: saved journeys."
+  },
+  "favouritesStops": "Haltestellen",
+  "@favouritesStops": {
+    "description": "Segment in the Favourites tab: favourite stops and stop search."
+  },
+  "journeySave": "Verbindung merken",
+  "@journeySave": {
+    "description": "Tooltip of the bookmark button that saves the current start and destination."
+  },
+  "journeyUnsave": "Gemerkte Verbindung entfernen",
+  "@journeyUnsave": {
+    "description": "Tooltip of the filled bookmark button."
+  },
+  "journeysEmpty": "Noch keine Verbindungen gemerkt. In der Verbindungssuche mit dem Lesezeichen eine Verbindung merken, um sie hier mit einem Tipp wieder zu suchen.",
+  "@journeysEmpty": {
+    "description": "Empty state of the saved journeys list."
+  },
+  "journeysLoadFailed": "Gemerkte Verbindungen konnten nicht geladen werden.",
+  "@journeysLoadFailed": {
+    "description": "Error state of the saved journeys list (local database)."
+  },
+  "journeyRoute": "{from} nach {to}",
+  "@journeyRoute": {
+    "description": "Screen reader text for a saved journey shown as From → To.",
+    "placeholders": {
+      "from": {
+        "type": "String",
+        "example": "Bochum, Hbf"
+      },
+      "to": {
+        "type": "String",
+        "example": "Dortmund, Hbf"
+      }
+    }
+  },
+  "journeyRemoved": "Verbindung {from} → {to} entfernt",
+  "@journeyRemoved": {
+    "description": "Snack bar after removing a saved journey.",
+    "placeholders": {
+      "from": {
+        "type": "String",
+        "example": "Bochum, Hbf"
+      },
+      "to": {
+        "type": "String",
+        "example": "Dortmund, Hbf"
+      }
+    }
+  },
+  "journeyEditLabel": "Bezeichnung ändern",
+  "@journeyEditLabel": {
+    "description": "Menu item and dialog title for a saved journey's own label."
+  },
+  "journeyLabel": "Bezeichnung (optional)",
+  "@journeyLabel": {
+    "description": "Text field label in the edit label dialog."
+  },
+  "journeyLabelHint": "z. B. Arbeit oder RE1 um 7:40",
+  "@journeyLabelHint": {
+    "description": "Hint in the edit label dialog."
+  },
+  "journeyRemove": "Entfernen",
+  "@journeyRemove": {
+    "description": "Menu item and screen reader action that removes a saved journey."
+  },
+  "journeyOptions": "Optionen",
+  "@journeyOptions": {
+    "description": "Tooltip of the menu button on a saved journey."
+  },
+  "cancel": "Abbrechen",
+  "@cancel": {
+    "description": "Dialog button."
+  },
+  "save": "Speichern",
+  "@save": {
+    "description": "Dialog button."
+  },
+  "nearbyIntro": "Für Haltestellen in der Nähe wird der Standort einmal abgefragt. Er wird nur für diese Suche an den VRR gesendet und nicht gespeichert.",
+  "@nearbyIntro": {
+    "description": "Shown before the location permission is requested."
+  },
+  "nearbyUseLocation": "Standort verwenden",
+  "@nearbyUseLocation": {
+    "description": "Button that requests the location permission and searches."
+  },
+  "settingsLanguage": "Sprache",
+  "@settingsLanguage": {
+    "description": "Settings section heading."
+  },
+  "settingsAppearance": "Darstellung",
+  "@settingsAppearance": {
+    "description": "Settings section heading."
+  },
+  "themeSystem": "Wie System",
+  "@themeSystem": {
+    "description": "Theme option that follows the Android setting."
+  },
+  "themeLight": "Hell",
+  "@themeLight": {
+    "description": "Theme option."
+  },
+  "themeDark": "Dunkel",
+  "@themeDark": {
+    "description": "Theme option."
+  },
+  "settingsProfile": "Profil",
+  "@settingsProfile": {
+    "description": "Settings row and profile page title."
+  },
+  "profileNoName": "Kein Name festgelegt",
+  "@profileNoName": {
+    "description": "Settings row subtitle without a display name."
+  },
+  "profileNameLabel": "Anzeigename (optional)",
+  "@profileNameLabel": {
+    "description": "Text field label on the profile page."
+  },
+  "profileLocalOnly": "Es gibt noch keine Benutzerkonten. Der Name wird nur auf diesem Gerät gespeichert und nirgendwohin gesendet.",
+  "@profileLocalOnly": {
+    "description": "Explanation on the profile page while there is no login."
+  },
+  "profileSaved": "Gespeichert",
+  "@profileSaved": {
+    "description": "Snack bar after saving the profile."
+  },
+  "profileSignedInAs": "Angemeldet als {name}",
+  "@profileSignedInAs": {
+    "description": "Profile page once accounts exist.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "kim@example.com"
+      }
+    }
+  },
+  "logOut": "Abmelden",
+  "@logOut": {
+    "description": "Button; only shown while signed in."
+  },
+  "settingsLegal": "Rechtliches",
+  "@settingsLegal": {
+    "description": "Settings section heading."
+  },
+  "privacyPolicy": "Datenschutzerklärung",
+  "@privacyPolicy": {
+    "description": "Settings row and page title."
+  },
+  "termsOfUse": "Nutzungsbedingungen",
+  "@termsOfUse": {
+    "description": "Settings row and page title."
+  },
+  "legalLoadFailed": "Der Text konnte nicht geladen werden.",
+  "@legalLoadFailed": {
+    "description": "Error state of a legal page."
+  },
+  "settingsAbout": "Über die App",
+  "@settingsAbout": {
+    "description": "Settings section heading."
+  },
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "description": "App version in the settings.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0 (1)"
+      }
+    }
+  },
+  "aboutVersionUnavailable": "Version nicht verfügbar",
+  "@aboutVersionUnavailable": {
+    "description": "Shown if the version cannot be read."
+  },
+  "aboutLicenses": "Open-Source-Lizenzen",
+  "@aboutLicenses": {
+    "description": "Settings row that opens the licence page."
+  },
+  "profileSaveFailed": "Der Name konnte nicht gespeichert werden.",
+  "@profileSaveFailed": {
+    "description": "Snack bar when saving the display name failed."
   }
 }
