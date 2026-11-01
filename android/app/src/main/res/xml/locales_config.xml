@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app's languages, so Android 13+ offers them under
+     Settings > Apps > RuhrTransit > Language. Keep in sync with
+     lib/core/l10n/arb. German first, like the app's fallback. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="de" />
+    <locale android:name="en" />
+</locale-config>

@@ -27,11 +27,11 @@ Known limits:
 
 - **Location:** read once when the user opens "Stops near me", never at app
   start or in the background. The coordinates are sent to the VRR server
-  to find nearby stops and are not stored by the app. For the Play Console
-  data safety form: approximate and precise location, collected (not
-  optional for this feature), shared with VRR for app functionality, not
-  stored, no tracking.
+  to find nearby stops and are not stored by the app.
 - **Favourites, saved boards, widget data:** stored on the device only.
+
+The privacy policy template is in `docs/privacy-policy.md`; the Play Console
+data safety answers are in `docs/play-console.md`.
 
 ## Data source
 
@@ -58,3 +58,39 @@ Refresh the recorded API responses used by tests:
 ```sh
 dart run tool/capture_efa_fixtures.dart
 ```
+
+Redraw the launcher icon PNGs for Android 7.1 and below after changing the
+icon (`res/drawable/ic_launcher_foreground.xml`):
+
+```sh
+dart run tool/render_legacy_icons.dart
+```
+
+## Release
+
+Create the upload key once (keep the file and passwords outside the repo,
+and back them up):
+
+```sh
+keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA -keysize 2048   -validity 10000 -alias upload
+```
+
+Then create `android/key.properties` (ignored by git):
+
+```properties
+storeFile=<absolute path to upload-keystore.jks>
+storePassword=<password>
+keyAlias=upload
+keyPassword=<password>
+```
+
+Build the bundle for the Play Console:
+
+```sh
+flutter build appbundle --release
+```
+
+Without `key.properties` the release build is signed with the debug key, so
+`flutter run --release` works locally; Play rejects such a bundle. The full
+checklist, including VRR production access, is in `docs/play-console.md`;
+store texts are in `docs/store-listing.md`.
