@@ -26,12 +26,13 @@ class TripTimeText extends StatelessWidget {
     final theme = Theme.of(context);
     final base = style ?? theme.textTheme.titleMedium;
     final delayMinutes = stop.delay?.inMinutes ?? 0;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    // A Wrap, so the delay moves under the time when space runs out, e.g.
+    // at large font sizes.
+    return Wrap(
+      spacing: 4,
       children: [
         Text(formatClockTime(context, stop.plannedTime), style: base),
         if (delayMinutes != 0) ...[
-          const SizedBox(width: 4),
           Text(
             delayMinutes > 0 ? '+$delayMinutes' : '$delayMinutes',
             semanticsLabel: delayMinutes > 0
@@ -102,4 +103,59 @@ class JourneyDate extends StatelessWidget {
       ),
     );
   }
+}
+
+/// `16:06 +8 → 16:28 +11`, wrapping onto a second line when it does not
+/// fit, e.g. at large font sizes.
+class JourneyTimes extends StatelessWidget {
+  const JourneyTimes(this.journey, {super.key});
+
+  final Journey journey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        TripTimeText(journey.departure),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: Icon(Icons.arrow_forward, size: 16),
+        ),
+        TripTimeText(journey.arrival),
+      ],
+    );
+  }
+}
+
+/// One sentence for screen readers, e.g. "Departs 16:06, arrives 16:28,
+/// 8 min late, 30 min, 1 change, 378, S1", instead of the card's pieces.
+String journeySummary(BuildContext context, Journey journey) {
+  final l10n = AppLocalizations.of(context);
+
+  String timeOf(TripStop stop) {
+    final time = formatClockTime(context, stop.plannedTime);
+    final delay = stop.delay?.inMinutes ?? 0;
+    return switch (delay) {
+      > 0 => '$time, ${l10n.departureLate(delay)}',
+      < 0 => '$time, ${l10n.departureEarly(-delay)}',
+      _ => time,
+    };
+  }
+
+  final transfers = journey.transfers;
+  final details = [
+    formatTripDuration(l10n, journey.duration),
+    if (transfers == 0) l10n.tripDirect else l10n.tripTransfers(transfers),
+    for (final leg in journey.legs)
+      switch (leg) {
+        TransitLeg(:final line) => line,
+        WalkLeg() => l10n.tripWalkLabel,
+      },
+  ].join(', ');
+  return l10n.tripSummary(
+    timeOf(journey.departure),
+    timeOf(journey.arrival),
+    details,
+  );
 }

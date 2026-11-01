@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
@@ -68,7 +69,7 @@ void main() {
   }
 
   Future<void> search(WidgetTester tester, String query) async {
-    await tester.enterText(find.byType(SearchBar), query);
+    await tester.enterText(find.byType(TextField), query);
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump();
   }
@@ -250,6 +251,42 @@ void main() {
 
     expect(favourites.saved, [bochumHbf, dortmundHbf]);
     expect(find.text('Bochum'), findsOneWidget);
+  });
+
+  testWidgets('TalkBack can remove a favourite with an action', (tester) async {
+    final semantics = tester.ensureSemantics();
+    favourites.saved = [bochumHbf, dortmundHbf];
+    await pumpPage(tester);
+    // With TalkBack on, MediaQuery reports accessible navigation.
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(accessibleNavigation: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await tester.pump();
+
+    const remove = CustomSemanticsAction(label: 'Remove from favourites');
+    final node = tester.getSemantics(find.text('Bochum'));
+    expect(
+      node.getSemanticsData().customSemanticsActionIds,
+      contains(CustomSemanticsAction.getIdentifier(remove)),
+    );
+    tester.semantics.customAction(
+      find.semantics.byLabel(RegExp('Bochum')),
+      remove,
+    );
+    await tester.pumpAndSettle();
+    expect(favourites.saved, [dortmundHbf]);
+
+    // The undo snack bar must not time out while the user finds it.
+    // Flutter keeps snack bars with an action open (SnackBar.persist); this
+    // guards against that default changing.
+    await tester.pump(const Duration(seconds: 30));
+    await tester.pumpAndSettle();
+    expect(find.text('Undo'), findsOneWidget);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+
+    expect(favourites.saved, [bochumHbf, dortmundHbf]);
+    semantics.dispose();
   });
 
   testWidgets('removing the last favourite shows the hint again', (

@@ -111,46 +111,49 @@ class _JourneyCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final transfers = journey.transfers;
-    return Card.outlined(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => JourneyDetailsPage(journey: journey),
+    // One node for TalkBack: the summary sentence plus the tap action,
+    // instead of every time, badge and chevron on its own.
+    return MergeSemantics(
+      child: Card.outlined(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => JourneyDetailsPage(journey: journey),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              JourneyDate(journey),
-              Row(
+          child: Semantics(
+            label: journeySummary(context, journey),
+            excludeSemantics: true,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TripTimeText(journey.departure),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Icon(Icons.arrow_forward, size: 16),
+                  JourneyDate(journey),
+                  Row(
+                    children: [
+                      Expanded(child: JourneyTimes(journey)),
+                      const SizedBox(width: 8),
+                      Text(
+                        formatTripDuration(l10n, journey.duration),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                    ],
                   ),
-                  TripTimeText(journey.arrival),
-                  const Spacer(),
+                  const SizedBox(height: 8),
+                  JourneyLines(journey),
+                  const SizedBox(height: 8),
                   Text(
-                    formatTripDuration(l10n, journey.duration),
-                    style: theme.textTheme.titleSmall,
+                    transfers == 0
+                        ? l10n.tripDirect
+                        : l10n.tripTransfers(transfers),
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              JourneyLines(journey),
-              const SizedBox(height: 8),
-              Text(
-                transfers == 0
-                    ? l10n.tripDirect
-                    : l10n.tripTransfers(transfers),
-                style: theme.textTheme.bodySmall,
-              ),
-            ],
+            ),
           ),
         ),
       ),

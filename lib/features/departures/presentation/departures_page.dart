@@ -7,6 +7,7 @@ import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
+import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
@@ -148,23 +149,28 @@ class _UpdatedAt extends StatelessWidget {
     final color = state.isOutdated
         ? theme.colorScheme.error
         : theme.colorScheme.onSurfaceVariant;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: Row(
-        children: [
-          if (state.isOutdated) ...[
-            Icon(Icons.cloud_off, size: 16, color: color),
-            const SizedBox(width: 8),
-          ],
-          Expanded(
-            child: Text(
-              state.isOutdated
-                  ? l10n.departuresOutdated(time)
-                  : l10n.departuresUpdatedAt(time),
-              style: theme.textTheme.bodySmall?.copyWith(color: color),
+    // A live region: TalkBack announces when the board turns outdated,
+    // which otherwise only shows as colour and an icon.
+    return Semantics(
+      liveRegion: state.isOutdated,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            if (state.isOutdated) ...[
+              Icon(Icons.cloud_off, size: 16, color: color),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Text(
+                state.isOutdated
+                    ? l10n.departuresOutdated(time)
+                    : l10n.departuresUpdatedAt(time),
+                style: theme.textTheme.bodySmall?.copyWith(color: color),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -182,17 +188,8 @@ class _Board extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: departures.isEmpty
-          // Scrollable, so pull-to-refresh also works on an empty
-          // board.
-          ? LayoutBuilder(
-              builder: (context, constraints) => SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: CenteredMessage(l10n.departuresEmpty),
-                ),
-              ),
-            )
+          // Scrollable itself, so pull-to-refresh works on an empty board.
+          ? CenteredMessage(l10n.departuresEmpty)
           : ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               itemCount: departures.length,
@@ -238,29 +235,112 @@ class _DepartureTile extends StatelessWidget {
       if (departure.isCancelled) l10n.departureCancelled,
       ...departure.notes,
     ];
-    return ListTile(
-      leading: LineBadge(departure.line, mode: departure.mode),
-      title: Text(
-        departure.destination,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: departure.isCancelled
-            ? const TextStyle(decoration: TextDecoration.lineThrough)
-            : null,
-      ),
-      subtitle: notes.isEmpty
-          ? null
-          : Text(
-              notes.join(' · '),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: departure.isCancelled
-                  ? TextStyle(color: colors.error)
-                  : null,
+    final theme = Theme.of(context);
+    final destination = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          departure.destination,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            decoration: departure.isCancelled
+                ? TextDecoration.lineThrough
+                : null,
+          ),
+        ),
+        if (notes.isNotEmpty)
+          Text(
+            notes.join(' · '),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: departure.isCancelled
+                  ? colors.error
+                  : colors.onSurfaceVariant,
             ),
-      trailing: _TimeAndPlatform(departure),
+          ),
+      ],
+    );
+    // From 1.5x text the three columns leave the destination too narrow
+    // (words break mid-word), so it moves below line and time.
+    final stacked = MediaQuery.textScalerOf(context).scale(10) >= 15;
+
+    // A plain layout rather than a ListTile: ListTile fixes the height of
+    // its trailing widget, which cuts off time and platform at large font
+    // sizes. For TalkBack it is one item with a fixed order, whichever
+    // layout is shown.
+    return Semantics(
+      container: true,
+      label: _departureSummary(context, departure),
+      excludeSemantics: true,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 64),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: stacked
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LineBadge(departure.line, mode: departure.mode),
+                        const SizedBox(width: 16),
+                        Expanded(child: _TimeAndPlatform(departure)),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    destination,
+                  ],
+                )
+              : Row(
+                  children: [
+                    LineBadge(departure.line, mode: departure.mode),
+                    const SizedBox(width: 16),
+                    Expanded(child: destination),
+                    const SizedBox(width: 16),
+                    // Bounded, so the delay can move under the time instead
+                    // of pushing the row off screen.
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.sizeOf(context).width * 0.3,
+                      ),
+                      child: _TimeAndPlatform(departure),
+                    ),
+                  ],
+                ),
+        ),
+      ),
     );
   }
+}
+
+/// "Train 848, Essen Hauptbahnhof, 17:25, 22 min late, Platform 3, notes":
+/// what matters at a stop first, in the same order in both layouts.
+String _departureSummary(BuildContext context, Departure departure) {
+  final l10n = AppLocalizations.of(context);
+  final delay = departure.delay?.inMinutes ?? 0;
+  final platform = departure.platform;
+  return [
+    switch (departure.mode) {
+      final mode? => '${transportModeLabel(l10n, mode)} ${departure.line}',
+      null => departure.line,
+    },
+    departure.destination,
+    formatClockTime(context, departure.plannedTime),
+    if (departure.isCancelled)
+      l10n.departureCancelled
+    else if (delay > 0)
+      l10n.departureLate(delay)
+    else if (delay < 0)
+      l10n.departureEarly(-delay),
+    if (platform != null)
+      departure.platformChanged
+          ? l10n.departurePlatformChanged(platform)
+          : l10n.departurePlatform(platform),
+    ...departure.notes,
+  ].join(', ');
 }
 
 /// Planned time with the delay next to it (`17:13 +12`), and the platform
@@ -280,8 +360,9 @@ class _TimeAndPlatform extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        Wrap(
+          alignment: WrapAlignment.end,
+          spacing: 4,
           children: [
             Text(
               formatClockTime(context, departure.plannedTime),
@@ -292,7 +373,6 @@ class _TimeAndPlatform extends StatelessWidget {
               ),
             ),
             if (!departure.isCancelled && delayMinutes != 0) ...[
-              const SizedBox(width: 4),
               Text(
                 delayMinutes > 0 ? '+$delayMinutes' : '$delayMinutes',
                 semanticsLabel: delayMinutes > 0

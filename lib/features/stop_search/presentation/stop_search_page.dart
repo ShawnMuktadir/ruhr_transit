@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
@@ -85,16 +86,19 @@ class _StopSearchViewState extends State<StopSearchView> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: SearchBar(
+            // A plain text field rather than SearchBar: SearchBar's semantics
+            // are a 24 dp high field inside an unlabelled tappable box,
+            // which is hard to find with TalkBack.
+            child: TextField(
               controller: _controller,
-              autoFocus: true,
-              hintText: l10n.stopSearchHint,
-              leading: const Icon(Icons.search),
+              autofocus: true,
               textInputAction: TextInputAction.search,
               onChanged: context.read<StopSearchCubit>().queryChanged,
-              trailing: [
+              decoration: InputDecoration(
+                hintText: l10n.stopSearchHint,
+                prefixIcon: const Icon(Icons.search),
                 // Rebuilds only the clear button while typing.
-                ValueListenableBuilder(
+                suffixIcon: ValueListenableBuilder(
                   valueListenable: _controller,
                   builder: (context, value, _) => value.text.isEmpty
                       ? const SizedBox.shrink()
@@ -104,7 +108,12 @@ class _StopSearchViewState extends State<StopSearchView> {
                           onPressed: _clear,
                         ),
                 ),
-              ],
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(28),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
           ),
           Expanded(
@@ -207,7 +216,15 @@ class _StartContent extends StatelessWidget {
                   ),
                 ),
                 onDismissed: (_) => _removeWithUndo(context, stop),
-                child: StopTile(stop, isFavourite: true),
+                // Swiping is not possible with TalkBack; it offers this
+                // action instead (in its actions menu).
+                child: Semantics(
+                  customSemanticsActions: {
+                    CustomSemanticsAction(label: l10n.favouriteRemove): () =>
+                        _removeWithUndo(context, stop),
+                  },
+                  child: StopTile(stop, isFavourite: true),
+                ),
               ),
         ],
       ],

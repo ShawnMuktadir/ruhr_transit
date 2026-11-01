@@ -381,5 +381,27 @@
         "example": "Dortmund Hbf"
       }
     }
+  },
+  "tripSummary": "Abfahrt {departure}, Ankunft {arrival}, {details}",
+  "@tripSummary": {
+    "description": "Screen reader label of a trip result.",
+    "placeholders": {
+      "departure": {
+        "type": "String",
+        "example": "16:06"
+      },
+      "arrival": {
+        "type": "String",
+        "example": "16:28, 8 Min. später"
+      },
+      "details": {
+        "type": "String",
+        "example": "30 Min., 1 Umstieg, 378, S1"
+      }
+    }
+  },
+  "tripWalkLabel": "Fußweg",
+  "@tripWalkLabel": {
+    "description": "A walk in the list of lines read by screen readers."
   }
 }
