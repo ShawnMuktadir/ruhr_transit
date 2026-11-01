@@ -53,6 +53,10 @@ flutter analyze
 flutter test
 ```
 
+Accessibility checks (every screen at 200 % font size, tap targets, labels,
+contrast) run with the tests; manual checks before a release are in
+`docs/accessibility.md`.
+
 Refresh the recorded API responses used by tests:
 
 ```sh
