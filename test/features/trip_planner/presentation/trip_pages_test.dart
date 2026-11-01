@@ -178,6 +178,26 @@ void main() {
       );
     });
 
+    testWidgets('a card is read as one sentence', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpResults(tester);
+
+      final dep = localTime(directS1.departure.plannedTime);
+      final arr = localTime(directS1.arrival.plannedTime);
+      expect(
+        find.bySemanticsLabel(
+          'Departs $dep, 3 min late, arrives $arr, 2 min late, '
+          '22 min, Direct, S1',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(RegExp(r'1 change, U35, walk, 339$')),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
     testWidgets('later trips are appended', (tester) async {
       repository.replies = [
         Ok([directS1]),

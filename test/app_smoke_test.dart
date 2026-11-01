@@ -89,7 +89,7 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(find.byType(DeparturesPage), findsNothing);
-      expect(find.byType(SearchBar), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
     });
 
     testWidgets('a widget tap while running opens the board', (tester) async {
@@ -115,7 +115,7 @@ void main() {
 
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(find.byType(SearchBar), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
     });
   });
 }

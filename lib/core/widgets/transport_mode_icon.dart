@@ -23,13 +23,17 @@ class TransportModeIcon extends StatelessWidget {
       },
       size: size,
       color: color,
-      semanticLabel: switch (mode) {
-        TransportMode.train => l10n.modeTrain,
-        TransportMode.suburbanTrain => l10n.modeSuburbanTrain,
-        TransportMode.subway => l10n.modeSubway,
-        TransportMode.tram => l10n.modeTram,
-        TransportMode.bus => l10n.modeBus,
-      },
+      semanticLabel: transportModeLabel(l10n, mode),
     );
   }
 }
+
+/// The mode's name for screen readers, e.g. "S-Bahn".
+String transportModeLabel(AppLocalizations l10n, TransportMode mode) =>
+    switch (mode) {
+      TransportMode.train => l10n.modeTrain,
+      TransportMode.suburbanTrain => l10n.modeSuburbanTrain,
+      TransportMode.subway => l10n.modeSubway,
+      TransportMode.tram => l10n.modeTram,
+      TransportMode.bus => l10n.modeBus,
+    };

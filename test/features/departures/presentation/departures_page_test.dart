@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
@@ -25,7 +26,7 @@ void main() {
     widgetSync = FakeWidgetSync();
   });
 
-  Future<void> pumpPage(WidgetTester tester) async {
+  Future<void> pumpPage(WidgetTester tester, {double textScale = 1}) async {
     await tester.pumpWidget(
       BlocProvider(
         create: (_) => FavouritesCubit(favourites, initial: favourites.saved),
@@ -36,7 +37,10 @@ void main() {
           // Times are shown in the device time zone, which differs between
           // machines; 24-hour format at least fixes the pattern.
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            data: MediaQuery.of(context).copyWith(
+              alwaysUse24HourFormat: true,
+              textScaler: TextScaler.linear(textScale),
+            ),
             child: child!,
           ),
           home: BlocProvider(
@@ -94,12 +98,34 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('announces delays in words for screen readers', (tester) async {
+  testWidgets('reads each departure as one sentence', (tester) async {
     final semantics = tester.ensureSemantics();
-    repository.autoReply = Ok([delayedRe16]);
+    repository.autoReply = Ok([delayedRe16, cancelledRe11]);
     await pumpPage(tester);
 
-    expect(find.bySemanticsLabel(RegExp('12 min late')), findsOneWidget);
+    final re16 = localTime(delayedRe16.plannedTime);
+    final re11 = localTime(cancelledRe11.plannedTime);
+    expect(
+      find.bySemanticsLabel(
+        'Train RE16, Essen Hauptbahnhof, $re16, 12 min late, Platform 3, '
+        'Vorfahrt eines anderen Zuges',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(
+        'Train RE11, Kassel Bahnhof Wilhelmshöhe, $re11, Cancelled, '
+        'Platform 5',
+      ),
+      findsOneWidget,
+    );
+
+    // The same order when the row is stacked at large text.
+    await pumpPage(tester, textScale: 2);
+    expect(
+      find.bySemanticsLabel(RegExp('^Train RE16, Essen Hauptbahnhof, ')),
+      findsOneWidget,
+    );
     semantics.dispose();
   });
 
@@ -178,6 +204,7 @@ void main() {
   testWidgets('without a connection shows the saved board as outdated', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
     final savedAt = DateTime.utc(2026, 10, 25, 16, 50);
     repository
       ..autoReply = const Err(NetworkFailure())
@@ -190,6 +217,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.byIcon(Icons.cloud_off), findsOneWidget);
+    // TalkBack announces the change, which is otherwise colour and icon.
+    expect(
+      tester.getSemantics(find.textContaining('Not updated')),
+      isSemantics(isLiveRegion: true),
+    );
     expect(
       find.descendant(
         of: find.byType(SnackBar),
@@ -206,6 +238,7 @@ void main() {
     expect(find.text('RE16'), findsOneWidget);
     expect(find.text('Updated ${localTime(boardTime)}'), findsOneWidget);
     expect(find.byIcon(Icons.cloud_off), findsNothing);
+    semantics.dispose();
   });
 
   testWidgets('the menu shows the stop and its board on the widget', (
@@ -245,5 +278,27 @@ void main() {
     expect(widgetSync.shown.single.$2, isNull);
     await tester.tap(find.text('Add widget'));
     expect(widgetSync.addCount, 1);
+  });
+
+  testWidgets('at large text the destination moves below line and time', (
+    tester,
+  ) async {
+    repository.autoReply = Ok([delayedRe16]);
+    await pumpPage(tester);
+    final badge = find.byType(LineBadge);
+    final destination = find.text('Essen Hauptbahnhof');
+    // Side by side at normal size ...
+    expect(
+      tester.getTopLeft(destination).dx,
+      greaterThan(tester.getTopRight(badge).dx),
+    );
+
+    await pumpPage(tester, textScale: 2);
+
+    // ... below at 200 %, where three columns break words apart.
+    expect(
+      tester.getTopLeft(destination).dy,
+      greaterThanOrEqualTo(tester.getBottomLeft(badge).dy),
+    );
   });
 }

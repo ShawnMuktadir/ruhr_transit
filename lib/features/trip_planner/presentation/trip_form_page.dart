@@ -140,7 +140,8 @@ class _StopField extends StatelessWidget {
       title: Text(label, style: theme.textTheme.labelMedium),
       subtitle: Text(
         stop?.fullName ?? placeholder,
-        maxLines: 1,
+        // Two lines, so names stay readable at large font sizes.
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: theme.textTheme.titleMedium?.copyWith(
           color: stop == null ? theme.colorScheme.onSurfaceVariant : null,

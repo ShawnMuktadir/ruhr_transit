@@ -26,19 +26,7 @@ class JourneyDetailsPage extends StatelessWidget {
           ListTile(
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                JourneyDate(journey),
-                Row(
-                  children: [
-                    TripTimeText(journey.departure),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Icon(Icons.arrow_forward, size: 16),
-                    ),
-                    TripTimeText(journey.arrival),
-                  ],
-                ),
-              ],
+              children: [JourneyDate(journey), JourneyTimes(journey)],
             ),
             subtitle: Text(
               [
@@ -152,31 +140,41 @@ class _StopRow extends StatelessWidget {
         children: [
           // A minimum, not a fixed width: "10:14 AM +12" must still fit.
           ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 120),
+            constraints: BoxConstraints(
+              minWidth: 120,
+              // Leaves the stop name room at large font sizes.
+              maxWidth: MediaQuery.sizeOf(context).width * 0.4,
+            ),
             child: Padding(
               padding: const EdgeInsets.only(right: 8),
               child: TripTimeText(stop, style: theme.textTheme.bodyLarge),
             ),
           ),
-          Expanded(child: Text(stop.name, style: theme.textTheme.bodyLarge)),
-          if (platform != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              // As on the departure board: EFA's value as is ("8",
-              // "Gleis 3 (U)"), the word "platform" only for screen readers.
-              child: Text(
-                platform,
-                semanticsLabel: stop.platformChanged
-                    ? l10n.departurePlatformChanged(platform)
-                    : l10n.departurePlatform(platform),
-                style: stop.platformChanged
-                    ? theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.error,
-                        fontWeight: FontWeight.bold,
-                      )
-                    : theme.textTheme.bodySmall,
-              ),
+          // The platform goes under the name, so a long name and platform
+          // do not have to share one line at large font sizes.
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(stop.name, style: theme.textTheme.bodyLarge),
+                if (platform != null)
+                  // As on the departure board: EFA's value as is ("8",
+                  // "Gleis 3 (U)"), "platform" only for screen readers.
+                  Text(
+                    platform,
+                    semanticsLabel: stop.platformChanged
+                        ? l10n.departurePlatformChanged(platform)
+                        : l10n.departurePlatform(platform),
+                    style: stop.platformChanged
+                        ? theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.error,
+                            fontWeight: FontWeight.bold,
+                          )
+                        : theme.textTheme.bodySmall,
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     );

@@ -67,5 +67,7 @@
   "tripChange": "{minutes} min to change",
   "tripShortChange": "Short connection",
   "tripDetailsTitle": "Trip details",
-  "tripDirection": "towards {direction}"
+  "tripDirection": "towards {direction}",
+  "tripSummary": "Departs {departure}, arrives {arrival}, {details}",
+  "tripWalkLabel": "walk"
 }
