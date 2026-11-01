@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
-import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
-import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
-import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
+import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_state.dart';
+import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
 
 /// Composition root of the search screen: creates the cubit, then hands
 /// over to [StopSearchView], which tests can pump with their own cubit.
@@ -83,7 +82,7 @@ class _StopSearchViewState extends State<StopSearchView> {
           Expanded(
             child: BlocBuilder<StopSearchCubit, StopSearchState>(
               builder: (context, state) => switch (state) {
-                StopSearchIdle() => const _Favourites(),
+                StopSearchIdle() => const _StartContent(),
                 StopSearchLoading() => const Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -108,47 +107,62 @@ class _StopSearchViewState extends State<StopSearchView> {
   }
 }
 
-/// Shown before searching: the favourites, or the search hint if there are
-/// none yet.
-class _Favourites extends StatelessWidget {
-  const _Favourites();
+/// Shown before searching: nearby stops, then the favourites, or the search
+/// hint if there are none yet.
+class _StartContent extends StatelessWidget {
+  const _StartContent();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final favourites = context.watch<FavouritesCubit>().state;
-    if (favourites.isEmpty) return CenteredMessage(l10n.stopSearchIdle);
-
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-          child: Text(
-            l10n.favouritesTitle,
-            style: Theme.of(context).textTheme.titleSmall,
+        ListTile(
+          leading: const Icon(Icons.near_me_outlined),
+          title: Text(l10n.nearbyTitle),
+          trailing: const Icon(Icons.chevron_right),
+          // Location is only requested from here, never at app start.
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const NearbyStopsPage()),
           ),
         ),
-        for (final stop in favourites)
-          Dismissible(
-            key: ValueKey(stop.id),
-            direction: DismissDirection.endToStart,
-            background: ColoredBox(
-              color: Theme.of(context).colorScheme.errorContainer,
-              child: Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 24),
-                  child: Icon(
-                    Icons.delete_outline,
-                    color: Theme.of(context).colorScheme.onErrorContainer,
+        const Divider(height: 1),
+        if (favourites.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(l10n.stopSearchIdle, textAlign: TextAlign.center),
+          )
+        else ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: Text(
+              l10n.favouritesTitle,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          for (final stop in favourites)
+            Dismissible(
+              key: ValueKey(stop.id),
+              direction: DismissDirection.endToStart,
+              background: ColoredBox(
+                color: Theme.of(context).colorScheme.errorContainer,
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 24),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
                   ),
                 ),
               ),
+              onDismissed: (_) => _removeWithUndo(context, stop),
+              child: StopTile(stop, isFavourite: true),
             ),
-            onDismissed: (_) => _removeWithUndo(context, stop),
-            child: _StopTile(stop, isFavourite: true),
-          ),
+        ],
       ],
     );
   }
@@ -181,53 +195,7 @@ class _StopList extends StatelessWidget {
     return ListView.builder(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       itemCount: stops.length,
-      itemBuilder: (context, index) => _StopTile(stops[index]),
-    );
-  }
-}
-
-class _StopTile extends StatelessWidget {
-  const _StopTile(this.stop, {this.isFavourite = false});
-
-  final Stop stop;
-  final bool isFavourite;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(isFavourite ? Icons.star : Icons.place_outlined),
-      title: Text(stop.name),
-      subtitle: switch (stop.locality) {
-        final locality? => Text(locality),
-        null => null,
-      },
-      trailing: _ModeIcons(stop.modes),
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => DeparturesPage(stop: stop)),
-      ),
-    );
-  }
-}
-
-class _ModeIcons extends StatelessWidget {
-  const _ModeIcons(this.modes);
-
-  final Set<TransportMode> modes;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Enum order, so every row lists modes the same way.
-        for (final mode in TransportMode.values)
-          if (modes.contains(mode))
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: TransportModeIcon(mode, size: 20, color: color),
-            ),
-      ],
+      itemBuilder: (context, index) => StopTile(stops[index]),
     );
   }
 }
