@@ -75,33 +75,87 @@ class DeparturesView extends StatelessWidget {
               child: Text(l10n.retry),
             ),
           ),
-          DeparturesLoaded(:final departures) => RefreshIndicator(
-            onRefresh: cubit.refresh,
-            child: departures.isEmpty
-                // Scrollable, so pull-to-refresh also works on an empty
-                // board.
-                ? LayoutBuilder(
-                    builder: (context, constraints) => SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: CenteredMessage(l10n.departuresEmpty),
-                      ),
-                    ),
-                  )
-                : ListView.separated(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: departures.length,
-                    itemBuilder: (context, index) =>
-                        _DepartureTile(departures[index]),
-                    separatorBuilder: (_, _) => const Divider(height: 1),
-                  ),
+          DeparturesLoaded(:final departures) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _UpdatedAt(state),
+              Expanded(child: _Board(departures, onRefresh: cubit.refresh)),
+            ],
           ),
         },
       ),
       bottomNavigationBar: const DataAttribution(),
+    );
+  }
+}
+
+/// When the board was fetched. Stays visible while scrolling, so an
+/// outdated board can never be mistaken for a live one.
+class _UpdatedAt extends StatelessWidget {
+  const _UpdatedAt(this.state);
+
+  final DeparturesLoaded state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final time = _formatTime(context, state.fetchedAt);
+    final color = state.isOutdated
+        ? theme.colorScheme.error
+        : theme.colorScheme.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(
+        children: [
+          if (state.isOutdated) ...[
+            Icon(Icons.cloud_off, size: 16, color: color),
+            const SizedBox(width: 8),
+          ],
+          Expanded(
+            child: Text(
+              state.isOutdated
+                  ? l10n.departuresOutdated(time)
+                  : l10n.departuresUpdatedAt(time),
+              style: theme.textTheme.bodySmall?.copyWith(color: color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Board extends StatelessWidget {
+  const _Board(this.departures, {required this.onRefresh});
+
+  final List<Departure> departures;
+  final Future<void> Function() onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: departures.isEmpty
+          // Scrollable, so pull-to-refresh also works on an empty
+          // board.
+          ? LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: CenteredMessage(l10n.departuresEmpty),
+                ),
+              ),
+            )
+          : ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: departures.length,
+              itemBuilder: (context, index) =>
+                  _DepartureTile(departures[index]),
+              separatorBuilder: (_, _) => const Divider(height: 1),
+            ),
     );
   }
 }

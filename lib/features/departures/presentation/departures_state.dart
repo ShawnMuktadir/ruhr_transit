@@ -14,13 +14,24 @@ final class DeparturesLoading extends DeparturesState {
 
 /// The board, possibly empty.
 final class DeparturesLoaded extends DeparturesState {
-  const DeparturesLoaded(this.departures, {this.refreshFailure});
+  const DeparturesLoaded(
+    this.departures, {
+    required this.fetchedAt,
+    this.refreshFailure,
+  });
 
   final List<Departure> departures;
 
-  /// Set when a refresh failed. [departures] are then the previous ones:
-  /// a slightly old board is more useful at a stop than an error screen.
+  /// When [departures] were fetched, in UTC.
+  final DateTime fetchedAt;
+
+  /// Set when the latest load or refresh failed. [departures] are then an
+  /// older board, from this page or saved on the device, without the
+  /// departures that have left since: a slightly old board is more useful at
+  /// a stop than an error screen.
   final Failure? refreshFailure;
+
+  bool get isOutdated => refreshFailure != null;
 }
 
 /// Loading failed and there is no board to show.
