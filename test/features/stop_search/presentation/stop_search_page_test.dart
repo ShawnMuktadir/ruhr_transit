@@ -11,9 +11,11 @@ import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.d
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repository.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 import '../../../helpers/fake_departure_repository.dart';
@@ -41,7 +43,10 @@ void main() {
   });
   tearDown(getIt.reset);
 
-  Future<void> pumpPage(WidgetTester tester) async {
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    ValueChanged<Stop>? onPicked,
+  }) async {
     await tester.pumpWidget(
       // Above MaterialApp like in the app, so pushed routes see it too.
       BlocProvider(
@@ -52,7 +57,10 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           home: BlocProvider(
             create: (_) => StopSearchCubit(repository),
-            child: const StopSearchView(),
+            child: StopSearchView(
+              onPicked: onPicked,
+              title: onPicked == null ? null : 'Choose start',
+            ),
           ),
         ),
       ),
@@ -70,6 +78,37 @@ void main() {
 
     expect(find.textContaining('at least two letters'), findsOneWidget);
     expect(find.byTooltip('Clear search'), findsNothing);
+  });
+
+  testWidgets('plan a trip opens the trip form', (tester) async {
+    await pumpPage(tester);
+
+    await tester.tap(find.text('Plan a trip'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TripFormPage), findsOneWidget);
+  });
+
+  testWidgets('pick mode returns the stop instead of opening its board', (
+    tester,
+  ) async {
+    final picked = <Stop>[];
+    favourites.saved = [dortmundHbf];
+    repository.autoReply = const Ok([bochumHbf]);
+    await pumpPage(tester, onPicked: picked.add);
+
+    expect(find.text('Choose start'), findsOneWidget);
+    // Only favourites before typing: no nearby stops or trip planner.
+    expect(find.text('Stops near me'), findsNothing);
+    expect(find.text('Plan a trip'), findsNothing);
+
+    await tester.tap(find.text('Dortmund'));
+    await search(tester, 'Bochum');
+    await tester.tap(find.byType(StopTile));
+    await tester.pumpAndSettle();
+
+    expect(picked, [dortmundHbf, bochumHbf]);
+    expect(find.byType(DeparturesPage), findsNothing);
   });
 
   testWidgets('stops near me opens its page from the start screen', (

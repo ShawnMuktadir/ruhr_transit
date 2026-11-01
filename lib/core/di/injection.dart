@@ -15,6 +15,9 @@ import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repositor
 import 'package:ruhr_transit/features/stop_search/data/efa_stop_remote_source.dart';
 import 'package:ruhr_transit/features/stop_search/data/stop_repository_impl.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/data/efa_trip_remote_source.dart';
+import 'package:ruhr_transit/features/trip_planner/data/trip_repository_impl.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/data/home_widget_sync.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,6 +53,10 @@ void configureDependencies() {
       () => NearbyStopsRepositoryImpl(getIt()),
     )
     ..registerLazySingleton<LocationSource>(GeolocatorLocationSource.new)
+    ..registerLazySingleton(() => EfaTripRemoteSource(getIt()))
+    // A factory like the other repositories: each results page cancels only
+    // its own requests.
+    ..registerFactory<TripRepository>(() => TripRepositoryImpl(getIt()))
     ..registerLazySingleton(SharedPreferencesAsync.new)
     // A singleton, because it queues its own writes: two instances could
     // overwrite each other's boards.

@@ -5,15 +5,24 @@ import 'package:ruhr_transit/features/departures/presentation/departures_page.da
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 
 /// A stop in a list (search results, favourites, nearby stops). Tapping it
-/// opens its departure board.
+/// opens its departure board, or calls [onSelected] if set.
 class StopTile extends StatelessWidget {
-  const StopTile(this.stop, {this.isFavourite = false, this.detail, super.key});
+  const StopTile(
+    this.stop, {
+    this.isFavourite = false,
+    this.detail,
+    this.onSelected,
+    super.key,
+  });
 
   final Stop stop;
   final bool isFavourite;
 
   /// Shown after the town, e.g. the distance of a nearby stop.
   final String? detail;
+
+  /// Replaces opening the board, e.g. when picking a stop for a trip.
+  final ValueChanged<Stop>? onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +34,12 @@ class StopTile extends StatelessWidget {
         final parts => Text(parts.join(' · ')),
       },
       trailing: _ModeIcons(stop.modes),
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => DeparturesPage(stop: stop)),
-      ),
+      onTap: switch (onSelected) {
+        final onSelected? => () => onSelected(stop),
+        null => () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => DeparturesPage(stop: stop)),
+        ),
+      },
     );
   }
 }

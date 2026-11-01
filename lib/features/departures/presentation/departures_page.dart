@@ -4,8 +4,9 @@ import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
+import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
-import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
+import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
@@ -143,7 +144,7 @@ class _UpdatedAt extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final time = _formatTime(context, state.fetchedAt);
+    final time = formatClockTime(context, state.fetchedAt);
     final color = state.isOutdated
         ? theme.colorScheme.error
         : theme.colorScheme.onSurfaceVariant;
@@ -238,7 +239,7 @@ class _DepartureTile extends StatelessWidget {
       ...departure.notes,
     ];
     return ListTile(
-      leading: _LineBadge(departure),
+      leading: LineBadge(departure.line, mode: departure.mode),
       title: Text(
         departure.destination,
         maxLines: 1,
@@ -258,42 +259,6 @@ class _DepartureTile extends StatelessWidget {
                   : null,
             ),
       trailing: _TimeAndPlatform(departure),
-    );
-  }
-}
-
-class _LineBadge extends StatelessWidget {
-  const _LineBadge(this.departure);
-
-  final Departure departure;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      constraints: const BoxConstraints(minWidth: 64),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: colors.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (departure.mode case final mode?) ...[
-            TransportModeIcon(mode, size: 16, color: colors.onPrimaryContainer),
-            const SizedBox(width: 4),
-          ],
-          Text(
-            departure.line,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: colors.onPrimaryContainer,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -319,7 +284,7 @@ class _TimeAndPlatform extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _formatTime(context, departure.plannedTime),
+              formatClockTime(context, departure.plannedTime),
               style: theme.textTheme.titleMedium?.copyWith(
                 decoration: departure.isCancelled
                     ? TextDecoration.lineThrough
@@ -357,12 +322,4 @@ class _TimeAndPlatform extends StatelessWidget {
       ],
     );
   }
-}
-
-/// [time] is UTC; shown in the device's time zone and 12/24-hour setting.
-String _formatTime(BuildContext context, DateTime time) {
-  return MaterialLocalizations.of(context).formatTimeOfDay(
-    TimeOfDay.fromDateTime(time.toLocal()),
-    alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
-  );
 }
