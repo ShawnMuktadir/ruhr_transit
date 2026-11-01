@@ -39,6 +39,14 @@ class HomeShellState extends State<HomeShell> {
   };
   final _segment = ValueNotifier(FavouritesSegment.journeys);
 
+  /// One focus scope per tab, which remembers the tab's focused field: a
+  /// stop picker left open has its field focused and the keyboard up again
+  /// when its tab returns, like other apps.
+  final _focusScopes = {
+    for (final tab in HomeTab.values)
+      tab: FocusScopeNode(debugLabel: 'Tab ${tab.name}'),
+  };
+
   /// Owned here rather than by the planner page, so a saved journey can
   /// fill in the form.
   final _tripForm = TripFormCubit();
@@ -46,6 +54,9 @@ class HomeShellState extends State<HomeShell> {
   @override
   void dispose() {
     _segment.dispose();
+    for (final scope in _focusScopes.values) {
+      scope.dispose();
+    }
     unawaited(_tripForm.close());
     super.dispose();
   }
@@ -56,11 +67,19 @@ class HomeShellState extends State<HomeShell> {
       _navigators[tab]!.currentState?.popUntil((route) => route.isFirst);
       return;
     }
-    // A text field in the hidden tab would otherwise keep the keyboard open.
-    FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _tab = tab;
       _visited.add(tab);
+    });
+    _focusTab(tab);
+  }
+
+  /// Moves focus into [tab]'s scope, back to the field it had, if any. The
+  /// field in the tab left behind loses focus, so its keyboard closes.
+  void _focusTab(HomeTab tab) {
+    // After the build, so a tab opened for the first time exists.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _tab == tab) _focusScopes[tab]!.requestFocus();
     });
   }
 
@@ -127,7 +146,10 @@ class HomeShellState extends State<HomeShell> {
   Future<void> _back() async {
     final navigator = _navigators[_tab]!.currentState;
     if (navigator != null && await navigator.maybePop()) return;
-    if (_tab != HomeTab.plan) setState(() => _tab = HomeTab.plan);
+    if (_tab != HomeTab.plan) {
+      setState(() => _tab = HomeTab.plan);
+      _focusTab(HomeTab.plan);
+    }
   }
 
   /// The tab navigators report whether they can pop, and WidgetsApp passes
@@ -175,9 +197,12 @@ class HomeShellState extends State<HomeShell> {
                   // Hidden tabs keep their state but stop animating.
                   TickerMode(
                     enabled: tab == _tab,
-                    child: _TabNavigator(
-                      navigatorKey: _navigators[tab]!,
-                      root: _root(tab),
+                    child: FocusScope(
+                      node: _focusScopes[tab],
+                      child: _TabNavigator(
+                        navigatorKey: _navigators[tab]!,
+                        root: _root(tab),
+                      ),
                     ),
                   )
                 else

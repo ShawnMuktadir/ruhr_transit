@@ -179,6 +179,8 @@ void main() {
       expect(find.text('U35'), findsOneWidget);
       expect(find.byIcon(Icons.directions_walk), findsOneWidget);
       expect(find.text('1 change'), findsOneWidget);
+      // Only the trip with notices says so; S1 has none.
+      expect(find.text('2 notices'), findsOneWidget);
       expect(
         find.textContaining('All information without guarantee'),
         findsOne,
@@ -198,8 +200,9 @@ void main() {
         ),
         findsOneWidget,
       );
+      // Notices are part of the sentence, as on screen.
       expect(
-        find.bySemanticsLabel(RegExp(r'1 change, U35, walk, 339$')),
+        find.bySemanticsLabel(RegExp(r'1 change, U35, walk, 339, 2 notices$')),
         findsOneWidget,
       );
       semantics.dispose();
@@ -248,6 +251,80 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(JourneyDetailsPage), findsOneWidget);
+    });
+  });
+
+  group('journey details: stops in between and notices', () {
+    testWidgets('a ride shows its stops in between on request', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(app(JourneyDetailsPage(journey: withWalk)));
+      expect(find.text('Bochum Markstr.'), findsNothing);
+
+      expect(
+        tester.getSemantics(find.text('2 stops in between')),
+        matchesSemantics(
+          label: '2 stops in between',
+          isButton: true,
+          hasExpandedState: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+          isFocusable: true,
+        ),
+      );
+      await tester.tap(find.text('2 stops in between'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Bochum Gesundheitscampus'), findsOneWidget);
+      expect(find.text('Bochum Markstr.'), findsOneWidget);
+      // Live time and platform chip, like origin and destination.
+      expect(find.text('Platform 2'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.text('2 stops in between')),
+        matchesSemantics(
+          label: '2 stops in between',
+          isButton: true,
+          hasExpandedState: true,
+          isExpanded: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+          isFocusable: true,
+        ),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('a ride without stops in between shows nothing extra', (
+      tester,
+    ) async {
+      await tester.pumpWidget(app(JourneyDetailsPage(journey: directS1)));
+
+      expect(find.textContaining('in between'), findsNothing);
+      expect(find.textContaining('notice'), findsNothing);
+    });
+
+    testWidgets('notices are collapsed, important first, full text on tap', (
+      tester,
+    ) async {
+      await tester.pumpWidget(app(JourneyDetailsPage(journey: withWalk)));
+      expect(find.text(liftNotice.title), findsNothing);
+
+      await tester.tap(find.text('2 notices'));
+      await tester.pumpAndSettle();
+      final titles = [
+        tester.getTopLeft(find.text(liftNotice.title)).dy,
+        tester.getTopLeft(find.text(lineNotice.title)).dy,
+      ];
+      expect(titles.first, lessThan(titles.last));
+      expect(find.text(lineNotice.summary!), findsOneWidget);
+      // Without a summary, the text tells same-titled notices apart.
+      expect(find.text(liftNotice.text), findsOneWidget);
+      // In English the app says the texts are German.
+      expect(find.textContaining('in German only'), findsOneWidget);
+
+      await tester.tap(find.text(lineNotice.title));
+      await tester.pumpAndSettle();
+      expect(find.byType(BottomSheet), findsOneWidget);
+      expect(find.textContaining('Dauer: 08.06.26'), findsOneWidget);
     });
   });
 

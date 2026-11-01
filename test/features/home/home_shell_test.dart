@@ -202,6 +202,27 @@ void main() {
     expect(frameworkHandlesBack, isFalse);
   });
 
+  bool fieldHasFocus(WidgetTester tester) =>
+      tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+
+  testWidgets('a tab gets its focused field back when it returns', (
+    tester,
+  ) async {
+    await pumpShell(tester);
+    await tester.tap(find.text('Choose start'));
+    await tester.pumpAndSettle();
+    expect(fieldHasFocus(tester), isTrue);
+
+    // Leaving the tab closes its keyboard ...
+    await openTab(tester, 'Settings');
+    expect(tester.testTextInput.isVisible, isFalse);
+
+    // ... coming back opens it again, ready to type.
+    await openTab(tester, 'Plan trip');
+    expect(fieldHasFocus(tester), isTrue);
+    expect(tester.testTextInput.isVisible, isTrue);
+  });
+
   testWidgets('tapping the open tab returns to its start', (tester) async {
     await pumpShell(tester);
     await tester.tap(find.text('Choose start'));

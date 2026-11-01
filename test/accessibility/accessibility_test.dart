@@ -156,6 +156,9 @@ void main() {
         time: LeaveNow(),
       ),
     ),
+    'journey details, stops and notices open': () =>
+        JourneyDetailsPage(journey: withWalk),
+    'notice text': () => JourneyDetailsPage(journey: withWalk),
     'nearby stops, before asking': () => BlocProvider(
       create: (_) =>
           NearbyStopsCubit(FakeLocationSource(), FakeNearbyStopsRepository())
@@ -182,6 +185,25 @@ void main() {
   final reach = <String, Future<void> Function(WidgetTester)>{
     'language choice': (tester) async {
       await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+    },
+    'journey details, stops and notices open': (tester) async {
+      await tester.tap(find.textContaining('Hinweise'));
+      await tester.pumpAndSettle();
+      // At 2x the row is further down than the list has built yet.
+      await tester.scrollUntilVisible(
+        find.textContaining('Zwischenhalte'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.ensureVisible(find.textContaining('Zwischenhalte'));
+      await tester.tap(find.textContaining('Zwischenhalte'));
+      await tester.pumpAndSettle();
+    },
+    'notice text': (tester) async {
+      await tester.tap(find.textContaining('Hinweise'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(lineNotice.title));
       await tester.pumpAndSettle();
     },
   };

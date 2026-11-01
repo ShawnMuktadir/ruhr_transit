@@ -62,6 +62,80 @@ void main() {
       expect(journeys.first.duration, const Duration(minutes: 16));
       expect(journeys[1].legs.single, isA<TransitLeg>());
     });
+
+    test('maps the stops in between with live times and platforms', () {
+      final journeys = mapTripResponse(
+        readEfaFixtureJson('trip_bochum_dortmund'),
+      );
+      final s1 = journeys.first.legs.single as TransitLeg;
+
+      expect(s1.intermediateStops.map((stop) => stop.name), [
+        'Bochum Langendreer West',
+        'Bochum Langendreer S',
+        'Dortmund Kley S',
+        'Dortmund Oespel',
+        'Dortmund Universität S',
+        'Dortmund Dorstfeld Süd S',
+        'Dortmund Dorstfeld S',
+      ]);
+      final first = s1.intermediateStops.first;
+      // The departure, which is what a passenger waits for.
+      expect(first.plannedTime, DateTime.utc(2026, 10, 25, 17, 18));
+      expect(first.estimatedTime, DateTime.utc(2026, 10, 25, 17, 22));
+      expect(first.platform, '2');
+      // An express without stops in between.
+      expect(
+        (journeys[1].legs.single as TransitLeg).intermediateStops,
+        isEmpty,
+      );
+    });
+
+    test('cleans stop names and allows stops without platform', () {
+      final journeys = mapTripResponse(readEfaFixtureJson('trip_with_walk'));
+      final u35 = journeys.first.legs.first as TransitLeg;
+
+      // EFA sends "Bochum  Gesundheitscampus" with two spaces.
+      expect(u35.intermediateStops.first.name, 'Bochum Gesundheitscampus');
+      expect(u35.intermediateStops.first.platform, isNull);
+      expect(u35.intermediateStops, hasLength(6));
+    });
+
+    test('maps notices once per journey, important ones first', () {
+      final journeys = mapTripResponse(
+        readEfaFixtureJson('trip_bochum_dortmund'),
+      );
+
+      final notices = journeys[2].notices;
+      expect(notices, hasLength(5));
+      expect(notices.map((n) => n.id).toSet(), hasLength(5));
+      expect(notices.first.kind, TripNoticeKind.trip);
+      expect(notices.first.text, startsWith('Keine fahrzeuggebundene'));
+      final lift = notices.last;
+      expect(lift.kind, TripNoticeKind.facilities);
+      expect(lift.title, 'Haltestelle Bochum Hbf: Aufzug außer Betrieb.');
+      expect(lift.isLowPriority, isFalse);
+      // EFA's urlText is empty here.
+      expect(lift.summary, isNull);
+    });
+
+    test('turns HTML notices into plain text with their summary', () {
+      final journeys = mapTripResponse(readEfaFixtureJson('trip_with_walk'));
+
+      final notices = journeys[3].notices;
+      expect(notices.map((n) => n.kind), [
+        TripNoticeKind.stop,
+        TripNoticeKind.line,
+      ]);
+      final line = notices.last;
+      expect(line.isLowPriority, isTrue);
+      expect(line.title, 'Haltestellenveränderungen durch Baumaßnahme');
+      expect(line.summary, startsWith('Linien E24, E30, E32, E34, E71'));
+      expect(line.text, isNot(contains('<')));
+      expect(line.text, isNot(contains('&')));
+      expect(line.text, contains('Zusätzlich bedient werden:'));
+      // The same notice on two legs counts once.
+      expect(journeys[2].notices, hasLength(1));
+    });
   });
 
   Map<String, Object?> stop(String name, String kind, String planned) => {

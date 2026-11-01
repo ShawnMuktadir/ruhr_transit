@@ -643,5 +643,49 @@
   "profileSaveFailed": "Der Name konnte nicht gespeichert werden.",
   "@profileSaveFailed": {
     "description": "Snack bar when saving the display name failed."
+  },
+  "tripIntermediateStops": "{count, plural, =1{1 Zwischenhalt} other{{count} Zwischenhalte}}",
+  "@tripIntermediateStops": {
+    "description": "Expandable row on a ride in trip details.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "tripNotices": "{count, plural, =1{1 Hinweis} other{{count} Hinweise}}",
+  "@tripNotices": {
+    "description": "VRR notices for a trip: on result cards and as the heading of the notices in trip details.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "tripNoticesGermanOnly": "Die Hinweise stammen vom VRR.",
+  "@tripNoticesGermanOnly": {
+    "description": "Below the notices in trip details. Only shown when the app is not in German."
+  },
+  "noticeFacilities": "Aufzug oder Rolltreppe",
+  "@noticeFacilities": {
+    "description": "Screen reader label for the icon of a facilities notice."
+  },
+  "noticeStop": "Haltestelle",
+  "@noticeStop": {
+    "description": "Screen reader label for the icon of a stop notice."
+  },
+  "noticeLine": "Linie",
+  "@noticeLine": {
+    "description": "Screen reader label for the icon of a line notice."
+  },
+  "noticeTrip": "Fahrt",
+  "@noticeTrip": {
+    "description": "Screen reader label for the icon of a notice about this ride."
+  },
+  "noticeOther": "Hinweis",
+  "@noticeOther": {
+    "description": "Screen reader label for the icon of another notice."
   }
 }

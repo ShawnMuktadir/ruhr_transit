@@ -7,6 +7,7 @@ import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/trip_notices.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
 
 /// Less spare time than this after walking is flagged as a short
@@ -25,6 +26,7 @@ class JourneyDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final notices = journey.notices;
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tripDetailsTitle),
@@ -51,6 +53,7 @@ class JourneyDetailsPage extends StatelessWidget {
               ].join(' · '),
             ),
           ),
+          if (notices.isNotEmpty) TripNoticesSection(notices),
           const Divider(),
           ..._legsWithChanges(journey.legs),
         ],
@@ -118,6 +121,8 @@ class _RideTile extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _StopRow(leg.origin, mode: leg.mode),
+          if (leg.intermediateStops.isNotEmpty)
+            _IntermediateStops(leg.intermediateStops, mode: leg.mode),
           _StopRow(leg.destination, mode: leg.mode),
           for (final note in leg.notes)
             Padding(
@@ -135,18 +140,82 @@ class _RideTile extends StatelessWidget {
   }
 }
 
+/// "6 Zwischenhalte", tap to show them between origin and destination.
+class _IntermediateStops extends StatefulWidget {
+  const _IntermediateStops(this.stops, {this.mode});
+
+  final List<TripStop> stops;
+  final TransportMode? mode;
+
+  @override
+  State<_IntermediateStops> createState() => _IntermediateStopsState();
+}
+
+class _IntermediateStopsState extends State<_IntermediateStops> {
+  var _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.primary;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Its own node, so TalkBack reads it as a button with its state.
+        Semantics(
+          container: true,
+          button: true,
+          expanded: _expanded,
+          child: InkWell(
+            onTap: () => setState(() => _expanded = !_expanded),
+            borderRadius: BorderRadius.circular(8),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Row(
+                children: [
+                  Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    color: color,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      l10n.tripIntermediateStops(widget.stops.length),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: color),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (_expanded)
+          for (final stop in widget.stops)
+            _StopRow(stop, mode: widget.mode, compact: true),
+      ],
+    );
+  }
+}
+
 /// `17:14 +3   Bochum Hbf`, with a [Gleis 8] chip under the name.
 class _StopRow extends StatelessWidget {
-  const _StopRow(this.stop, {this.mode});
+  const _StopRow(this.stop, {this.mode, this.compact = false});
 
   final TripStop stop;
 
   /// Of the leg, so a bus stop gets "Steig" instead of "Gleis".
   final TransportMode? mode;
 
+  /// A stop in between: smaller, so origin and destination stand out.
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final style = compact
+        ? theme.textTheme.bodyMedium
+        : theme.textTheme.bodyLarge;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -161,7 +230,7 @@ class _StopRow extends StatelessWidget {
             ),
             child: Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: TripTimeText(stop, style: theme.textTheme.bodyLarge),
+              child: TripTimeText(stop, style: style),
             ),
           ),
           // The platform goes under the name, so a long name and platform
@@ -170,7 +239,7 @@ class _StopRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(stop.name, style: theme.textTheme.bodyLarge),
+                Text(stop.name, style: style),
                 if (stop.platform != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),

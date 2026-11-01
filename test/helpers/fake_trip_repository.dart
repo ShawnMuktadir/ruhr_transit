@@ -60,6 +60,16 @@ final withWalk = Journey([
       plannedTime: _utc(7, 31),
       platform: 'Gleis 3 (U)',
     ),
+    intermediateStops: [
+      TripStop(name: 'Bochum Gesundheitscampus', plannedTime: _utc(7, 22)),
+      TripStop(
+        name: 'Bochum Markstr.',
+        plannedTime: _utc(7, 23),
+        estimatedTime: _utc(7, 25),
+        platform: '2',
+      ),
+    ],
+    notices: const [liftNotice, lineNotice],
   ),
   WalkLeg(
     duration: const Duration(minutes: 4),
@@ -93,3 +103,25 @@ final laterRe11 = Journey([
     destination: TripStop(name: 'Dortmund Hbf', plannedTime: _utc(8, 3)),
   ),
 ]);
+
+/// A station notice, as EFA sends for Bochum Hbf.
+const liftNotice = TripNotice(
+  id: 'VRR-de:05911:5194:31',
+  kind: TripNoticeKind.facilities,
+  title: 'Haltestelle Bochum Hbf: Aufzug außer Betrieb.',
+  text:
+      'An der Haltestelle Bochum Hbf ist der Aufzug zur Verteilerebene bis '
+      'auf Weiteres außer Betrieb.',
+);
+
+/// A long-running, low-priority line notice.
+const lineNotice = TripNotice(
+  id: 'ems-50050',
+  kind: TripNoticeKind.line,
+  title: 'Haltestellenveränderungen durch Baumaßnahme',
+  summary: 'Linien 345, 355 - Haltestellenveränderungen',
+  text:
+      'Linien 345, 355: Zwischen (H) Lessing-Schule und (H) Papenholz.\n'
+      'Dauer: 08.06.26 bis 04.01.27',
+  isLowPriority: true,
+);
