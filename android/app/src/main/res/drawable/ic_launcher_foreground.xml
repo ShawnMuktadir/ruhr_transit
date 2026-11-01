@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A tram seen from the front. The shapes are cut out of one path
+     (evenOdd), so the same drawable works as the coloured foreground and as
+     the monochrome layer of themed icons (Android 13+).
+     Keep in sync with tool/render_legacy_icons.dart, which draws the PNGs
+     for Android 7.1 and below. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Moved down so the pantograph stays inside the 66 dp safe zone. -->
+    <group android:translateY="4">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M40,30 h28 a4,4 0 0 1 4,4 v36 a4,4 0 0 1 -4,4 h-28 a4,4 0 0 1 -4,-4 v-36 a4,4 0 0 1 4,-4 z
+                M42,36 h24 a2,2 0 0 1 2,2 v12 a2,2 0 0 1 -2,2 h-24 a2,2 0 0 1 -2,-2 v-12 a2,2 0 0 1 2,-2 z
+                M42,63 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 z
+                M60,63 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M53,23 h2 v7 h-2 z
+                M46,21 h16 v2.5 h-16 z
+                M41,74 h6 v4 h-6 z
+                M61,74 h6 v4 h-6 z" />
+    </group>
+</vector>
