@@ -15,6 +15,12 @@ class FakeLocationSource implements LocationSource {
   int appSettingsOpened = 0;
   int locationSettingsOpened = 0;
 
+  /// As on first launch: not granted yet.
+  bool permissionGranted = false;
+
+  @override
+  Future<bool> hasPermission() async => permissionGranted;
+
   @override
   Future<LocationResult> currentLocation() {
     calls++;

@@ -5,6 +5,8 @@ import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/platform_chip.dart';
+import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
@@ -14,6 +16,7 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.d
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 
+import '../../../helpers/fake_favourite_journeys_repository.dart';
 import '../../../helpers/fake_stop_repository.dart';
 import '../../../helpers/fake_trip_repository.dart';
 
@@ -26,16 +29,20 @@ void main() {
   });
   tearDown(getIt.reset);
 
-  Widget app(Widget home) => MaterialApp(
-    locale: const Locale('en'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    // Times show in the device time zone; 24-hour format fixes the pattern.
-    builder: (context, child) => MediaQuery(
-      data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-      child: child!,
+  // Above MaterialApp like in the app; the bookmark on every page reads it.
+  Widget app(Widget home) => BlocProvider(
+    create: (_) => FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
+    child: MaterialApp(
+      locale: const Locale('en'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      // Times show in the device time zone; 24-hour format fixes the pattern.
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+      home: home,
     ),
-    home: home,
   );
 
   String localTime(DateTime utc) {
@@ -263,9 +270,9 @@ void main() {
       await tester.pumpWidget(app(JourneyDetailsPage(journey: directS1)));
 
       expect(find.textContaining('to change'), findsNothing);
-      // The platform as EFA sends it; "Platform" only for screen readers.
-      expect(find.text('8'), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('Platform 8')), findsOneWidget);
+      // EFA sends a bare "8"; the chip names it.
+      expect(find.text('Platform 8'), findsOneWidget);
+      expect(find.byType(PlatformChip), findsOneWidget);
       expect(find.textContaining('Direct'), findsOneWidget);
       semantics.dispose();
     });

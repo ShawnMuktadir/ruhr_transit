@@ -1,17 +1,30 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:ruhr_transit/core/database/app_database.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
 import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
 import 'package:ruhr_transit/features/departures/data/departure_repository_impl.dart';
 import 'package:ruhr_transit/features/departures/data/efa_departure_remote_source.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
+import 'package:ruhr_transit/features/favourite_journeys/data/favourite_journeys_repository_impl.dart';
+import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journeys_repository.dart';
 import 'package:ruhr_transit/features/favourites/data/favourites_repository_impl.dart';
 import 'package:ruhr_transit/features/favourites/domain/favourites_repository.dart';
+import 'package:ruhr_transit/features/language/data/language_repository_impl.dart';
+import 'package:ruhr_transit/features/language/domain/language_repository.dart';
 import 'package:ruhr_transit/features/nearby_stops/data/efa_coord_remote_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/data/geolocator_location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/data/nearby_stops_repository_impl.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repository.dart';
+import 'package:ruhr_transit/features/onboarding/data/onboarding_repository_impl.dart';
+import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
+import 'package:ruhr_transit/features/profile/data/profile_repository_impl.dart';
+import 'package:ruhr_transit/features/profile/data/signed_out_auth_repository.dart';
+import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
+import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
+import 'package:ruhr_transit/features/settings/data/theme_repository_impl.dart';
+import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/data/efa_stop_remote_source.dart';
 import 'package:ruhr_transit/features/stop_search/data/stop_repository_impl.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
@@ -64,5 +77,22 @@ void configureDependencies() {
     ..registerLazySingleton<WidgetSync>(HomeWidgetSync.new)
     ..registerLazySingleton<FavouritesRepository>(
       () => FavouritesRepositoryImpl(getIt()),
-    );
+    )
+    ..registerLazySingleton<LanguageRepository>(
+      () => LanguageRepositoryImpl(getIt()),
+    )
+    ..registerLazySingleton<OnboardingRepository>(
+      () => OnboardingRepositoryImpl(getIt()),
+    )
+    // One connection for the whole app; drift serialises its queries.
+    ..registerLazySingleton(AppDatabase.new)
+    ..registerLazySingleton<FavouriteJourneysRepository>(
+      () => FavouriteJourneysRepositoryImpl(getIt()),
+    )
+    ..registerLazySingleton<ThemeRepository>(() => ThemeRepositoryImpl(getIt()))
+    ..registerLazySingleton<ProfileRepository>(
+      () => ProfileRepositoryImpl(getIt()),
+    )
+    // No accounts yet; a real backend replaces only this line.
+    ..registerLazySingleton<AuthRepository>(SignedOutAuthRepository.new);
 }

@@ -30,6 +30,25 @@ void main() {
     expect(location.calls, 0);
   });
 
+  test('start explains first while the permission is missing', () async {
+    location.permissionGranted = false;
+
+    await cubit.start();
+
+    expect(cubit.state, isA<NearbyIntro>());
+    // Not even asked yet: that happens on the intro's button.
+    expect(location.calls, 0);
+  });
+
+  test('start searches right away once the permission was granted', () async {
+    location.permissionGranted = true;
+
+    await cubit.start();
+
+    expect(cubit.state, isA<NearbyLoaded>());
+    expect(location.calls, 1);
+  });
+
   test('locates, then loads the stops around that point', () async {
     await cubit.load();
 

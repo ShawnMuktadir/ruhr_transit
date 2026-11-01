@@ -6,25 +6,25 @@ import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
+import 'package:ruhr_transit/core/widgets/dismiss_background.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
-import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_state.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
-import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.dart';
 
-/// Composition root of the search screen: creates the cubit, then hands
-/// over to [StopSearchView], which tests can pump with their own cubit.
-class StopSearchPage extends StatelessWidget {
-  const StopSearchPage({super.key});
+/// Composition root of the stop search in the Favourites tab: creates the
+/// cubit, then hands over to [StopSearchBody], which tests can pump with
+/// their own cubit.
+class StopSearchPanel extends StatelessWidget {
+  const StopSearchPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => StopSearchCubit(getIt<StopRepository>()),
-      child: const StopSearchView(),
+      child: const StopSearchBody(),
     );
   }
 }
@@ -49,21 +49,45 @@ abstract final class StopPicker {
   }
 }
 
-class StopSearchView extends StatefulWidget {
+/// The search as a page of its own, with an app bar.
+class StopSearchView extends StatelessWidget {
   const StopSearchView({this.onPicked, this.title, super.key});
 
-  /// Set in pick mode: called with the chosen stop, and the start content
-  /// shows only favourites.
+  /// Set in pick mode: called with the chosen stop.
   final ValueChanged<Stop>? onPicked;
 
   /// App bar title; the app name if not set.
   final String? title;
 
   @override
-  State<StopSearchView> createState() => _StopSearchViewState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title ?? AppLocalizations.of(context).appTitle),
+      ),
+      // The picker was opened to type a stop name, so the keyboard opens.
+      body: StopSearchBody(onPicked: onPicked, autofocus: onPicked != null),
+      bottomNavigationBar: const DataAttribution(),
+    );
+  }
 }
 
-class _StopSearchViewState extends State<StopSearchView> {
+/// The search field with the results below; before searching, the
+/// favourite stops.
+class StopSearchBody extends StatefulWidget {
+  const StopSearchBody({this.onPicked, this.autofocus = false, super.key});
+
+  /// Set in pick mode: called with the chosen stop instead of opening its
+  /// board, and favourites cannot be removed.
+  final ValueChanged<Stop>? onPicked;
+
+  final bool autofocus;
+
+  @override
+  State<StopSearchBody> createState() => _StopSearchBodyState();
+}
+
+class _StopSearchBodyState extends State<StopSearchBody> {
   final _controller = TextEditingController();
 
   @override
@@ -80,76 +104,71 @@ class _StopSearchViewState extends State<StopSearchView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title ?? l10n.appTitle)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            // A plain text field rather than SearchBar: SearchBar's semantics
-            // are a 24 dp high field inside an unlabelled tappable box,
-            // which is hard to find with TalkBack.
-            child: TextField(
-              controller: _controller,
-              autofocus: true,
-              textInputAction: TextInputAction.search,
-              onChanged: context.read<StopSearchCubit>().queryChanged,
-              decoration: InputDecoration(
-                hintText: l10n.stopSearchHint,
-                prefixIcon: const Icon(Icons.search),
-                // Rebuilds only the clear button while typing.
-                suffixIcon: ValueListenableBuilder(
-                  valueListenable: _controller,
-                  builder: (context, value, _) => value.text.isEmpty
-                      ? const SizedBox.shrink()
-                      : IconButton(
-                          icon: const Icon(Icons.clear),
-                          tooltip: l10n.stopSearchClear,
-                          onPressed: _clear,
-                        ),
-                ),
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(28),
-                  borderSide: BorderSide.none,
-                ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          // A plain text field rather than SearchBar: SearchBar's semantics
+          // are a 24 dp high field inside an unlabelled tappable box,
+          // which is hard to find with TalkBack.
+          child: TextField(
+            controller: _controller,
+            autofocus: widget.autofocus,
+            textInputAction: TextInputAction.search,
+            onChanged: context.read<StopSearchCubit>().queryChanged,
+            decoration: InputDecoration(
+              hintText: l10n.stopSearchHint,
+              prefixIcon: const Icon(Icons.search),
+              // Rebuilds only the clear button while typing.
+              suffixIcon: ValueListenableBuilder(
+                valueListenable: _controller,
+                builder: (context, value, _) => value.text.isEmpty
+                    ? const SizedBox.shrink()
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: l10n.stopSearchClear,
+                        onPressed: _clear,
+                      ),
+              ),
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(28),
+                borderSide: BorderSide.none,
               ),
             ),
           ),
-          Expanded(
-            child: BlocBuilder<StopSearchCubit, StopSearchState>(
-              builder: (context, state) => switch (state) {
-                StopSearchIdle() => _StartContent(onPicked: widget.onPicked),
-                StopSearchLoading() => const Center(
-                  child: CircularProgressIndicator(),
+        ),
+        Expanded(
+          child: BlocBuilder<StopSearchCubit, StopSearchState>(
+            builder: (context, state) => switch (state) {
+              StopSearchIdle() => _StartContent(onPicked: widget.onPicked),
+              StopSearchLoading() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              StopSearchLoaded(:final stops) => _StopList(
+                stops,
+                onPicked: widget.onPicked,
+              ),
+              StopSearchEmpty(:final query) => CenteredMessage(
+                l10n.stopSearchEmpty(query),
+              ),
+              StopSearchFailed(:final failure) => CenteredMessage(
+                failureMessage(l10n, failure),
+                action: FilledButton.tonal(
+                  onPressed: context.read<StopSearchCubit>().retry,
+                  child: Text(l10n.retry),
                 ),
-                StopSearchLoaded(:final stops) => _StopList(
-                  stops,
-                  onPicked: widget.onPicked,
-                ),
-                StopSearchEmpty(:final query) => CenteredMessage(
-                  l10n.stopSearchEmpty(query),
-                ),
-                StopSearchFailed(:final failure) => CenteredMessage(
-                  failureMessage(l10n, failure),
-                  action: FilledButton.tonal(
-                    onPressed: context.read<StopSearchCubit>().retry,
-                    child: Text(l10n.retry),
-                  ),
-                ),
-              },
-            ),
+              ),
+            },
           ),
-        ],
-      ),
-      bottomNavigationBar: const DataAttribution(),
+        ),
+      ],
     );
   }
 }
 
-/// Shown before searching: nearby stops and the trip planner, then the
-/// favourites, or the search hint if there are none yet. In pick mode only
-/// the favourites.
+/// Shown before searching: the favourites, or the search hint if there are
+/// none yet.
 class _StartContent extends StatelessWidget {
   const _StartContent({this.onPicked});
 
@@ -162,26 +181,6 @@ class _StartContent extends StatelessWidget {
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: [
-        if (onPicked == null) ...[
-          ListTile(
-            leading: const Icon(Icons.near_me_outlined),
-            title: Text(l10n.nearbyTitle),
-            trailing: const Icon(Icons.chevron_right),
-            // Location is only requested from here, never at app start.
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const NearbyStopsPage()),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.alt_route),
-            title: Text(l10n.tripTitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const TripFormPage()),
-            ),
-          ),
-          const Divider(height: 1),
-        ],
         if (favourites.isEmpty)
           Padding(
             padding: const EdgeInsets.all(24),
@@ -202,19 +201,7 @@ class _StartContent extends StatelessWidget {
               Dismissible(
                 key: ValueKey(stop.id),
                 direction: DismissDirection.endToStart,
-                background: ColoredBox(
-                  color: Theme.of(context).colorScheme.errorContainer,
-                  child: Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 24),
-                      child: Icon(
-                        Icons.delete_outline,
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    ),
-                  ),
-                ),
+                background: const DismissBackground(),
                 onDismissed: (_) => _removeWithUndo(context, stop),
                 // Swiping is not possible with TalkBack; it offers this
                 // action instead (in its actions menu).

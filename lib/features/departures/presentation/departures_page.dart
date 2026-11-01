@@ -7,6 +7,7 @@ import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
+import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
@@ -321,7 +322,6 @@ class _DepartureTile extends StatelessWidget {
 String _departureSummary(BuildContext context, Departure departure) {
   final l10n = AppLocalizations.of(context);
   final delay = departure.delay?.inMinutes ?? 0;
-  final platform = departure.platform;
   return [
     switch (departure.mode) {
       final mode? => '${transportModeLabel(l10n, mode)} ${departure.line}',
@@ -335,10 +335,12 @@ String _departureSummary(BuildContext context, Departure departure) {
       l10n.departureLate(delay)
     else if (delay < 0)
       l10n.departureEarly(-delay),
-    if (platform != null)
-      departure.platformChanged
-          ? l10n.departurePlatformChanged(platform)
-          : l10n.departurePlatform(platform),
+    ?platformSpokenLabel(
+      l10n,
+      departure.platform,
+      plannedPlatform: departure.plannedPlatform,
+      mode: departure.mode,
+    ),
     ...departure.notes,
   ].join(', ');
 }
@@ -355,7 +357,6 @@ class _TimeAndPlatform extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final delayMinutes = departure.delay?.inMinutes ?? 0;
-    final platform = departure.platform;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -386,18 +387,14 @@ class _TimeAndPlatform extends StatelessWidget {
             ],
           ],
         ),
-        if (platform != null)
-          Text(
-            platform,
-            semanticsLabel: departure.platformChanged
-                ? l10n.departurePlatformChanged(platform)
-                : l10n.departurePlatform(platform),
-            style: departure.platformChanged
-                ? theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.error,
-                    fontWeight: FontWeight.bold,
-                  )
-                : theme.textTheme.bodySmall,
+        if (departure.platform != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: PlatformChip(
+              platform: departure.platform,
+              plannedPlatform: departure.plannedPlatform,
+              mode: departure.mode,
+            ),
           ),
       ],
     );

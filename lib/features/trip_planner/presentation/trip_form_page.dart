@@ -3,25 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
+import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 
-/// Composition root of the trip form; [TripFormView] is what tests pump.
-class TripFormPage extends StatelessWidget {
-  const TripFormPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => TripFormCubit(),
-      child: const TripFormView(),
-    );
-  }
-}
-
+/// The planner. Its [TripFormCubit] comes from the home shell, which can
+/// fill it in from a saved journey.
 class TripFormView extends StatelessWidget {
   const TripFormView({this.pickStop = StopPicker.pick, super.key});
 
@@ -34,7 +24,15 @@ class TripFormView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<TripFormCubit>();
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tripTitle)),
+      appBar: AppBar(
+        title: Text(l10n.tripTitle),
+        actions: [
+          BlocBuilder<TripFormCubit, TripFormState>(
+            builder: (context, state) =>
+                FavouriteJourneyButton(from: state.from, to: state.to),
+          ),
+        ],
+      ),
       body: BlocBuilder<TripFormCubit, TripFormState>(
         builder: (context, state) => ListView(
           padding: const EdgeInsets.all(16),

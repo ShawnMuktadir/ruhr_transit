@@ -5,6 +5,7 @@ import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
+import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
@@ -45,6 +46,7 @@ class TripResultsView extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
+          FavouriteJourneyButton(from: query.from, to: query.to),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: l10n.refresh,
@@ -79,7 +81,8 @@ class TripResultsView extends StatelessWidget {
           TripResultsLoaded(:final journeys, :final isLoadingLater) => ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              for (final journey in journeys) _JourneyCard(journey),
+              for (final journey in journeys)
+                _JourneyCard(journey, query: query),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Center(
@@ -102,9 +105,10 @@ class TripResultsView extends StatelessWidget {
 }
 
 class _JourneyCard extends StatelessWidget {
-  const _JourneyCard(this.journey);
+  const _JourneyCard(this.journey, {required this.query});
 
   final Journey journey;
+  final TripQuery query;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +124,8 @@ class _JourneyCard extends StatelessWidget {
         child: InkWell(
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
-              builder: (_) => JourneyDetailsPage(journey: journey),
+              builder: (_) =>
+                  JourneyDetailsPage(journey: journey, query: query),
             ),
           ),
           child: Semantics(

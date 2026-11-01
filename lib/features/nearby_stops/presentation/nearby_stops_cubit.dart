@@ -18,8 +18,18 @@ class NearbyStopsCubit extends Cubit<NearbyStopsState> {
   /// a time, so a second tap must not start another.
   bool _busy = false;
 
-  /// Reads the location, then loads the stops around it. Used on opening,
-  /// on refresh and to retry.
+  /// On opening: searches right away if the permission was granted before,
+  /// otherwise explains first and asks only when the user taps the button.
+  Future<void> start() async {
+    if (await _location.hasPermission()) {
+      await load();
+    } else if (!isClosed) {
+      emit(const NearbyIntro());
+    }
+  }
+
+  /// Reads the location, then loads the stops around it. Used after the
+  /// intro, on refresh and to retry.
   Future<void> load() async {
     if (_busy) return;
     _busy = true;
