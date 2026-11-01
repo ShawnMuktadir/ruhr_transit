@@ -42,9 +42,12 @@ void main() {
     cache = DepartureCache(SharedPreferencesAsync());
   });
 
+  late List<(String, DepartureBoard)> passedOn;
+
   DepartureRepositoryImpl repositoryAnswering(
     Future<ResponseBody> Function(RequestOptions options) handler,
   ) {
+    passedOn = [];
     adapter = FakeHttpAdapter(handler);
     final dio = createEfaDio(baseUrl: 'https://efa.test/openservice')
       ..httpClientAdapter = adapter;
@@ -52,6 +55,7 @@ void main() {
       EfaDepartureRemoteSource(dio),
       cache,
       now: () => _now,
+      onBoardFetched: (stopId, board) async => passedOn.add((stopId, board)),
     );
   }
 
@@ -94,6 +98,26 @@ void main() {
     final saved = await repository.lastBoard(_bochumHbf);
     expect(saved?.departures, hasLength(20));
     expect(saved?.fetchedAt, _now);
+  });
+
+  test('passes fetched boards on, but not failures', () async {
+    var fail = false;
+    final repository = repositoryAnswering(
+      (options) async => fail
+          ? throw DioException.connectionError(
+              requestOptions: options,
+              reason: 'Failed host lookup',
+            )
+          : textResponse(readEfaFixture('dm_bochum_hbf')),
+    );
+
+    final board = (await repository.departuresAt(_bochumHbf)) as Ok;
+    fail = true;
+    await repository.departuresAt(_bochumHbf);
+
+    expect(passedOn, hasLength(1));
+    expect(passedOn.single.$1, _bochumHbf);
+    expect(passedOn.single.$2, same(board.value));
   });
 
   test('a failed fetch keeps the saved board', () async {

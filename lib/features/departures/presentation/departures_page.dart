@@ -7,11 +7,13 @@ import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
+import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
+import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 /// Composition root of the departure board: creates the cubit and starts
 /// loading, then hands over to [DeparturesView], which tests can pump with
@@ -26,15 +28,48 @@ class DeparturesPage extends StatelessWidget {
     return BlocProvider(
       create: (_) =>
           DeparturesCubit(getIt<DepartureRepository>(), stop.id)..load(),
-      child: DeparturesView(stop: stop),
+      child: DeparturesView(stop: stop, widgetSync: getIt<WidgetSync>()),
     );
   }
 }
 
 class DeparturesView extends StatelessWidget {
-  const DeparturesView({required this.stop, super.key});
+  const DeparturesView({
+    required this.stop,
+    required this.widgetSync,
+    super.key,
+  });
 
   final Stop stop;
+  final WidgetSync widgetSync;
+
+  Future<void> _showOnWidget(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    // The board on screen, so the widget is filled right away.
+    final board = switch (context.read<DeparturesCubit>().state) {
+      DeparturesLoaded(:final departures, :final fetchedAt) => DepartureBoard(
+        departures,
+        fetchedAt: fetchedAt,
+      ),
+      _ => null,
+    };
+    await widgetSync.showStop(stop, board: board);
+    final canAdd = await widgetSync.canAddWidget();
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.widgetShown(stop.fullName)),
+          action: canAdd
+              ? SnackBarAction(
+                  label: l10n.widgetAdd,
+                  onPressed: widgetSync.addWidget,
+                )
+              : null,
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +85,14 @@ class DeparturesView extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             tooltip: l10n.refresh,
             onPressed: cubit.refresh,
+          ),
+          PopupMenuButton<void>(
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: () => _showOnWidget(context),
+                child: Text(l10n.widgetShow),
+              ),
+            ],
           ),
         ],
       ),

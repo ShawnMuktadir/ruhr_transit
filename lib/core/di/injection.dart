@@ -10,6 +10,8 @@ import 'package:ruhr_transit/features/favourites/domain/favourites_repository.da
 import 'package:ruhr_transit/features/stop_search/data/efa_stop_remote_source.dart';
 import 'package:ruhr_transit/features/stop_search/data/stop_repository_impl.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
+import 'package:ruhr_transit/features/widget_sync/data/home_widget_sync.dart';
+import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// App-wide service locator. Only used at the composition root (here and
@@ -30,12 +32,17 @@ void configureDependencies() {
     // A factory for the same reason: each departure board cancels only its
     // own refreshes.
     ..registerFactory<DepartureRepository>(
-      () => DepartureRepositoryImpl(getIt(), getIt()),
+      () => DepartureRepositoryImpl(
+        getIt(),
+        getIt(),
+        onBoardFetched: getIt<WidgetSync>().boardFetched,
+      ),
     )
     ..registerLazySingleton(SharedPreferencesAsync.new)
     // A singleton, because it queues its own writes: two instances could
     // overwrite each other's boards.
     ..registerLazySingleton(() => DepartureCache(getIt()))
+    ..registerLazySingleton<WidgetSync>(HomeWidgetSync.new)
     ..registerLazySingleton<FavouritesRepository>(
       () => FavouritesRepositoryImpl(getIt()),
     );

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- German is the default, like in the Flutter app. -->
+<resources>
+    <string name="widget_app_name" translatable="false">RuhrTransit</string>
+    <string name="widget_description">Nächste Abfahrten einer Haltestelle</string>
+    <string name="widget_choose_stop">Haltestelle in der App wählen: Abfahrten öffnen, dann das Menü</string>
+    <string name="widget_open_app">Keine aktuellen Abfahrten. App öffnen zum Aktualisieren.</string>
+    <string name="widget_updated_at">Stand: %1$s</string>
+    <string name="widget_cancelled">Fällt aus</string>
+</resources>

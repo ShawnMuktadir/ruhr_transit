@@ -167,5 +167,23 @@
         "example": "14:32"
       }
     }
+  },
+  "widgetShow": "Im Startbildschirm-Widget anzeigen",
+  "@widgetShow": {
+    "description": "Menu item on the departure board: show this stop on the home-screen widget."
+  },
+  "widgetShown": "„{stop}“ wird im Widget angezeigt",
+  "@widgetShown": {
+    "description": "Snack bar after choosing the stop of the home-screen widget.",
+    "placeholders": {
+      "stop": {
+        "type": "String",
+        "example": "Bochum, Hbf"
+      }
+    }
+  },
+  "widgetAdd": "Widget hinzufügen",
+  "@widgetAdd": {
+    "description": "Snack bar action that asks the launcher to place the widget."
   }
 }

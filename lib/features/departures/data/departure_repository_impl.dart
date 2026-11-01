@@ -17,11 +17,17 @@ class DepartureRepositoryImpl implements DepartureRepository {
     this._remote,
     this._cache, {
     DateTime Function() now = DateTime.now,
+    this.onBoardFetched,
   }) : _now = now;
 
   final EfaDepartureRemoteSource _remote;
   final DepartureCache _cache;
   final DateTime Function() _now;
+
+  /// Told about every fetched board, e.g. to update the home-screen widget.
+  /// Keeps the repository unaware of who listens.
+  final Future<void> Function(String stopId, DepartureBoard board)?
+  onBoardFetched;
 
   /// The request that is still running, if any. Holding this makes the
   /// repository stateful, so it is registered as a factory: one per page.
@@ -40,11 +46,10 @@ class DepartureRepositoryImpl implements DepartureRepository {
       );
       // Not awaited: the board should not wait for storage, and a full or
       // broken storage must not turn a good answer into an error.
-      unawaited(
-        _cache.write(stopId, board).catchError((Object e) {
-          debugPrint('Could not save departure board: $e');
-        }),
-      );
+      _inBackground('save', _cache.write(stopId, board));
+      if (onBoardFetched case final notify?) {
+        _inBackground('pass on', notify(stopId, board));
+      }
       return Ok(board);
     } on DioException catch (e) {
       return Err(failureFromDioException(e));
@@ -56,6 +61,12 @@ class DepartureRepositoryImpl implements DepartureRepository {
       if (identical(_inFlight, cancelToken)) _inFlight = null;
     }
   }
+
+  void _inBackground(String action, Future<void> work) => unawaited(
+    work.catchError((Object e) {
+      debugPrint('Could not $action departure board: $e');
+    }),
+  );
 
   @override
   Future<DepartureBoard?> lastBoard(String stopId) async {
