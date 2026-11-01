@@ -25,13 +25,18 @@ Known limits:
 
 ## Privacy
 
-- **Location:** read once when the user opens "Stops near me", never at app
-  start or in the background. The coordinates are sent to the VRR server
-  to find nearby stops and are not stored by the app.
-- **Favourites, saved boards, widget data:** stored on the device only.
+- **Location:** read once when the user taps "Use my location" in "Stops
+  near me", never at app start or in the background. The coordinates are
+  sent to the VRR server to find nearby stops and are not stored by the
+  app.
+- **Favourite stops and journeys, saved boards, widget data, settings
+  (language, theme, optional display name):** stored on the device only.
+- **No accounts yet:** `AuthRepository` has a local "signed out"
+  implementation; a backend can replace it without UI changes.
 
-The privacy policy template is in `docs/privacy-policy.md`; the Play Console
-data safety answers are in `docs/play-console.md`.
+The privacy policy and terms (drafts) are in `assets/legal/`, see
+`docs/privacy-policy.md`; the Play Console data safety answers are in
+`docs/play-console.md`.
 
 ## Data source
 

@@ -19,8 +19,9 @@ current Play Console wording before submitting; the forms change.
    debug-signed:
    `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`
    must show your upload certificate, not `CN=Android Debug`.
-6. **Privacy policy** (`docs/privacy-policy.md`): fill in the placeholders,
-   host it, enter the URL under App content › Privacy policy.
+6. **Privacy policy** (`docs/privacy-policy.md`, texts in `assets/legal/`):
+   fill in the placeholders, host it, enter the URL under App content ›
+   Privacy policy.
 7. Store listing texts and graphics: `docs/store-listing.md`.
 8. Start with an **internal testing** track, install from Play on a real
    phone, then go through the manual checks from the phase PRs (offline
@@ -56,9 +57,12 @@ HTTPS. The app has no servers of its own and no SDKs that collect data.
 
 - Data is encrypted in transit: **Yes** (HTTPS only).
 - Users can request deletion: the app stores nothing off the device;
-  favourites and cached boards are deleted with the app.
+  favourites, saved journeys, cached boards and settings are deleted with
+  the app.
 - Not collected: personal info, financial info, contacts, messages, photos,
-  files, health, device IDs, crash logs, diagnostics, analytics.
+  files, health, device IDs, crash logs, diagnostics, analytics. The
+  optional display name in Settings › Profile stays on the device, so it is
+  not "collected" in Google's sense. Revisit this once accounts exist.
 
 Whether sending data to VRR counts as "shared" depends on Google's current
 definitions (a provider acting on your behalf is not "sharing"; VRR is an
