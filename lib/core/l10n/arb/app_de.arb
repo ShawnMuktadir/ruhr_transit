@@ -239,5 +239,147 @@
   "nearbyTimeout": "Der Standort konnte nicht ermittelt werden. Bitte draußen oder in Fensternähe erneut versuchen.",
   "@nearbyTimeout": {
     "description": "No position within the time limit."
+  },
+  "tripTitle": "Verbindung suchen",
+  "@tripTitle": {
+    "description": "Start screen entry and title of the trip form."
+  },
+  "tripFrom": "Von",
+  "@tripFrom": {
+    "description": "Label of the start stop."
+  },
+  "tripTo": "Nach",
+  "@tripTo": {
+    "description": "Label of the destination stop."
+  },
+  "tripChooseFrom": "Start wählen",
+  "@tripChooseFrom": {
+    "description": "Placeholder before a start stop is chosen; also the picker title."
+  },
+  "tripChooseTo": "Ziel wählen",
+  "@tripChooseTo": {
+    "description": "Placeholder before a destination is chosen; also the picker title."
+  },
+  "tripSwap": "Start und Ziel tauschen",
+  "@tripSwap": {
+    "description": "Tooltip of the swap button."
+  },
+  "tripNow": "Jetzt",
+  "@tripNow": {
+    "description": "Time option: leave now."
+  },
+  "tripDepartAt": "Abfahrt",
+  "@tripDepartAt": {
+    "description": "Time option: depart at a chosen time."
+  },
+  "tripArriveBy": "Ankunft",
+  "@tripArriveBy": {
+    "description": "Time option: arrive by a chosen time."
+  },
+  "tripSearch": "Suchen",
+  "@tripSearch": {
+    "description": "Button that searches trips."
+  },
+  "tripSameStop": "Start und Ziel sind gleich.",
+  "@tripSameStop": {
+    "description": "Shown when both stops are the same."
+  },
+  "tripResultsEmpty": "Keine Verbindungen zwischen diesen Haltestellen gefunden.",
+  "@tripResultsEmpty": {
+    "description": "No journeys were found."
+  },
+  "tripLater": "Spätere Verbindungen",
+  "@tripLater": {
+    "description": "Button that loads trips after the last one shown."
+  },
+  "tripDirect": "Direkt",
+  "@tripDirect": {
+    "description": "A trip without changes."
+  },
+  "tripTransfers": "{count, plural, =1{1 Umstieg} other{{count} Umstiege}}",
+  "@tripTransfers": {
+    "description": "Number of changes between vehicles.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "tripMinutes": "{minutes} Min.",
+  "@tripMinutes": {
+    "description": "A duration under an hour.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "25"
+      }
+    }
+  },
+  "tripHoursMinutes": "{hours} Std. {minutes} Min.",
+  "@tripHoursMinutes": {
+    "description": "A duration of an hour or more.",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "1"
+      },
+      "minutes": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "tripWalk": "{minutes} Min. Fußweg",
+  "@tripWalk": {
+    "description": "A walk between stops without known distance.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "tripWalkDistance": "{minutes} Min. Fußweg ({meters} m)",
+  "@tripWalkDistance": {
+    "description": "A walk between stops.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "4"
+      },
+      "meters": {
+        "type": "int",
+        "example": "183"
+      }
+    }
+  },
+  "tripChange": "{minutes} Min. zum Umsteigen",
+  "@tripChange": {
+    "description": "Time between arriving and the next departure.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "tripShortChange": "Knapper Anschluss",
+  "@tripShortChange": {
+    "description": "Warning when less than 3 minutes are left after walking."
+  },
+  "tripDetailsTitle": "Verbindungsdetails",
+  "@tripDetailsTitle": {
+    "description": "Title of the journey details page."
+  },
+  "tripDirection": "Richtung {direction}",
+  "@tripDirection": {
+    "description": "Direction of a line.",
+    "placeholders": {
+      "direction": {
+        "type": "String",
+        "example": "Dortmund Hbf"
+      }
+    }
   }
 }

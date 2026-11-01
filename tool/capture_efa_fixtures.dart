@@ -78,6 +78,23 @@ final Map<String, (String, Map<String, String>)> _requests = {
       'coordOutputFormat': _wgs84,
     },
   ),
+  // U35, a walk at Bochum Hbf, then a bus. The date must lie within the
+  // current timetable period; move it forward when recapturing.
+  'trip_with_walk': (
+    'XML_TRIP_REQUEST2',
+    {
+      'type_origin': 'any',
+      'name_origin': 'de:05911:5554',
+      'type_destination': 'any',
+      'name_destination': 'de:05911:5496',
+      'useRealtime': '1',
+      'calcNumberOfTrips': '3',
+      'itdDate': '20261102',
+      'itdTime': '0815',
+      'itdTripDateTimeDepArr': 'dep',
+      'coordOutputFormat': _wgs84,
+    },
+  ),
 };
 
 Future<void> main() async {
