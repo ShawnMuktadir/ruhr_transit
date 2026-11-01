@@ -185,5 +185,59 @@
   "widgetAdd": "Widget hinzufügen",
   "@widgetAdd": {
     "description": "Snack bar action that asks the launcher to place the widget."
+  },
+  "nearbyTitle": "Haltestellen in der Nähe",
+  "@nearbyTitle": {
+    "description": "Start screen entry and title of the nearby stops page."
+  },
+  "nearbyLocating": "Standort wird ermittelt …",
+  "@nearbyLocating": {
+    "description": "Shown while waiting for the device location."
+  },
+  "nearbyEmpty": "Keine Haltestellen im Umkreis von 1 km.",
+  "@nearbyEmpty": {
+    "description": "No stop within the search radius."
+  },
+  "nearbyDistance": "{meters} m entfernt",
+  "@nearbyDistance": {
+    "description": "Straight-line distance to a nearby stop.",
+    "placeholders": {
+      "meters": {
+        "type": "int",
+        "example": "350"
+      }
+    }
+  },
+  "nearbyApproximate": "Nur der ungefähre Standort ist erlaubt, daher können diese Haltestellen weit entfernt sein.",
+  "@nearbyApproximate": {
+    "description": "Android 12+ approximate location can be off by about 2 km."
+  },
+  "nearbyAllowPrecise": "Genauen Standort erlauben",
+  "@nearbyAllowPrecise": {
+    "description": "Button that opens the app settings to allow precise location."
+  },
+  "nearbyLocationOff": "Der Standort ist ausgeschaltet. Bitte einschalten, um Haltestellen in der Nähe zu finden.",
+  "@nearbyLocationOff": {
+    "description": "Location services are off on the device."
+  },
+  "nearbyOpenLocationSettings": "Standorteinstellungen",
+  "@nearbyOpenLocationSettings": {
+    "description": "Button that opens the system location settings."
+  },
+  "nearbyPermissionDenied": "RuhrTransit braucht den Standort, um Haltestellen in der Nähe zu finden. Er wird nur für diese Suche verwendet.",
+  "@nearbyPermissionDenied": {
+    "description": "The user denied the location permission."
+  },
+  "nearbyPermissionDeniedForever": "Der Standortzugriff ist für RuhrTransit ausgeschaltet. Er kann in den App-Einstellungen erlaubt werden.",
+  "@nearbyPermissionDeniedForever": {
+    "description": "The permission dialog is no longer shown; only the app settings can grant it."
+  },
+  "nearbyOpenAppSettings": "App-Einstellungen",
+  "@nearbyOpenAppSettings": {
+    "description": "Button that opens the app system settings."
+  },
+  "nearbyTimeout": "Der Standort konnte nicht ermittelt werden. Bitte draußen oder in Fensternähe erneut versuchen.",
+  "@nearbyTimeout": {
+    "description": "No position within the time limit."
   }
 }

@@ -37,7 +37,7 @@ List<Stop> mapStopFinderResponse(Map<String, Object?> json) {
     }
     if (location['type'] != 'stop') continue;
     ranked.add((
-      stop: _mapStop(location),
+      stop: mapEfaStop(location, nameIncludesLocality: true),
       isBest: location['isBest'] == true,
       quality: switch (location['matchQuality']) {
         final int quality => quality,
@@ -56,11 +56,40 @@ List<Stop> mapStopFinderResponse(Map<String, Object?> json) {
   return [for (final entry in ranked) entry.stop];
 }
 
-Stop _mapStop(Map<String, Object?> json) {
+/// Maps one EFA location of `type: "stop"`.
+///
+/// The stop finder sends `name` with the town ("Bochum, Hbf") and the short
+/// name in `disassembledName`; the coordinate request sends only the short
+/// name. [nameIncludesLocality] says which one [json] is, so a stop gets the
+/// same names whichever way it was found: favourites and the widget store
+/// them.
+Stop mapEfaStop(
+  Map<String, Object?> json, {
+  required bool nameIncludesLocality,
+}) {
   final id = json['id'];
-  final fullName = json['name'];
-  if (id is! String || fullName is! String) {
+  final rawName = json['name'];
+  if (id is! String || rawName is! String) {
     throw const FormatException('Stop without "id" or "name"');
+  }
+  final locality = switch (json['parent']) {
+    {'type': 'locality', 'name': final String name} => name,
+    _ => null,
+  };
+
+  final String name;
+  final String fullName;
+  if (nameIncludesLocality) {
+    fullName = rawName;
+    name = switch (json['disassembledName']) {
+      final String short when short.isNotEmpty => short,
+      _ => rawName,
+    };
+  } else {
+    name = rawName;
+    // The stop finder's format, also when the name repeats the town:
+    // "Bochum, Bochum Hbf/Boulevard".
+    fullName = locality == null ? rawName : '$locality, $rawName';
   }
 
   // With coordOutputFormat=WGS84 EFA sends [latitude, longitude].
@@ -68,15 +97,9 @@ Stop _mapStop(Map<String, Object?> json) {
   if (coord case [final num latitude, final num longitude]) {
     return Stop(
       id: id,
-      name: switch (json['disassembledName']) {
-        final String name when name.isNotEmpty => name,
-        _ => fullName,
-      },
+      name: name,
       fullName: fullName,
-      locality: switch (json['parent']) {
-        {'type': 'locality', 'name': final String name} => name,
-        _ => null,
-      },
+      locality: locality,
       latitude: latitude.toDouble(),
       longitude: longitude.toDouble(),
       modes: switch (json['productClasses']) {

@@ -32,5 +32,17 @@
   "departuresOutdated": "Not updated – departures as of {time}",
   "widgetShow": "Show on home-screen widget",
   "widgetShown": "“{stop}” is shown on the home-screen widget",
-  "widgetAdd": "Add widget"
+  "widgetAdd": "Add widget",
+  "nearbyTitle": "Stops near me",
+  "nearbyLocating": "Finding your location…",
+  "nearbyEmpty": "No stops within 1 km.",
+  "nearbyDistance": "{meters} m away",
+  "nearbyApproximate": "Only your approximate location is allowed, so these stops may be far away.",
+  "nearbyAllowPrecise": "Allow precise location",
+  "nearbyLocationOff": "Location is turned off. Turn it on to find stops nearby.",
+  "nearbyOpenLocationSettings": "Location settings",
+  "nearbyPermissionDenied": "RuhrTransit needs your location to find stops nearby. It is only used for this search.",
+  "nearbyPermissionDeniedForever": "Location access is turned off for RuhrTransit. It can be allowed in the app settings.",
+  "nearbyOpenAppSettings": "App settings",
+  "nearbyTimeout": "Your location could not be found. Please try again outdoors or near a window."
 }

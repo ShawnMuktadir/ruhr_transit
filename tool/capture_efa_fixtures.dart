@@ -42,6 +42,18 @@ final Map<String, (String, Map<String, String>)> _requests = {
       'max': '10',
     },
   ),
+  // A point in the North Sea: no stops within the radius.
+  'coord_nearby_none': (
+    'XML_COORD_REQUEST',
+    {
+      'coord': '4.0:54.5:$_wgs84',
+      'coordOutputFormat': _wgs84,
+      'inclFilter': '1',
+      'type_1': 'STOP',
+      'radius_1': '1000',
+      'max': '20',
+    },
+  ),
   'dm_bochum_hbf': (
     'XML_DM_REQUEST',
     {

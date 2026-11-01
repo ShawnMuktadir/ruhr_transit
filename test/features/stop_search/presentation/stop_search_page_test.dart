@@ -8,12 +8,17 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
+import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
+import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repository.dart';
+import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
+import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 import '../../../helpers/fake_departure_repository.dart';
 import '../../../helpers/fake_favourites_repository.dart';
+import '../../../helpers/fake_nearby_stops.dart';
 import '../../../helpers/fake_stop_repository.dart';
 import '../../../helpers/fake_widget_sync.dart';
 
@@ -30,7 +35,9 @@ void main() {
       ..registerFactory<DepartureRepository>(
         () => FakeDepartureRepository()..autoReply = const Ok([]),
       )
-      ..registerSingleton<WidgetSync>(FakeWidgetSync());
+      ..registerSingleton<WidgetSync>(FakeWidgetSync())
+      ..registerSingleton<LocationSource>(FakeLocationSource())
+      ..registerFactory<NearbyStopsRepository>(FakeNearbyStopsRepository.new);
   });
   tearDown(getIt.reset);
 
@@ -63,6 +70,18 @@ void main() {
 
     expect(find.textContaining('at least two letters'), findsOneWidget);
     expect(find.byTooltip('Clear search'), findsNothing);
+  });
+
+  testWidgets('stops near me opens its page from the start screen', (
+    tester,
+  ) async {
+    await pumpPage(tester);
+
+    await tester.tap(find.text('Stops near me'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NearbyStopsPage), findsOneWidget);
+    expect(find.text('Bochum · 40 m away'), findsOneWidget);
   });
 
   testWidgets('shows results and opens the departures on tap', (tester) async {
@@ -128,7 +147,8 @@ void main() {
     await tester.tap(find.byTooltip('Clear search'));
     await tester.pump();
 
-    expect(find.byType(ListTile), findsNothing);
+    // Only the "Stops near me" entry is left; no search results.
+    expect(find.byType(StopTile), findsNothing);
     expect(find.textContaining('at least two letters'), findsOneWidget);
   });
 
