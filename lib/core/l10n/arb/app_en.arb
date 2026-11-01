@@ -29,5 +29,8 @@
   "favouriteRemoved": "Removed “{stop}” from favourites",
   "undo": "Undo",
   "departuresUpdatedAt": "Updated {time}",
-  "departuresOutdated": "Not updated – departures as of {time}"
+  "departuresOutdated": "Not updated – departures as of {time}",
+  "widgetShow": "Show on home-screen widget",
+  "widgetShown": "“{stop}” is shown on the home-screen widget",
+  "widgetAdd": "Add widget"
 }

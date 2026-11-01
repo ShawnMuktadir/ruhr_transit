@@ -10,10 +10,12 @@ import 'package:ruhr_transit/features/departures/presentation/departures_page.da
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
+import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 import '../../../helpers/fake_departure_repository.dart';
 import '../../../helpers/fake_favourites_repository.dart';
 import '../../../helpers/fake_stop_repository.dart';
+import '../../../helpers/fake_widget_sync.dart';
 
 void main() {
   late FakeStopRepository repository;
@@ -23,10 +25,12 @@ void main() {
     repository = FakeStopRepository();
     favourites = FakeFavouritesRepository();
     // Tapping a stop opens the real departures page, which resolves its
-    // repository through get_it.
-    getIt.registerFactory<DepartureRepository>(
-      () => FakeDepartureRepository()..autoReply = const Ok([]),
-    );
+    // dependencies through get_it.
+    getIt
+      ..registerFactory<DepartureRepository>(
+        () => FakeDepartureRepository()..autoReply = const Ok([]),
+      )
+      ..registerSingleton<WidgetSync>(FakeWidgetSync());
   });
   tearDown(getIt.reset);
 

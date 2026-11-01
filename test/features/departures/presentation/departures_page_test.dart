@@ -12,14 +12,17 @@ import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.d
 import '../../../helpers/fake_departure_repository.dart';
 import '../../../helpers/fake_favourites_repository.dart';
 import '../../../helpers/fake_stop_repository.dart';
+import '../../../helpers/fake_widget_sync.dart';
 
 void main() {
   late FakeDepartureRepository repository;
   late FakeFavouritesRepository favourites;
+  late FakeWidgetSync widgetSync;
 
   setUp(() {
     repository = FakeDepartureRepository();
     favourites = FakeFavouritesRepository();
+    widgetSync = FakeWidgetSync();
   });
 
   Future<void> pumpPage(WidgetTester tester) async {
@@ -40,7 +43,7 @@ void main() {
             create: (_) =>
                 DeparturesCubit(repository, bochumHbf.id, now: () => boardTime)
                   ..load(),
-            child: const DeparturesView(stop: bochumHbf),
+            child: DeparturesView(stop: bochumHbf, widgetSync: widgetSync),
           ),
         ),
       ),
@@ -203,5 +206,44 @@ void main() {
     expect(find.text('RE16'), findsOneWidget);
     expect(find.text('Updated ${localTime(boardTime)}'), findsOneWidget);
     expect(find.byIcon(Icons.cloud_off), findsNothing);
+  });
+
+  testWidgets('the menu shows the stop and its board on the widget', (
+    tester,
+  ) async {
+    repository.autoReply = Ok([delayedRe16]);
+    await pumpPage(tester);
+
+    await tester.tap(find.byType(PopupMenuButton<void>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Show on home-screen widget'));
+    await tester.pumpAndSettle();
+
+    final (stop, board) = widgetSync.shown.single;
+    expect(stop, bochumHbf);
+    expect(board?.departures, [delayedRe16]);
+    expect(board?.fetchedAt, boardTime);
+    expect(
+      find.text('“Bochum, Hbf” is shown on the home-screen widget'),
+      findsOneWidget,
+    );
+    // No widget can be pinned here, so no action is offered.
+    expect(find.text('Add widget'), findsNothing);
+  });
+
+  testWidgets('offers to add the widget if the launcher can', (tester) async {
+    widgetSync.canAdd = true;
+    repository.autoReply = const Err(NetworkFailure());
+    await pumpPage(tester);
+
+    await tester.tap(find.byType(PopupMenuButton<void>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Show on home-screen widget'));
+    await tester.pumpAndSettle();
+
+    // Without a board, the widget gets the stop only.
+    expect(widgetSync.shown.single.$2, isNull);
+    await tester.tap(find.text('Add widget'));
+    expect(widgetSync.addCount, 1);
   });
 }
