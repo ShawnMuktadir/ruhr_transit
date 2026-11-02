@@ -42,3 +42,13 @@ List<String> readEfaRealtimeNotes(Object? hints) {
         content,
   }.toList();
 }
+
+/// A stop name, trimmed and with single spaces: EFA sometimes sends two
+/// ("Bochum  Gesundheitscampus"). Null when missing or empty.
+String? readEfaStopName(Object? json) => switch (json) {
+  final String name when name.trim().isNotEmpty => name.trim().replaceAll(
+    RegExp(r'\s+'),
+    ' ',
+  ),
+  _ => null,
+};

@@ -2,6 +2,7 @@ import 'package:ruhr_transit/core/network/efa_json.dart';
 import 'package:ruhr_transit/core/network/efa_text.dart';
 import 'package:ruhr_transit/core/network/efa_transport.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
 /// EFA product class of a walk between stops (`"name": "footpath"`).
 const _footpathClass = 99;
@@ -90,6 +91,9 @@ Leg _mapLeg(Object? json) {
     destination: destination,
     notes: readEfaRealtimeNotes(json['hints']),
     intermediateStops: _mapIntermediateStops(json['stopSequence']),
+    runKey: _mapRunKey(transportation, json['origin'], origin.plannedTime),
+    originId: _mapStopRef(json['origin']),
+    destinationId: _mapStopRef(json['destination']),
     notices: notices,
   );
 }
@@ -108,7 +112,7 @@ List<TripStop> _mapIntermediateStops(Object? json) {
 /// Null for a stop without a name or time: one odd stop should not cost
 /// the whole trip.
 TripStop? _mapIntermediateStop(Map<String, Object?> json) {
-  final name = _stopName(json['name']);
+  final name = readEfaStopName(json['name']);
   final departure = readEfaTime(json['departureTimePlanned']);
   final plannedTime = departure ?? readEfaTime(json['arrivalTimePlanned']);
   if (name == null || plannedTime == null) return null;
@@ -129,11 +133,39 @@ TripStop? _mapIntermediateStop(Map<String, Object?> json) {
   );
 }
 
-/// EFA sometimes has two spaces in a name ("Bochum  Gesundheitscampus").
-String? _stopName(Object? json) => switch (json) {
-  final String name when name.trim().isNotEmpty => name.trim().replaceAll(
-    RegExp(r'\s+'),
-    ' ',
+/// Null without line id, trip code or stop id: the run cannot be
+/// requested then.
+RunKey? _mapRunKey(
+  Map<String, Object?> transportation,
+  Object? origin,
+  DateTime plannedDeparture,
+) {
+  final lineId = readNonEmptyString(transportation['id']);
+  final tripCode = switch (transportation['properties']) {
+    {'tripCode': final int code} => '$code',
+    {'tripCode': final String code} when code.isNotEmpty => code,
+    _ => null,
+  };
+  final stopId = switch (origin) {
+    {'id': final String id} when id.isNotEmpty => id,
+    _ => null,
+  };
+  if (lineId == null || tripCode == null || stopId == null) return null;
+  return RunKey(
+    lineId: lineId,
+    tripCode: tripCode,
+    stopId: stopId,
+    plannedDeparture: plannedDeparture,
+  );
+}
+
+StopRef? _mapStopRef(Object? json) => switch (json) {
+  {'id': final String id} when id.isNotEmpty => StopRef(
+    id,
+    parentId: switch (json) {
+      {'parent': {'id': final String parent}} when parent.isNotEmpty => parent,
+      _ => null,
+    },
   ),
   _ => null,
 };
@@ -192,7 +224,7 @@ TripStop _mapStop(Object? json, String timeKind) {
     throw const FormatException('Leg without origin or destination');
   }
   final name =
-      _stopName(json['name']) ??
+      readEfaStopName(json['name']) ??
       (throw const FormatException('Leg stop without name'));
   final plannedTime = readEfaTime(json['${timeKind}TimePlanned']);
   if (plannedTime == null) {

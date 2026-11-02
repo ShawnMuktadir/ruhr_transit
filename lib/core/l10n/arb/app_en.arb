@@ -128,5 +128,16 @@
   "noticeTrip": "Trip",
   "noticeOther": "Notice",
   "noticeAffectsTrip": "Affects this trip",
-  "noticeLongTerm": "Long-term change"
+  "noticeLongTerm": "Long-term change",
+  "runDepartsIn": "Departs {stop} in {minutes} min",
+  "runDepartsNow": "Departing {stop} now",
+  "runAt": "Now at {stop}",
+  "runBetween": "Now between {from} and {to}",
+  "runEnded": "Trip ended",
+  "runByTimetable": "By timetable, no live data",
+  "runStopsBefore": "{count, plural, =1{1 stop before} other{{count} stops before}}",
+  "runStopsAfter": "{count, plural, =1{1 stop after} other{{count} stops after}}",
+  "runBoard": "Board",
+  "runAlight": "Get off",
+  "runVehicleHere": "Vehicle is here"
 }

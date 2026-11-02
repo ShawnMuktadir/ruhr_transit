@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
-import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/ride_stops.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_notices.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
 
@@ -16,12 +17,28 @@ const shortConnection = Duration(minutes: 3);
 
 /// Every leg of one journey, with the time to change between rides.
 class JourneyDetailsPage extends StatelessWidget {
-  const JourneyDetailsPage({required this.journey, this.query, super.key});
+  const JourneyDetailsPage({
+    required this.journey,
+    this.query,
+    this.runs = _runRepository,
+    this.now = DateTime.now,
+    super.key,
+  });
 
   final Journey journey;
 
   /// What was searched; its stops can be saved as a favourite journey.
   final TripQuery? query;
+
+  /// Makes one repository per ride for its vehicle's whole run (one each,
+  /// so their refreshes do not cancel each other); tests pass a fake, null
+  /// shows the rides without their runs.
+  final VehicleRunRepository Function()? runs;
+
+  /// The clock the vehicles' positions are calculated for.
+  final DateTime Function() now;
+
+  static VehicleRunRepository _runRepository() => getIt<VehicleRunRepository>();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +72,7 @@ class JourneyDetailsPage extends StatelessWidget {
           ),
           if (notices.isNotEmpty) TripNoticesSection(notices),
           const Divider(),
-          ..._legsWithChanges(journey.legs),
+          ..._legsWithChanges(journey.legs, runs, now),
         ],
       ),
       bottomNavigationBar: const DataAttribution(),
@@ -64,7 +81,11 @@ class JourneyDetailsPage extends StatelessWidget {
 
   /// The legs, with a change row before every ride that follows another
   /// ride. Walks in between count towards the change time.
-  static List<Widget> _legsWithChanges(List<Leg> legs) {
+  static List<Widget> _legsWithChanges(
+    List<Leg> legs,
+    VehicleRunRepository Function()? runs,
+    DateTime Function() now,
+  ) {
     final widgets = <Widget>[];
     TransitLeg? previousRide;
     var walking = Duration.zero;
@@ -82,7 +103,7 @@ class JourneyDetailsPage extends StatelessWidget {
               ),
             );
           }
-          widgets.add(_RideTile(leg));
+          widgets.add(_RideTile(leg, runs: runs, now: now));
           previousRide = leg;
           walking = Duration.zero;
       }
@@ -92,9 +113,11 @@ class JourneyDetailsPage extends StatelessWidget {
 }
 
 class _RideTile extends StatelessWidget {
-  const _RideTile(this.leg);
+  const _RideTile(this.leg, {required this.now, this.runs});
 
   final TransitLeg leg;
+  final VehicleRunRepository Function()? runs;
+  final DateTime Function() now;
 
   @override
   Widget build(BuildContext context) {
@@ -120,10 +143,7 @@ class _RideTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          _StopRow(leg.origin, mode: leg.mode),
-          if (leg.intermediateStops.isNotEmpty)
-            _IntermediateStops(leg.intermediateStops, mode: leg.mode),
-          _StopRow(leg.destination, mode: leg.mode),
+          RideStops(leg, runs: runs, now: now),
           for (final note in leg.notes)
             Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -134,124 +154,6 @@ class _RideTile extends StatelessWidget {
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-/// "6 Zwischenhalte", tap to show them between origin and destination.
-class _IntermediateStops extends StatefulWidget {
-  const _IntermediateStops(this.stops, {this.mode});
-
-  final List<TripStop> stops;
-  final TransportMode? mode;
-
-  @override
-  State<_IntermediateStops> createState() => _IntermediateStopsState();
-}
-
-class _IntermediateStopsState extends State<_IntermediateStops> {
-  var _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final color = theme.colorScheme.primary;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Its own node, so TalkBack reads it as a button with its state.
-        Semantics(
-          container: true,
-          button: true,
-          expanded: _expanded,
-          child: InkWell(
-            onTap: () => setState(() => _expanded = !_expanded),
-            borderRadius: BorderRadius.circular(8),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: Row(
-                children: [
-                  Icon(
-                    _expanded ? Icons.expand_less : Icons.expand_more,
-                    color: color,
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      l10n.tripIntermediateStops(widget.stops.length),
-                      style: theme.textTheme.bodyMedium?.copyWith(color: color),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        if (_expanded)
-          for (final stop in widget.stops)
-            _StopRow(stop, mode: widget.mode, compact: true),
-      ],
-    );
-  }
-}
-
-/// `17:14 +3   Bochum Hbf`, with a [Gleis 8] chip under the name.
-class _StopRow extends StatelessWidget {
-  const _StopRow(this.stop, {this.mode, this.compact = false});
-
-  final TripStop stop;
-
-  /// Of the leg, so a bus stop gets "Steig" instead of "Gleis".
-  final TransportMode? mode;
-
-  /// A stop in between: smaller, so origin and destination stand out.
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = compact
-        ? theme.textTheme.bodyMedium
-        : theme.textTheme.bodyLarge;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // A minimum, not a fixed width: "10:14 AM +12" must still fit.
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: 120,
-              // Leaves the stop name room at large font sizes.
-              maxWidth: MediaQuery.sizeOf(context).width * 0.4,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: TripTimeText(stop, style: style),
-            ),
-          ),
-          // The platform goes under the name, so a long name and platform
-          // do not have to share one line at large font sizes.
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(stop.name, style: style),
-                if (stop.platform != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: PlatformChip(
-                      platform: stop.platform,
-                      plannedPlatform: stop.plannedPlatform,
-                      mode: mode,
-                    ),
-                  ),
-              ],
-            ),
-          ),
         ],
       ),
     );

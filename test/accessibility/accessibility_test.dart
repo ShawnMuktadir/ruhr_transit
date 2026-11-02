@@ -40,6 +40,7 @@ import '../helpers/fake_nearby_stops.dart';
 import '../helpers/fake_settings.dart';
 import '../helpers/fake_stop_repository.dart';
 import '../helpers/fake_trip_repository.dart';
+import '../helpers/fake_vehicle_run_repository.dart';
 import '../helpers/fake_widget_sync.dart';
 
 /// Every screen, in light and dark, at 100, 130 and 200 % font size, on a
@@ -148,6 +149,8 @@ void main() {
         query: TripQuery(from: bochumHbf, to: dortmundHbf, time: LeaveNow()),
       ),
     ),
+    // The U35 between Lennershof and Ruhr-Universität, where the user
+    // boards: the stops before are open, with the vehicle marker.
     'journey details': () => JourneyDetailsPage(
       journey: withWalk,
       query: const TripQuery(
@@ -155,10 +158,17 @@ void main() {
         to: dortmundHbf,
         time: LeaveNow(),
       ),
+      runs: FakeVehicleRunRepository.new,
+      now: () => DateTime.utc(2026, 11, 2, 7, 20),
     ),
-    'journey details, stops and notices open': () =>
-        JourneyDetailsPage(journey: withWalk),
-    'notice text': () => JourneyDetailsPage(journey: withWalk),
+    'journey details, run unavailable': () =>
+        JourneyDetailsPage(journey: withWalk, runs: null),
+    'journey details, everything open': () => JourneyDetailsPage(
+      journey: withWalk,
+      runs: FakeVehicleRunRepository.new,
+      now: () => DateTime.utc(2026, 11, 2, 7, 20),
+    ),
+    'notice text': () => JourneyDetailsPage(journey: withWalk, runs: null),
     'nearby stops, before asking': () => BlocProvider(
       create: (_) =>
           NearbyStopsCubit(FakeLocationSource(), FakeNearbyStopsRepository())
@@ -187,9 +197,7 @@ void main() {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
     },
-    'journey details, stops and notices open': (tester) async {
-      await tester.tap(find.textContaining('Hinweise'));
-      await tester.pumpAndSettle();
+    'journey details, run unavailable': (tester) async {
       // At 2x the row is further down than the list has built yet.
       await tester.scrollUntilVisible(
         find.textContaining('Zwischenhalte'),
@@ -198,6 +206,18 @@ void main() {
       );
       await tester.ensureVisible(find.textContaining('Zwischenhalte'));
       await tester.tap(find.textContaining('Zwischenhalte'));
+      await tester.pumpAndSettle();
+    },
+    'journey details, everything open': (tester) async {
+      await tester.tap(find.textContaining('Hinweise'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.textContaining('Halt danach'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.ensureVisible(find.textContaining('Halt danach'));
+      await tester.tap(find.textContaining('Halt danach'));
       await tester.pumpAndSettle();
     },
     'notice text': (tester) async {

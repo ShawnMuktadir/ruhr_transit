@@ -1,4 +1,5 @@
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
 /// One way from A to B: legs in travel order, possibly with walks between.
 class Journey {
@@ -105,6 +106,9 @@ final class TransitLeg extends Leg {
     this.mode,
     this.notes = const [],
     this.intermediateStops = const [],
+    this.runKey,
+    this.originId,
+    this.destinationId,
     super.notices,
   });
 
@@ -123,6 +127,15 @@ final class TransitLeg extends Leg {
   /// The stops between [origin] and [destination], in order. Empty for a
   /// ride without stops in between.
   final List<TripStop> intermediateStops;
+
+  /// For requesting the vehicle's whole run; null when EFA sent no line id
+  /// or trip code.
+  final RunKey? runKey;
+
+  /// Where the user boards and gets off, down to the platform, to find
+  /// them in the whole run.
+  final StopRef? originId;
+  final StopRef? destinationId;
 }
 
 /// Walking between stops, e.g. from the U-Bahn to a bus stop.
@@ -215,4 +228,15 @@ class TripNotice {
 
   @override
   String toString() => 'TripNotice($id, $title)';
+}
+
+/// A stop's EFA ids: the platform-level id and its station.
+class StopRef {
+  const StopRef(this.id, {this.parentId});
+
+  /// e.g. `de:05911:5194:91:3`.
+  final String id;
+
+  /// e.g. `de:05911:5194`.
+  final String? parentId;
 }

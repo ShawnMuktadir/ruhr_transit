@@ -5,6 +5,7 @@ import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
 /// Hand-written fake: records every query and answers with [replies] in
 /// order (the last one repeats), or waits for [pending] if set.
@@ -70,6 +71,18 @@ final withWalk = Journey([
       ),
     ],
     notices: const [lineNotice, liftNotice, rideNotice],
+    // Matches u35Run in fake_vehicle_run_repository.dart.
+    runKey: RunKey(
+      lineId: 'bog:U35: :H:j26',
+      tripCode: '1234',
+      stopId: 'de:05911:5600:8:8',
+      plannedDeparture: _utc(7, 21),
+    ),
+    originId: const StopRef('de:05911:5600:8:8', parentId: 'de:05911:5600'),
+    destinationId: const StopRef(
+      'de:05911:5194:3:3',
+      parentId: 'de:05911:5194',
+    ),
   ),
   WalkLeg(
     duration: const Duration(minutes: 4),
