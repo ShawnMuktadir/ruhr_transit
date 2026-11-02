@@ -298,6 +298,13 @@ void main() {
                     ]),
                   ),
                 ),
+                // The planner greets with the profile's name.
+                BlocProvider(
+                  create: (_) => ProfileCubit(
+                    FakeProfileRepository('Shawn'),
+                    FakeAuthRepository(),
+                  ),
+                ),
               ],
               child: MaterialApp(
                 locale: const Locale('de'),

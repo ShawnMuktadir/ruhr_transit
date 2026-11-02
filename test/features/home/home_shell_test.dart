@@ -127,7 +127,7 @@ void main() {
   ) async {
     await pumpShell(tester);
 
-    expect(find.text('Plan a trip'), findsOneWidget);
+    expect(find.text('Where to today?'), findsOneWidget);
     expect(find.byIcon(Icons.directions), findsOneWidget);
     expect(find.byIcon(Icons.directions_outlined), findsNothing);
     expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
@@ -177,7 +177,7 @@ void main() {
 
     await openTab(tester, 'Settings');
     await back(tester);
-    expect(find.text('Plan a trip'), findsOneWidget);
+    expect(find.text('Where to today?'), findsOneWidget);
     expect(platformCalls, isNot(contains('SystemNavigator.pop')));
 
     await back(tester);
@@ -236,7 +236,7 @@ void main() {
     await openTab(tester, 'Plan trip');
 
     expect(find.byType(TextField), findsNothing);
-    expect(find.text('Plan a trip'), findsOneWidget);
+    expect(find.text('Where to today?'), findsOneWidget);
   });
 
   testWidgets('a saved journey fills in the planner and searches', (

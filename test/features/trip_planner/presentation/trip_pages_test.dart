@@ -7,6 +7,7 @@ import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
+import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
@@ -20,6 +21,7 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cub
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 
 import '../../../helpers/fake_favourite_journeys_repository.dart';
+import '../../../helpers/fake_settings.dart';
 import '../../../helpers/fake_stop_repository.dart';
 import '../../../helpers/fake_trip_repository.dart';
 import '../../../helpers/fake_vehicle_run_repository.dart';
@@ -36,8 +38,17 @@ void main() {
   tearDown(getIt.reset);
 
   // Above MaterialApp like in the app; the bookmark on every page reads it.
-  Widget app(Widget home) => BlocProvider(
-    create: (_) => FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
+  Widget app(Widget home) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) =>
+            FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
+      ),
+      BlocProvider(
+        create: (_) =>
+            ProfileCubit(FakeProfileRepository(), FakeAuthRepository()),
+      ),
+    ],
     child: MaterialApp(
       locale: const Locale('en'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,

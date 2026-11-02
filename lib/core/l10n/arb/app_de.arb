@@ -260,10 +260,6 @@
   "@nearbyTimeout": {
     "description": "No position within the time limit."
   },
-  "tripTitle": "Verbindung suchen",
-  "@tripTitle": {
-    "description": "Start screen entry and title of the trip form."
-  },
   "tripFrom": "Von",
   "@tripFrom": {
     "description": "Label of the start stop."
@@ -935,5 +931,33 @@
         "example": "0"
       }
     }
+  },
+  "homeGreeting": "{period, select, morning{Guten Morgen} afternoon{Guten Tag} evening{Guten Abend} other{Gute Nacht}}",
+  "@homeGreeting": {
+    "description": "Greeting at the top of the planner, by the time of day: morning 05-11, afternoon 11-18, evening 18-22, night 22-05.",
+    "placeholders": {
+      "period": {
+        "type": "String",
+        "example": "morning"
+      }
+    }
+  },
+  "homeGreetingWithName": "{greeting}, {name}",
+  "@homeGreetingWithName": {
+    "description": "The greeting with the display name from the profile.",
+    "placeholders": {
+      "greeting": {
+        "type": "String",
+        "example": "Guten Morgen"
+      },
+      "name": {
+        "type": "String",
+        "example": "Shawn"
+      }
+    }
+  },
+  "homeGreetingQuestion": "Wohin geht’s heute?",
+  "@homeGreetingQuestion": {
+    "description": "Below the greeting, above the trip form."
   }
 }

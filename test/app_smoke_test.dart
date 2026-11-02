@@ -73,7 +73,7 @@ void main() {
       await tester.pumpWidget(const RuhrTransitApp());
       await tester.pumpAndSettle();
 
-      expect(find.text('Verbindung suchen'), findsOneWidget);
+      expect(find.text('Wohin geht’s heute?'), findsOneWidget);
       expect(find.text('Einstellungen'), findsOneWidget);
       expect(find.textContaining('Alle Angaben ohne Gewähr'), findsOneWidget);
     });
@@ -85,7 +85,7 @@ void main() {
       await tester.pumpWidget(const RuhrTransitApp());
       await tester.pumpAndSettle();
 
-      expect(find.text('Plan a trip'), findsOneWidget);
+      expect(find.text('Where to today?'), findsOneWidget);
       expect(
         find.textContaining('All information without guarantee'),
         findsOneWidget,
@@ -192,7 +192,7 @@ void main() {
 
       await tester.tap(find.text("Los geht's"));
       await tester.pumpAndSettle();
-      expect(find.text('Verbindung suchen'), findsOneWidget);
+      expect(find.text('Wohin geht’s heute?'), findsOneWidget);
       expect(onboarding.completed, isTrue);
     });
 
@@ -210,7 +210,7 @@ void main() {
 
       // Saved, so a later change of the device language does not switch it.
       expect(language.saved, 'de');
-      expect(find.text('Verbindung suchen'), findsOneWidget);
+      expect(find.text('Wohin geht’s heute?'), findsOneWidget);
     });
 
     testWidgets('Back on the language step returns to the welcome', (
@@ -243,7 +243,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Plan a trip'), findsOneWidget);
+      expect(find.text('Where to today?'), findsOneWidget);
     });
 
     testWidgets('a widget launch before onboarding only opens the app', (
@@ -267,14 +267,14 @@ void main() {
         RuhrTransitApp(language: AppLanguages.byCode('de')),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Verbindung suchen'), findsOneWidget);
+      expect(find.text('Wohin geht’s heute?'), findsOneWidget);
 
       // Android reports the new per-app language and a locale change.
       language.saved = 'en';
       tester.platformDispatcher.localesTestValue = const [Locale('en')];
       await tester.pumpAndSettle();
 
-      expect(find.text('Plan a trip'), findsOneWidget);
+      expect(find.text('Where to today?'), findsOneWidget);
     });
   });
 }

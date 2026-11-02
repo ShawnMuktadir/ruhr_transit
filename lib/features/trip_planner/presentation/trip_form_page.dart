@@ -4,28 +4,37 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
+import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/greeting_header.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 
 /// The planner. Its [TripFormCubit] comes from the home shell, which can
 /// fill it in from a saved journey.
 class TripFormView extends StatelessWidget {
-  const TripFormView({this.pickStop = StopPicker.pick, super.key});
+  const TripFormView({
+    this.pickStop = StopPicker.pick,
+    this.now = DateTime.now,
+    super.key,
+  });
 
   /// Opens the stop picker; tests replace it.
   final Future<Stop?> Function(BuildContext context, {required String title})
   pickStop;
+
+  /// The clock the greeting is for.
+  final DateTime Function() now;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<TripFormCubit>();
     return Scaffold(
+      // The greeting below is the title; the bar keeps the bookmark.
       appBar: AppBar(
-        title: Text(l10n.tripTitle),
         actions: [
           BlocBuilder<TripFormCubit, TripFormState>(
             builder: (context, state) =>
@@ -35,8 +44,16 @@ class TripFormView extends StatelessWidget {
       ),
       body: BlocBuilder<TripFormCubit, TripFormState>(
         builder: (context, state) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
+              child: BlocSelector<ProfileCubit, ProfileState, String?>(
+                selector: (state) => state.displayName,
+                builder: (context, name) =>
+                    GreetingHeader(displayName: name, now: now),
+              ),
+            ),
             Card.outlined(
               child: Row(
                 children: [

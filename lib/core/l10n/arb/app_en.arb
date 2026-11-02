@@ -47,7 +47,6 @@
   "nearbyPermissionDeniedForever": "Location access is turned off for RuhrTransit. It can be allowed in the app settings.",
   "nearbyOpenAppSettings": "App settings",
   "nearbyTimeout": "Your location could not be found. Please try again outdoors or near a window.",
-  "tripTitle": "Plan a trip",
   "tripFrom": "From",
   "tripTo": "To",
   "tripChooseFrom": "Choose start",
@@ -169,5 +168,8 @@
   "stationPathEscalator": "Escalator",
   "stationPathStairs": "Stairs",
   "stationPathOther": "Path",
-  "stationPathLevels": "{path} from level {from} to {to}"
+  "stationPathLevels": "{path} from level {from} to {to}",
+  "homeGreeting": "{period, select, morning{Good morning} afternoon{Good afternoon} evening{Good evening} other{Good night}}",
+  "homeGreetingWithName": "{greeting}, {name}",
+  "homeGreetingQuestion": "Where to today?"
 }
