@@ -203,6 +203,7 @@ void main() {
     'notice text': (tester) async {
       await tester.tap(find.textContaining('Hinweise'));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text(lineNotice.title));
       await tester.tap(find.text(lineNotice.title));
       await tester.pumpAndSettle();
     },

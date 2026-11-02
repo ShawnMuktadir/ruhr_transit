@@ -113,7 +113,12 @@ void main() {
       final lift = notices.last;
       expect(lift.kind, TripNoticeKind.facilities);
       expect(lift.title, 'Haltestelle Bochum Hbf: Aufzug außer Betrieb.');
-      expect(lift.isLowPriority, isFalse);
+      expect(lift.priority, TripNoticePriority.normal);
+      expect(lift.severity, TripNoticeSeverity.note);
+      // About the ride itself, so a warning and first.
+      expect(notices.first.severity, TripNoticeSeverity.warning);
+      expect(journeys[2].hasWarning, isTrue);
+      expect(journeys[0].hasWarning, isFalse);
       // EFA's urlText is empty here.
       expect(lift.summary, isNull);
     });
@@ -127,7 +132,8 @@ void main() {
         TripNoticeKind.line,
       ]);
       final line = notices.last;
-      expect(line.isLowPriority, isTrue);
+      expect(line.priority, TripNoticePriority.low);
+      expect(line.severity, TripNoticeSeverity.background);
       expect(line.title, 'Haltestellenveränderungen durch Baumaßnahme');
       expect(line.summary, startsWith('Linien E24, E30, E32, E34, E71'));
       expect(line.text, isNot(contains('<')));

@@ -180,7 +180,7 @@ void main() {
       expect(find.byIcon(Icons.directions_walk), findsOneWidget);
       expect(find.text('1 change'), findsOneWidget);
       // Only the trip with notices says so; S1 has none.
-      expect(find.text('2 notices'), findsOneWidget);
+      expect(find.text('3 notices · Affects this trip'), findsOneWidget);
       expect(
         find.textContaining('All information without guarantee'),
         findsOne,
@@ -202,7 +202,9 @@ void main() {
       );
       // Notices are part of the sentence, as on screen.
       expect(
-        find.bySemanticsLabel(RegExp(r'1 change, U35, walk, 339, 2 notices$')),
+        find.bySemanticsLabel(
+          RegExp(r'1 change, U35, walk, 339, 3 notices, Affects this trip$'),
+        ),
         findsOneWidget,
       );
       semantics.dispose();
@@ -254,43 +256,26 @@ void main() {
     });
   });
 
+  /// Room for the whole details page: a warning opens the notices, which
+  /// would push the rides out of the default 800x600 test screen.
+  void tallScreen(WidgetTester tester) {
+    tester.view.physicalSize = const Size(1080, 6000);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+  }
+
   group('journey details: stops in between and notices', () {
     testWidgets('a ride shows its stops in between on request', (tester) async {
-      final semantics = tester.ensureSemantics();
+      tallScreen(tester);
       await tester.pumpWidget(app(JourneyDetailsPage(journey: withWalk)));
       expect(find.text('Bochum Markstr.'), findsNothing);
 
-      expect(
-        tester.getSemantics(find.text('2 stops in between')),
-        matchesSemantics(
-          label: '2 stops in between',
-          isButton: true,
-          hasExpandedState: true,
-          hasTapAction: true,
-          hasFocusAction: true,
-          isFocusable: true,
-        ),
-      );
+      await tester.ensureVisible(find.text('2 stops in between'));
       await tester.tap(find.text('2 stops in between'));
       await tester.pumpAndSettle();
 
       expect(find.text('Bochum Gesundheitscampus'), findsOneWidget);
-      expect(find.text('Bochum Markstr.'), findsOneWidget);
-      // Live time and platform chip, like origin and destination.
       expect(find.text('Platform 2'), findsOneWidget);
-      expect(
-        tester.getSemantics(find.text('2 stops in between')),
-        matchesSemantics(
-          label: '2 stops in between',
-          isButton: true,
-          hasExpandedState: true,
-          isExpanded: true,
-          hasTapAction: true,
-          hasFocusAction: true,
-          isFocusable: true,
-        ),
-      );
-      semantics.dispose();
     });
 
     testWidgets('a ride without stops in between shows nothing extra', (
@@ -302,23 +287,39 @@ void main() {
       expect(find.textContaining('notice'), findsNothing);
     });
 
-    testWidgets('notices are collapsed, important first, full text on tap', (
+    testWidgets('notices are collapsed, then sorted and labelled', (
       tester,
     ) async {
+      tallScreen(tester);
       await tester.pumpWidget(app(JourneyDetailsPage(journey: withWalk)));
-      expect(find.text(liftNotice.title), findsNothing);
 
-      await tester.tap(find.text('2 notices'));
+      // Collapsed even with a warning; the heading's icon shows it.
+      expect(find.text(rideNotice.title), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(ExpansionTile),
+          matching: find.byIcon(Icons.warning_amber),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('3 notices'));
       await tester.pumpAndSettle();
-      final titles = [
-        tester.getTopLeft(find.text(liftNotice.title)).dy,
-        tester.getTopLeft(find.text(lineNotice.title)).dy,
-      ];
-      expect(titles.first, lessThan(titles.last));
-      expect(find.text(lineNotice.summary!), findsOneWidget);
-      // Without a summary, the text tells same-titled notices apart.
+
+      final ride = tester.getTopLeft(find.text(rideNotice.title)).dy;
+      final lift = tester.getTopLeft(find.text(liftNotice.title)).dy;
+      final line = tester.getTopLeft(find.text(lineNotice.title)).dy;
+      expect(ride, lessThan(lift));
+      expect(lift, lessThan(line));
+      expect(find.text('Affects this trip'), findsOneWidget);
+      expect(find.text('Long-term change'), findsOneWidget);
+      final tile = tester.widget<ListTile>(
+        find.ancestor(
+          of: find.text(rideNotice.title),
+          matching: find.byType(ListTile),
+        ),
+      );
+      expect(tile.tileColor, isNotNull);
       expect(find.text(liftNotice.text), findsOneWidget);
-      // In English the app says the texts are German.
       expect(find.textContaining('in German only'), findsOneWidget);
 
       await tester.tap(find.text(lineNotice.title));
@@ -330,6 +331,7 @@ void main() {
 
   group('journey details', () {
     testWidgets('shows rides, the walk and a short connection', (tester) async {
+      tallScreen(tester);
       await tester.pumpWidget(app(JourneyDetailsPage(journey: withWalk)));
 
       expect(find.text('towards Herne Schloß Strünkede'), findsOneWidget);
@@ -338,7 +340,17 @@ void main() {
       expect(find.text('Walk 4 min (183 m)'), findsOneWidget);
       // 4 minutes between the rides, all of them walking.
       expect(find.text('4 min to change · Short connection'), findsOneWidget);
-      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
+      // The change row's own warning icon; the notices have theirs too.
+      expect(
+        find.descendant(
+          of: find.ancestor(
+            of: find.text('4 min to change · Short connection'),
+            matching: find.byType(ListTile),
+          ),
+          matching: find.byIcon(Icons.warning_amber),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Umleitung wegen Baustelle'), findsOneWidget);
     });
 

@@ -69,7 +69,7 @@ final withWalk = Journey([
         platform: '2',
       ),
     ],
-    notices: const [liftNotice, lineNotice],
+    notices: const [lineNotice, liftNotice, rideNotice],
   ),
   WalkLeg(
     duration: const Duration(minutes: 4),
@@ -123,5 +123,13 @@ const lineNotice = TripNotice(
   text:
       'Linien 345, 355: Zwischen (H) Lessing-Schule und (H) Papenholz.\n'
       'Dauer: 08.06.26 bis 04.01.27',
-  isLowPriority: true,
+  priority: TripNoticePriority.low,
+);
+
+/// About the ride itself, so a warning.
+const rideNotice = TripNotice(
+  id: 'DBProd-2711395',
+  kind: TripNoticeKind.trip,
+  title: 'Strecke zw. Bochum und Herne beeinträchtigt',
+  text: 'Wegen eines Defekts an einem Zug kommt es zu Verspätungen.',
 );

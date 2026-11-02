@@ -126,5 +126,7 @@
   "noticeStop": "Stop",
   "noticeLine": "Line",
   "noticeTrip": "Trip",
-  "noticeOther": "Notice"
+  "noticeOther": "Notice",
+  "noticeAffectsTrip": "Affects this trip",
+  "noticeLongTerm": "Long-term change"
 }

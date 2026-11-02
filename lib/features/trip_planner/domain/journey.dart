@@ -15,7 +15,8 @@ class Journey {
   Duration get duration => arrival.time.difference(departure.time);
 
   /// VRR's notices for this journey, each once (the same notice is often
-  /// attached to several legs), the important ones first.
+  /// attached to several legs): warnings first, background last, otherwise
+  /// in travel order.
   List<TripNotice> get notices {
     final seen = <String>{};
     final unique = [
@@ -24,10 +25,14 @@ class Journey {
           if (seen.add(notice.id)) notice,
     ];
     return [
-      ...unique.where((notice) => !notice.isLowPriority),
-      ...unique.where((notice) => notice.isLowPriority),
+      for (final severity in TripNoticeSeverity.values)
+        ...unique.where((notice) => notice.severity == severity),
     ];
   }
+
+  /// Whether any notice is a warning, see [TripNoticeSeverity.warning].
+  bool get hasWarning =>
+      notices.any((notice) => notice.severity == TripNoticeSeverity.warning);
 
   /// Changes between vehicles; walks are not counted as rides.
   int get transfers {
@@ -154,6 +159,25 @@ enum TripNoticeKind {
   other,
 }
 
+/// EFA's `priority`, which has five steps: `veryLow`, `low`, `normal`,
+/// `high`, `veryHigh`. Live data so far has only shown `normal` and
+/// `veryLow`.
+enum TripNoticePriority { low, normal, high }
+
+/// How a notice is shown, derived only from what VRR sends: its priority
+/// and its type. VRR does not mark how serious a notice is otherwise.
+enum TripNoticeSeverity {
+  /// High priority, or about the ride itself (`tripMessage`): a disrupted
+  /// route, a train defect, no boarding aid.
+  warning,
+
+  /// Normal priority about a stop or line, e.g. a lift out of order.
+  note,
+
+  /// Low priority, e.g. a stop change that has lasted for months.
+  background,
+}
+
 /// A notice from VRR about a stop, a line or a ride. German only.
 class TripNotice {
   const TripNotice({
@@ -162,7 +186,7 @@ class TripNotice {
     required this.title,
     this.summary,
     this.text = '',
-    this.isLowPriority = false,
+    this.priority = TripNoticePriority.normal,
   });
 
   /// EFA's id, the same on every leg the notice is attached to.
@@ -180,8 +204,14 @@ class TripNotice {
   /// The full text as plain text; may be empty.
   final String text;
 
-  /// EFA's priority `low` or `veryLow`, e.g. long-running stop changes.
-  final bool isLowPriority;
+  final TripNoticePriority priority;
+
+  TripNoticeSeverity get severity => switch ((priority, kind)) {
+    (TripNoticePriority.high, _) => TripNoticeSeverity.warning,
+    (TripNoticePriority.low, _) => TripNoticeSeverity.background,
+    (_, TripNoticeKind.trip) => TripNoticeSeverity.warning,
+    _ => TripNoticeSeverity.note,
+  };
 
   @override
   String toString() => 'TripNotice($id, $title)';

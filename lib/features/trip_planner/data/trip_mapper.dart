@@ -177,9 +177,10 @@ TripNotice? _mapNotice(Map<String, Object?> json) {
     title: (title ?? text.split('\n').first).trim(),
     summary: summary.isEmpty || summary == title ? null : summary,
     text: text,
-    isLowPriority: switch (json['priority']) {
-      'low' || 'veryLow' => true,
-      _ => false,
+    priority: switch (json['priority']) {
+      'low' || 'veryLow' => TripNoticePriority.low,
+      'high' || 'veryHigh' => TripNoticePriority.high,
+      _ => TripNoticePriority.normal,
     },
   );
 }

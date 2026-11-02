@@ -687,5 +687,13 @@
   "noticeOther": "Hinweis",
   "@noticeOther": {
     "description": "Screen reader label for the icon of another notice."
+  },
+  "noticeAffectsTrip": "Betrifft diese Fahrt",
+  "@noticeAffectsTrip": {
+    "description": "Label above a warning notice (about the ride itself or high priority) and on result cards."
+  },
+  "noticeLongTerm": "Längerfristige Änderung",
+  "@noticeLongTerm": {
+    "description": "Label above a low-priority notice, e.g. a stop change that lasts for months."
   }
 }
