@@ -13,6 +13,7 @@ import 'package:ruhr_transit/features/language/domain/language_repository.dart';
 import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
+import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
@@ -20,6 +21,7 @@ import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 import 'helpers/fake_departure_repository.dart';
 import 'helpers/fake_favourite_journeys_repository.dart';
 import 'helpers/fake_favourites_repository.dart';
+import 'helpers/fake_recent_stops_repository.dart';
 import 'helpers/fake_settings.dart';
 import 'helpers/fake_stop_repository.dart';
 import 'helpers/fake_widget_sync.dart';
@@ -48,6 +50,7 @@ void main() {
         FakeFavouriteJourneysRepository(),
       )
       ..registerSingleton<ThemeRepository>(FakeThemeRepository())
+      ..registerSingleton<RecentStopsRepository>(FakeRecentStopsRepository())
       ..registerSingleton<ProfileRepository>(FakeProfileRepository())
       ..registerSingleton<AuthRepository>(FakeAuthRepository());
     PackageInfo.setMockInitialValues(

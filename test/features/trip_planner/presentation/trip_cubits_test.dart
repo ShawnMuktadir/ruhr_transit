@@ -78,6 +78,34 @@ void main() {
   });
 
   group('TripResultsCubit', () {
+    /// A one-leg journey leaving [minute] minutes after 07:30.
+    Journey ride(int minute) => Journey([
+      TransitLeg(
+        line: 'RE$minute',
+        direction: 'Dortmund',
+        origin: TripStop(
+          name: 'Bochum Hbf',
+          plannedTime: DateTime.utc(
+            2026,
+            11,
+            2,
+            7,
+            30,
+          ).add(Duration(minutes: minute)),
+        ),
+        destination: TripStop(
+          name: 'Dortmund Hbf',
+          plannedTime: DateTime.utc(
+            2026,
+            11,
+            2,
+            7,
+            45,
+          ).add(Duration(minutes: minute)),
+        ),
+      ),
+    ]);
+
     const query = TripQuery(from: bochumHbf, to: dortmundHbf, time: LeaveNow());
     late FakeTripRepository repository;
     late TripResultsCubit cubit;
@@ -95,7 +123,7 @@ void main() {
     test('loads the journeys for the query', () async {
       await cubit.load();
 
-      expect(repository.queries, [query]);
+      expect(repository.queries.first, query);
       expect(
         cubit.state,
         isA<TripResultsLoaded>().having((s) => s.journeys, 'journeys', [
@@ -164,49 +192,124 @@ void main() {
       expect(cubit.state, isA<TripResultsLoaded>());
     });
 
-    test('later trips start a minute after the last departure', () async {
+    test(
+      'fills up with later trips, a minute after the last departure',
+      () async {
+        repository.replies = [
+          Ok([directS1, withWalk]),
+          // EFA may send a journey again; it is shown once.
+          Ok([withWalk, laterRe11]),
+        ];
+        await cubit.load();
+
+        final laterQuery = repository.queries[1];
+        expect(laterQuery.from, bochumHbf);
+        expect(
+          laterQuery.time,
+          isA<DepartAt>().having(
+            (t) => t.time,
+            'time',
+            withWalk.departure.time.toLocal().add(const Duration(minutes: 1)),
+          ),
+        );
+        expect(
+          cubit.state,
+          isA<TripResultsLoaded>()
+              .having((s) => s.journeys, 'journeys', [
+                directS1,
+                withWalk,
+                laterRe11,
+              ])
+              .having((s) => s.isLoadingLater, 'isLoadingLater', isFalse),
+        );
+        // The third answer brought nothing new, so it stopped there.
+        expect(repository.queries, hasLength(3));
+      },
+    );
+
+    test('shows the first trips while filling up', () async {
       repository.replies = [
-        Ok([directS1, withWalk]),
-        // EFA may send a journey again; it is shown once.
-        Ok([withWalk, laterRe11]),
+        Ok([directS1]),
       ];
-      await cubit.load();
+      // The second request, the automatic fill, waits until completed.
+      final fill = Completer<Result<List<Journey>>>();
+      var calls = 0;
+      repository.onQuery = () {
+        if (++calls == 2) repository.pending = fill;
+      };
 
-      final loading = cubit.loadLater();
-      expect(
-        cubit.state,
-        isA<TripResultsLoaded>().having(
-          (s) => s.isLoadingLater,
-          'isLoadingLater',
-          isTrue,
-        ),
-      );
-      await loading;
-
-      final laterQuery = repository.queries.last;
-      expect(laterQuery.from, bochumHbf);
-      expect(
-        laterQuery.time,
-        isA<DepartAt>().having(
-          (t) => t.time,
-          'time',
-          withWalk.departure.time.toLocal().add(const Duration(minutes: 1)),
-        ),
-      );
+      final load = cubit.load();
+      await pumpEventQueue();
       expect(
         cubit.state,
         isA<TripResultsLoaded>()
-            .having((s) => s.journeys, 'journeys', [
-              directS1,
-              withWalk,
-              laterRe11,
-            ])
-            .having((s) => s.isLoadingLater, 'isLoadingLater', isFalse),
+            .having((s) => s.journeys, 'journeys', [directS1])
+            .having((s) => s.isLoadingLater, 'isLoadingLater', isTrue),
       );
+
+      repository
+        ..onQuery = null
+        ..pending = null;
+      fill.complete(Ok([withWalk]));
+      await load;
+      expect((cubit.state as TripResultsLoaded).journeys, [directS1, withWalk]);
+    });
+
+    test('stops at five trips', () async {
+      repository.replies = [
+        Ok([ride(10), ride(20), ride(30)]),
+        Ok([ride(40), ride(50), ride(60)]),
+      ];
+      await cubit.load();
+
+      expect((cubit.state as TripResultsLoaded).journeys, hasLength(6));
+      expect(repository.queries, hasLength(2));
+    });
+
+    test('asks at most three more times', () async {
+      var minute = 10;
+      repository.replies = [
+        Ok([ride(minute)]),
+      ];
+      repository.onQuery = () {
+        minute += 10;
+        repository.replies = [
+          Ok([ride(minute)]),
+        ];
+      };
+      await cubit.load();
+
+      expect(repository.queries, hasLength(4));
+      expect((cubit.state as TripResultsLoaded).journeys, hasLength(4));
+    });
+
+    test('a failure while filling up keeps the list quietly', () async {
+      repository.replies = [
+        Ok([directS1]),
+        const Err(TimeoutFailure()),
+      ];
+      await cubit.load();
+
+      expect(
+        cubit.state,
+        isA<TripResultsLoaded>()
+            .having((s) => s.journeys, 'journeys', [directS1])
+            .having((s) => s.laterFailure, 'laterFailure', isNull),
+      );
+    });
+
+    test('later trips drop the ones that have left', () async {
+      // withWalk leaves 07:21; directS1 left at 07:17.
+      now = DateTime.utc(2026, 11, 2, 7, 19);
+      await cubit.load();
+
+      expect((cubit.state as TripResultsLoaded).journeys, [withWalk]);
     });
 
     test('failed later trips keep the list and report the failure', () async {
       repository.replies = [
+        Ok([directS1]),
+        // The automatic fill finds nothing new and stops.
         Ok([directS1]),
         const Err(TimeoutFailure()),
       ];
@@ -235,7 +338,8 @@ void main() {
       pending.complete(Ok([laterRe11]));
       await Future.wait([first, second]);
 
-      expect(repository.queries, hasLength(2));
+      // The search, one automatic fill (nothing new), one later trips.
+      expect(repository.queries, hasLength(3));
     });
 
     test('a cancelled request leaves the state to the newer one', () async {

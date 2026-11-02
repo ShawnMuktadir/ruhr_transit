@@ -15,7 +15,8 @@ Screens: first-launch welcome and language choice, the home screen with its
 navigation bar, favourites (saved journeys: none and some; stops: with and
 without favourite stops), departure board (live and outdated), nearby stops
 (before asking, approximate location, permission denied for good), trip
-form, trip results, journey details, settings. Add new screens to the map at the
+form, trip results, journey details (with the vehicle's run, without it, with
+notices and the run's other stops open, and a notice's full text), settings. Add new screens to the map at the
 top of the test.
 
 Behaviour that the guidelines cannot see has its own widget tests:

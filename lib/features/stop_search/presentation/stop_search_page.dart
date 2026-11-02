@@ -8,6 +8,7 @@ import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/dismiss_background.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
+import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
@@ -41,7 +42,11 @@ abstract final class StopPicker {
           create: (_) => StopSearchCubit(getIt<StopRepository>()),
           child: StopSearchView(
             title: title,
-            onPicked: (stop) => Navigator.of(context).pop(stop),
+            onPicked: (stop) {
+              // Only picks for From and To count as search history.
+              context.read<RecentStopsCubit>().add(stop);
+              Navigator.of(context).pop(stop);
+            },
           ),
         ),
       ),
@@ -178,15 +183,23 @@ class _StartContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final favourites = context.watch<FavouritesCubit>().state;
+    final onPicked = this.onPicked;
+    // Only the From/To picker has a history; favourites are not repeated.
+    final recent = onPicked == null
+        ? const <Stop>[]
+        : [
+            for (final stop in context.watch<RecentStopsCubit>().state)
+              if (!favourites.contains(stop)) stop,
+          ];
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: [
-        if (favourites.isEmpty)
+        if (favourites.isEmpty && recent.isEmpty)
           Padding(
             padding: const EdgeInsets.all(24),
             child: Text(l10n.stopSearchIdle, textAlign: TextAlign.center),
-          )
-        else ...[
+          ),
+        if (favourites.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Text(
@@ -214,6 +227,8 @@ class _StartContent extends StatelessWidget {
                 ),
               ),
         ],
+        if (onPicked != null && recent.isNotEmpty)
+          _RecentStops(recent, onPicked: onPicked),
       ],
     );
   }
@@ -230,6 +245,100 @@ class _StartContent extends StatelessWidget {
           action: SnackBarAction(
             label: l10n.undo,
             onPressed: () => cubit.restore(stop, index),
+          ),
+        ),
+      );
+  }
+}
+
+/// The last stops picked for From or To, with a way to remove one or all.
+class _RecentStops extends StatelessWidget {
+  const _RecentStops(this.stops, {required this.onPicked});
+
+  final List<Stop> stops;
+  final ValueChanged<Stop> onPicked;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+          // Side by side while they fit; at large text "Verlauf löschen"
+          // moves below the heading instead of overflowing.
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.recentStopsTitle,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+              TextButton(
+                onPressed: () => _clearWithUndo(context),
+                child: Text(l10n.recentStopsClear),
+              ),
+            ],
+          ),
+        ),
+        for (final stop in stops)
+          Dismissible(
+            key: ValueKey('recent ${stop.id}'),
+            direction: DismissDirection.endToStart,
+            background: const DismissBackground(),
+            onDismissed: (_) => _removeWithUndo(context, stop),
+            // Swiping is not possible with TalkBack; it offers this action.
+            child: Semantics(
+              customSemanticsActions: {
+                CustomSemanticsAction(label: l10n.recentStopRemove): () =>
+                    _removeWithUndo(context, stop),
+              },
+              child: StopTile(stop, icon: Icons.history, onSelected: onPicked),
+            ),
+          ),
+      ],
+    );
+  }
+
+  void _removeWithUndo(BuildContext context, Stop stop) {
+    final l10n = AppLocalizations.of(context);
+    final cubit = context.read<RecentStopsCubit>();
+    final index = cubit.remove(stop);
+    _showUndo(
+      context,
+      l10n.recentStopRemoved(stop.fullName),
+      () => cubit.restore(stop, index),
+    );
+  }
+
+  void _clearWithUndo(BuildContext context) {
+    final cubit = context.read<RecentStopsCubit>();
+    final previous = cubit.clear();
+    _showUndo(
+      context,
+      AppLocalizations.of(context).recentStopsCleared,
+      () => cubit.restoreAll(previous),
+    );
+  }
+
+  static void _showUndo(
+    BuildContext context,
+    String message,
+    VoidCallback undo,
+  ) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          action: SnackBarAction(
+            label: AppLocalizations.of(context).undo,
+            onPressed: undo,
           ),
         ),
       );

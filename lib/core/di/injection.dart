@@ -23,14 +23,19 @@ import 'package:ruhr_transit/features/profile/data/profile_repository_impl.dart'
 import 'package:ruhr_transit/features/profile/data/signed_out_auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
+import 'package:ruhr_transit/features/recent_stops/data/recent_stops_repository_impl.dart';
+import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/settings/data/theme_repository_impl.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/data/efa_stop_remote_source.dart';
 import 'package:ruhr_transit/features/stop_search/data/stop_repository_impl.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/data/efa_run_remote_source.dart';
 import 'package:ruhr_transit/features/trip_planner/data/efa_trip_remote_source.dart';
 import 'package:ruhr_transit/features/trip_planner/data/trip_repository_impl.dart';
+import 'package:ruhr_transit/features/trip_planner/data/vehicle_run_repository_impl.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/data/home_widget_sync.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,6 +75,11 @@ void configureDependencies() {
     // A factory like the other repositories: each results page cancels only
     // its own requests.
     ..registerFactory<TripRepository>(() => TripRepositoryImpl(getIt()))
+    ..registerLazySingleton(() => EfaRunRemoteSource(getIt()))
+    // A factory: each ride in trip details cancels only its own requests.
+    ..registerFactory<VehicleRunRepository>(
+      () => VehicleRunRepositoryImpl(getIt()),
+    )
     ..registerLazySingleton(SharedPreferencesAsync.new)
     // A singleton, because it queues its own writes: two instances could
     // overwrite each other's boards.
@@ -88,6 +98,9 @@ void configureDependencies() {
     ..registerLazySingleton(AppDatabase.new)
     ..registerLazySingleton<FavouriteJourneysRepository>(
       () => FavouriteJourneysRepositoryImpl(getIt()),
+    )
+    ..registerLazySingleton<RecentStopsRepository>(
+      () => RecentStopsRepositoryImpl(getIt()),
     )
     ..registerLazySingleton<ThemeRepository>(() => ThemeRepositoryImpl(getIt()))
     ..registerLazySingleton<ProfileRepository>(

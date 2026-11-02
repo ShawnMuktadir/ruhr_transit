@@ -1,6 +1,8 @@
 import 'package:ruhr_transit/core/network/efa_json.dart';
+import 'package:ruhr_transit/core/network/efa_text.dart';
 import 'package:ruhr_transit/core/network/efa_transport.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
 /// EFA product class of a walk between stops (`"name": "footpath"`).
 const _footpathClass = 99;
@@ -58,6 +60,7 @@ Leg _mapLeg(Object? json) {
   };
   final origin = _mapStop(json['origin'], 'departure');
   final destination = _mapStop(json['destination'], 'arrival');
+  final notices = _mapNotices(json['infos']);
 
   if (transportation case {'product': {'class': _footpathClass}}) {
     return WalkLeg(
@@ -72,6 +75,7 @@ Leg _mapLeg(Object? json) {
       },
       origin: origin,
       destination: destination,
+      notices: notices,
     );
   }
 
@@ -86,6 +90,130 @@ Leg _mapLeg(Object? json) {
     origin: origin,
     destination: destination,
     notes: readEfaRealtimeNotes(json['hints']),
+    intermediateStops: _mapIntermediateStops(json['stopSequence']),
+    runKey: _mapRunKey(transportation, json['origin'], origin.plannedTime),
+    originId: _mapStopRef(json['origin']),
+    destinationId: _mapStopRef(json['destination']),
+    notices: notices,
+  );
+}
+
+/// `stopSequence` lists every stop of the leg, origin and destination
+/// included. Stops in between have both an arrival and a departure time;
+/// the departure is what a passenger waits for.
+List<TripStop> _mapIntermediateStops(Object? json) {
+  if (json is! List<Object?> || json.length < 3) return const [];
+  return [
+    for (final stop in json.sublist(1, json.length - 1))
+      if (stop is Map<String, Object?>) ?_mapIntermediateStop(stop),
+  ];
+}
+
+/// Null for a stop without a name or time: one odd stop should not cost
+/// the whole trip.
+TripStop? _mapIntermediateStop(Map<String, Object?> json) {
+  final name = readEfaStopName(json['name']);
+  final departure = readEfaTime(json['departureTimePlanned']);
+  final plannedTime = departure ?? readEfaTime(json['arrivalTimePlanned']);
+  if (name == null || plannedTime == null) return null;
+  final properties = switch (json['properties']) {
+    final Map<String, Object?> properties => properties,
+    _ => const <String, Object?>{},
+  };
+  return TripStop(
+    name: name,
+    plannedTime: plannedTime,
+    estimatedTime: readEfaTime(
+      json[departure != null
+          ? 'departureTimeEstimated'
+          : 'arrivalTimeEstimated'],
+    ),
+    platform: readNonEmptyString(properties['platformName']),
+    plannedPlatform: readNonEmptyString(properties['plannedPlatformName']),
+  );
+}
+
+/// Null without line id, trip code or stop id: the run cannot be
+/// requested then.
+RunKey? _mapRunKey(
+  Map<String, Object?> transportation,
+  Object? origin,
+  DateTime plannedDeparture,
+) {
+  final lineId = readNonEmptyString(transportation['id']);
+  final tripCode = switch (transportation['properties']) {
+    {'tripCode': final int code} => '$code',
+    {'tripCode': final String code} when code.isNotEmpty => code,
+    _ => null,
+  };
+  final stopId = switch (origin) {
+    {'id': final String id} when id.isNotEmpty => id,
+    _ => null,
+  };
+  if (lineId == null || tripCode == null || stopId == null) return null;
+  return RunKey(
+    lineId: lineId,
+    tripCode: tripCode,
+    stopId: stopId,
+    plannedDeparture: plannedDeparture,
+  );
+}
+
+StopRef? _mapStopRef(Object? json) => switch (json) {
+  {'id': final String id} when id.isNotEmpty => StopRef(
+    id,
+    parentId: switch (json) {
+      {'parent': {'id': final String parent}} when parent.isNotEmpty => parent,
+      _ => null,
+    },
+  ),
+  _ => null,
+};
+
+List<TripNotice> _mapNotices(Object? json) => switch (json) {
+  final List<Object?> infos => [
+    for (final info in infos)
+      if (info is Map<String, Object?>) ?_mapNotice(info),
+  ],
+  _ => const [],
+};
+
+/// Null for a notice without id or anything to show.
+TripNotice? _mapNotice(Map<String, Object?> json) {
+  final id = readNonEmptyString(json['id']);
+  final link = switch (json['infoLinks']) {
+    [final Map<String, Object?> first, ...] => first,
+    _ => const <String, Object?>{},
+  };
+  final text = switch (link['content']) {
+    final String content => efaPlainText(content),
+    _ => '',
+  };
+  final title =
+      readNonEmptyString(link['title']) ?? readNonEmptyString(link['subtitle']);
+  if (id == null || (title == null && text.isEmpty)) return null;
+  final summary = switch (link['urlText']) {
+    final String urlText => efaPlainText(urlText),
+    _ => '',
+  };
+  return TripNotice(
+    id: id,
+    kind: switch (json['type']) {
+      'infrastructure' => TripNoticeKind.facilities,
+      'stopInfo' => TripNoticeKind.stop,
+      'lineInfo' => TripNoticeKind.line,
+      'tripMessage' => TripNoticeKind.trip,
+      _ => TripNoticeKind.other,
+    },
+    // Without a title, the text's first line stands in.
+    title: (title ?? text.split('\n').first).trim(),
+    summary: summary.isEmpty || summary == title ? null : summary,
+    text: text,
+    priority: switch (json['priority']) {
+      'low' || 'veryLow' => TripNoticePriority.low,
+      'high' || 'veryHigh' => TripNoticePriority.high,
+      _ => TripNoticePriority.normal,
+    },
   );
 }
 
@@ -95,10 +223,9 @@ TripStop _mapStop(Object? json, String timeKind) {
   if (json is! Map<String, Object?>) {
     throw const FormatException('Leg without origin or destination');
   }
-  final name = switch (json['name']) {
-    final String name when name.isNotEmpty => name,
-    _ => throw const FormatException('Leg stop without name'),
-  };
+  final name =
+      readEfaStopName(json['name']) ??
+      (throw const FormatException('Leg stop without name'));
   final plannedTime = readEfaTime(json['${timeKind}TimePlanned']);
   if (plannedTime == null) {
     throw FormatException('$name without "${timeKind}TimePlanned"');

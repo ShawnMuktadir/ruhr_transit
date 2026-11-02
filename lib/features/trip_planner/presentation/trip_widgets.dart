@@ -152,6 +152,9 @@ String journeySummary(BuildContext context, Journey journey) {
         TransitLeg(:final line) => line,
         WalkLeg() => l10n.tripWalkLabel,
       },
+    if (journey.notices case final notices when notices.isNotEmpty)
+      l10n.tripNotices(notices.length),
+    if (journey.hasWarning) l10n.noticeAffectsTrip,
   ].join(', ');
   return l10n.tripSummary(
     timeOf(journey.departure),

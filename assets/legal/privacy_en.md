@@ -29,6 +29,7 @@ The legal basis is Art. 6(1)(b) GDPR (providing the information you request); fo
 Stored on your device only:
 
 - Your favourites: stops and saved journeys, with the labels you give them.
+- Your search history: the stops you last chose for "From" and "To", at most 10. You can delete it, entirely or one by one, in the stop picker.
 - The last fetched departures of up to 10 stops, so they stay visible without an internet connection, and the data of the home-screen widget.
 - Your settings: language, appearance and, if you enter one, your display name.
 

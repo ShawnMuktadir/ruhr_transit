@@ -115,6 +115,11 @@ class _JourneyCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final transfers = journey.transfers;
+    final notices = journey.notices.length;
+    final warning = journey.hasWarning;
+    final noticeColor = warning
+        ? theme.colorScheme.error
+        : theme.colorScheme.primary;
     // One node for TalkBack: the summary sentence plus the tap action,
     // instead of every time, badge and chevron on its own.
     return MergeSemantics(
@@ -150,11 +155,46 @@ class _JourneyCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   JourneyLines(journey),
                   const SizedBox(height: 8),
-                  Text(
-                    transfers == 0
-                        ? l10n.tripDirect
-                        : l10n.tripTransfers(transfers),
-                    style: theme.textTheme.bodySmall,
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        transfers == 0
+                            ? l10n.tripDirect
+                            : l10n.tripTransfers(transfers),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      // Red with a warning icon only when a notice affects
+                      // the ride; most are about lifts and stops.
+                      if (notices > 0)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              warning
+                                  ? Icons.warning_amber
+                                  : Icons.info_outline,
+                              size: 16,
+                              color: noticeColor,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                warning
+                                    ? '${l10n.tripNotices(notices)} · '
+                                          '${l10n.noticeAffectsTrip}'
+                                    : l10n.tripNotices(notices),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: noticeColor,
+                                  fontWeight: warning ? FontWeight.bold : null,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                 ],
               ),

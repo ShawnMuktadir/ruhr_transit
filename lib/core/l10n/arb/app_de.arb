@@ -643,5 +643,171 @@
   "profileSaveFailed": "Der Name konnte nicht gespeichert werden.",
   "@profileSaveFailed": {
     "description": "Snack bar when saving the display name failed."
+  },
+  "tripIntermediateStops": "{count, plural, =1{1 Zwischenhalt} other{{count} Zwischenhalte}}",
+  "@tripIntermediateStops": {
+    "description": "Expandable row on a ride in trip details.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "tripNotices": "{count, plural, =1{1 Hinweis} other{{count} Hinweise}}",
+  "@tripNotices": {
+    "description": "VRR notices for a trip: on result cards and as the heading of the notices in trip details.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "tripNoticesGermanOnly": "Die Hinweise stammen vom VRR.",
+  "@tripNoticesGermanOnly": {
+    "description": "Below the notices in trip details. Only shown when the app is not in German."
+  },
+  "noticeFacilities": "Aufzug oder Rolltreppe",
+  "@noticeFacilities": {
+    "description": "Screen reader label for the icon of a facilities notice."
+  },
+  "noticeStop": "Haltestelle",
+  "@noticeStop": {
+    "description": "Screen reader label for the icon of a stop notice."
+  },
+  "noticeLine": "Linie",
+  "@noticeLine": {
+    "description": "Screen reader label for the icon of a line notice."
+  },
+  "noticeTrip": "Fahrt",
+  "@noticeTrip": {
+    "description": "Screen reader label for the icon of a notice about this ride."
+  },
+  "noticeOther": "Hinweis",
+  "@noticeOther": {
+    "description": "Screen reader label for the icon of another notice."
+  },
+  "noticeAffectsTrip": "Betrifft diese Fahrt",
+  "@noticeAffectsTrip": {
+    "description": "Label above a warning notice (about the ride itself or high priority) and on result cards."
+  },
+  "noticeLongTerm": "Längerfristige Änderung",
+  "@noticeLongTerm": {
+    "description": "Label above a low-priority notice, e.g. a stop change that lasts for months."
+  },
+  "runDepartsIn": "Fährt in {minutes} Min. ab {stop}",
+  "@runDepartsIn": {
+    "description": "Status above the run before the vehicle has started.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "12"
+      },
+      "stop": {
+        "type": "String",
+        "example": "Dortmund Hbf"
+      }
+    }
+  },
+  "runDepartsNow": "Fährt jetzt ab {stop}",
+  "@runDepartsNow": {
+    "description": "Status when the first departure is less than a minute away.",
+    "placeholders": {
+      "stop": {
+        "type": "String",
+        "example": "Dortmund Hbf"
+      }
+    }
+  },
+  "runAt": "Jetzt in {stop}",
+  "@runAt": {
+    "description": "Status while the vehicle stands at a stop.",
+    "placeholders": {
+      "stop": {
+        "type": "String",
+        "example": "Essen Hbf"
+      }
+    }
+  },
+  "runBetween": "Jetzt zwischen {from} und {to}",
+  "@runBetween": {
+    "description": "Status between two stops.",
+    "placeholders": {
+      "from": {
+        "type": "String",
+        "example": "Essen Eiberg S"
+      },
+      "to": {
+        "type": "String",
+        "example": "Essen Steele Ost S"
+      }
+    }
+  },
+  "runEnded": "Fahrt beendet",
+  "@runEnded": {
+    "description": "Status after the last stop."
+  },
+  "runByTimetable": "Nach Fahrplan, ohne Echtzeit",
+  "@runByTimetable": {
+    "description": "Shown when VRR has no live data for the vehicle; the position is the timetable's."
+  },
+  "runStopsBefore": "{count, plural, =1{1 Halt vorher} other{{count} Halte vorher}}",
+  "@runStopsBefore": {
+    "description": "Expandable row: stops of the vehicle before the user boards.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "8"
+      }
+    }
+  },
+  "runStopsAfter": "{count, plural, =1{1 Halt danach} other{{count} Halte danach}}",
+  "@runStopsAfter": {
+    "description": "Expandable row: stops of the vehicle after the user gets off.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "runBoard": "Einstieg",
+  "@runBoard": {
+    "description": "Label on the stop where the user gets on."
+  },
+  "runAlight": "Ausstieg",
+  "@runAlight": {
+    "description": "Label on the stop where the user gets off."
+  },
+  "runVehicleHere": "Fahrzeug ist hier",
+  "@runVehicleHere": {
+    "description": "Marker in the run between two stops."
+  },
+  "recentStopsTitle": "Zuletzt gesucht",
+  "@recentStopsTitle": {
+    "description": "Heading of the last stops picked for From or To, in the stop picker."
+  },
+  "recentStopsClear": "Verlauf löschen",
+  "@recentStopsClear": {
+    "description": "Button next to the recent stops heading."
+  },
+  "recentStopRemove": "Aus dem Verlauf entfernen",
+  "@recentStopRemove": {
+    "description": "Screen reader action on a recent stop."
+  },
+  "recentStopRemoved": "„{stop}“ aus dem Verlauf entfernt",
+  "@recentStopRemoved": {
+    "description": "Snack bar after removing one recent stop.",
+    "placeholders": {
+      "stop": {
+        "type": "String",
+        "example": "Bochum, Hbf"
+      }
+    }
+  },
+  "recentStopsCleared": "Verlauf gelöscht",
+  "@recentStopsCleared": {
+    "description": "Snack bar after clearing the recent stops."
   }
 }

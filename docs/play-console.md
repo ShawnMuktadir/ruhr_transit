@@ -57,12 +57,13 @@ HTTPS. The app has no servers of its own and no SDKs that collect data.
 
 - Data is encrypted in transit: **Yes** (HTTPS only).
 - Users can request deletion: the app stores nothing off the device;
-  favourites, saved journeys, cached boards and settings are deleted with
-  the app.
+  favourites, saved journeys, search history, cached boards and settings
+  are deleted with the app.
 - Not collected: personal info, financial info, contacts, messages, photos,
   files, health, device IDs, crash logs, diagnostics, analytics. The
-  optional display name in Settings › Profile stays on the device, so it is
-  not "collected" in Google's sense. Revisit this once accounts exist.
+  optional display name in Settings › Profile and the search history (the
+  last 10 stops chosen for From/To) stay on the device, so they are not
+  "collected" in Google's sense. Revisit this once accounts exist.
 
 Whether sending data to VRR counts as "shared" depends on Google's current
 definitions (a provider acting on your behalf is not "sharing"; VRR is an
