@@ -10,20 +10,24 @@ import 'package:ruhr_transit/features/departures/presentation/departures_page.da
 import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journeys_repository.dart';
 import 'package:ruhr_transit/features/favourites/domain/favourites_repository.dart';
 import 'package:ruhr_transit/features/language/domain/language_repository.dart';
+import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
+import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 import 'helpers/fake_departure_repository.dart';
 import 'helpers/fake_favourite_journeys_repository.dart';
 import 'helpers/fake_favourites_repository.dart';
+import 'helpers/fake_nearby_stops.dart';
 import 'helpers/fake_recent_stops_repository.dart';
 import 'helpers/fake_settings.dart';
 import 'helpers/fake_stop_repository.dart';
+import 'helpers/fake_weather_repository.dart';
 import 'helpers/fake_widget_sync.dart';
 
 void main() {
@@ -52,7 +56,10 @@ void main() {
       ..registerSingleton<ThemeRepository>(FakeThemeRepository())
       ..registerSingleton<RecentStopsRepository>(FakeRecentStopsRepository())
       ..registerSingleton<ProfileRepository>(FakeProfileRepository())
-      ..registerSingleton<AuthRepository>(FakeAuthRepository());
+      ..registerSingleton<AuthRepository>(FakeAuthRepository())
+      // Not granted: the planner shows the chip asking for location.
+      ..registerSingleton<LocationSource>(FakeLocationSource())
+      ..registerFactory<WeatherRepository>(FakeWeatherRepository.new);
     PackageInfo.setMockInitialValues(
       appName: 'RuhrTransit',
       packageName: 'de.muktadir.ruhrtransit',

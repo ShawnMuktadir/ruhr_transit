@@ -11,6 +11,12 @@ abstract final class AppConfig {
     defaultValue: 'https://openservice.vrr.de/openservice',
   );
 
+  /// Bright Sky, which serves Deutscher Wetterdienst open data.
+  static const String brightSkyBaseUrl = String.fromEnvironment(
+    'BRIGHT_SKY_BASE_URL',
+    defaultValue: 'https://api.brightsky.dev',
+  );
+
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 15);
 }

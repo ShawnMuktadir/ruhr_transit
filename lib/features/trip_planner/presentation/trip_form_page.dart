@@ -18,8 +18,12 @@ class TripFormView extends StatelessWidget {
   const TripFormView({
     this.pickStop = StopPicker.pick,
     this.now = DateTime.now,
+    this.weather,
     super.key,
   });
+
+  /// Below the greeting; the app passes the weather chip, tests may not.
+  final Widget? weather;
 
   /// Opens the stop picker; tests replace it.
   final Future<Stop?> Function(BuildContext context, {required String title})
@@ -54,6 +58,11 @@ class TripFormView extends StatelessWidget {
                     GreetingHeader(displayName: name, now: now),
               ),
             ),
+            if (weather case final weather?)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Align(alignment: Alignment.centerLeft, child: weather),
+              ),
             Card.outlined(
               child: Row(
                 children: [

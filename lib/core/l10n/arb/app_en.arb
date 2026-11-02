@@ -171,5 +171,20 @@
   "stationPathLevels": "{path} from level {from} to {to}",
   "homeGreeting": "{period, select, morning{Good morning} afternoon{Good afternoon} evening{Good evening} other{Good night}}",
   "homeGreetingWithName": "{greeting}, {name}",
-  "homeGreetingQuestion": "Where to today?"
+  "homeGreetingQuestion": "Where to today?",
+  "weatherSky": "{sky, select, clearDay{Sunny} clearNight{Clear} partlyCloudyDay{Partly cloudy} partlyCloudyNight{Partly cloudy} cloudy{Cloudy} fog{Fog} wind{Windy} rain{Rain} sleet{Sleet} snow{Snow} hail{Hail} thunderstorm{Thunderstorm} other{}}",
+  "weatherTemperature": "{degrees} °C",
+  "weatherRainNow": "It’s raining – take an umbrella",
+  "weatherRainFrom": "Rain from {time} – take an umbrella",
+  "weatherSnowNow": "It’s snowing – dress warmly",
+  "weatherSnowFrom": "Snow from {time} – dress warmly",
+  "weatherLoading": "Loading the weather …",
+  "weatherNeedsLocation": "Weather not available – allow location",
+  "weatherLocationOff": "Weather not available – turn on location services",
+  "weatherOffline": "Weather offline – tap to retry",
+  "weatherNotHere": "Weather data only covers Germany",
+  "weatherNoPosition": "Location not found – tap to retry",
+  "weatherFailed": "Weather not available right now – tap to retry",
+  "weatherRefreshHint": "refresh",
+  "weatherAttribution": "Weather data: Deutscher Wetterdienst, via Bright Sky"
 }

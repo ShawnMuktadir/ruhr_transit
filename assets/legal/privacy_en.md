@@ -18,10 +18,12 @@ For every query the app connects to the VRR timetable service (openservice.vrr.d
 
 - **Search terms** for stops and, under "From" and "To", also for **addresses and places**: what you type there, such as the street and house number of your home, is sent to VRR.
 - **IDs** of the chosen stops, addresses and places for departures and trips, and the **chosen time** of a trip search.
-- **Location**, only when you tap "Use my location" under "Stops near me" and allow location access: the coordinates are read once and sent to VRR to find stops within 1 km. The app never reads the location in the background and does not store it.
+- **Location**, only when you tap "Use my location" under "Stops near me" and allow location access: the coordinates are read once and sent to VRR to find stops within 1 km. For the weather, see below. The app never reads the location in the background and does not store it.
 - As with any internet request, VRR's server receives your **IP address**.
 
 VRR's own privacy policy applies to its processing: [LINK TO VRR'S PRIVACY POLICY].
+
+**Weather:** If the app may use your location, opening "Plan trip" sends your coordinates, rounded to about 1 km, to Bright Sky (api.brightsky.dev), a service providing Deutscher Wetterdienst data, to show the weather near you. Without location access the app only asks when you tap the weather display. Bright Sky also receives your IP address. Bright Sky's privacy policy applies: [LINK TO BRIGHT SKY'S PRIVACY POLICY].
 
 The legal basis is Art. 6(1)(b) GDPR (providing the information you request); for location additionally your consent through the Android permission, which you can withdraw at any time in the system settings.
 

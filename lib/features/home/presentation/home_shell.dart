@@ -12,6 +12,7 @@ import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
+import 'package:ruhr_transit/features/weather/presentation/weather_chip.dart';
 
 enum HomeTab { plan, nearby, favourites, settings }
 
@@ -168,7 +169,7 @@ class HomeShellState extends State<HomeShell> {
   Widget _root(HomeTab tab) => switch (tab) {
     HomeTab.plan => BlocProvider.value(
       value: _tripForm,
-      child: const TripFormView(),
+      child: const TripFormView(weather: WeatherSection()),
     ),
     HomeTab.nearby => const NearbyStopsPage(),
     HomeTab.favourites => FavouritesTab(

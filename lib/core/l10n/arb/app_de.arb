@@ -959,5 +959,89 @@
   "homeGreetingQuestion": "Wohin geht’s heute?",
   "@homeGreetingQuestion": {
     "description": "Below the greeting, above the trip form."
+  },
+  "weatherSky": "{sky, select, clearDay{Sonnig} clearNight{Klar} partlyCloudyDay{Leicht bewölkt} partlyCloudyNight{Leicht bewölkt} cloudy{Bewölkt} fog{Nebel} wind{Windig} rain{Regen} sleet{Schneeregen} snow{Schnee} hail{Hagel} thunderstorm{Gewitter} other{}}",
+  "@weatherSky": {
+    "description": "The sky in the weather chip, from Deutscher Wetterdienst. Empty when unknown.",
+    "placeholders": {
+      "sky": {
+        "type": "String",
+        "example": "cloudy"
+      }
+    }
+  },
+  "weatherTemperature": "{degrees} °C",
+  "@weatherTemperature": {
+    "description": "Temperature in the weather chip.",
+    "placeholders": {
+      "degrees": {
+        "type": "int",
+        "example": "9"
+      }
+    }
+  },
+  "weatherRainNow": "Es regnet – Schirm nicht vergessen",
+  "@weatherRainNow": {
+    "description": "Hint below the weather when it rains now."
+  },
+  "weatherRainFrom": "Regen ab {time} – Schirm einpacken",
+  "@weatherRainFrom": {
+    "description": "Hint below the weather when rain is forecast within 6 hours.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "17:00"
+      }
+    }
+  },
+  "weatherSnowNow": "Es schneit – warm anziehen",
+  "@weatherSnowNow": {
+    "description": "Hint below the weather when it snows now."
+  },
+  "weatherSnowFrom": "Schnee ab {time} – warm anziehen",
+  "@weatherSnowFrom": {
+    "description": "Hint below the weather when snow is forecast within 6 hours.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "17:00"
+      }
+    }
+  },
+  "weatherLoading": "Wetter wird geladen …",
+  "@weatherLoading": {
+    "description": "Weather chip while loading."
+  },
+  "weatherNeedsLocation": "Wetter nicht verfügbar – Standort aktivieren",
+  "@weatherNeedsLocation": {
+    "description": "Weather chip without location permission; tapping asks for it."
+  },
+  "weatherLocationOff": "Wetter nicht verfügbar – Standortdienste einschalten",
+  "@weatherLocationOff": {
+    "description": "Weather chip when location is off on the phone; tapping opens the location settings."
+  },
+  "weatherOffline": "Wetter offline – zum Wiederholen tippen",
+  "@weatherOffline": {
+    "description": "Weather chip without internet connection."
+  },
+  "weatherNotHere": "Wetterdaten gibt es nur für Deutschland",
+  "@weatherNotHere": {
+    "description": "Weather chip outside Germany."
+  },
+  "weatherNoPosition": "Standort nicht gefunden – zum Wiederholen tippen",
+  "@weatherNoPosition": {
+    "description": "Weather chip when no position arrived in time."
+  },
+  "weatherFailed": "Wetter gerade nicht verfügbar – zum Wiederholen tippen",
+  "@weatherFailed": {
+    "description": "Weather chip after another error."
+  },
+  "weatherRefreshHint": "aktualisieren",
+  "@weatherRefreshHint": {
+    "description": "TalkBack: what tapping the weather chip does when it shows the weather."
+  },
+  "weatherAttribution": "Wetterdaten: Deutscher Wetterdienst, über Bright Sky",
+  "@weatherAttribution": {
+    "description": "Source of the weather data, required by the DWD terms."
   }
 }

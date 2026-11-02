@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
@@ -34,6 +35,9 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
+import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
+import 'package:ruhr_transit/features/weather/presentation/weather_chip.dart';
+import 'package:ruhr_transit/features/weather/presentation/weather_cubit.dart';
 
 import '../helpers/fake_departure_repository.dart';
 import '../helpers/fake_favourite_journeys_repository.dart';
@@ -44,12 +48,33 @@ import '../helpers/fake_settings.dart';
 import '../helpers/fake_stop_repository.dart';
 import '../helpers/fake_trip_repository.dart';
 import '../helpers/fake_vehicle_run_repository.dart';
+import '../helpers/fake_weather_repository.dart';
 import '../helpers/fake_widget_sync.dart';
 
 /// Every screen, in light and dark, at 100, 130 and 200 % font size, on a
 /// phone-sized screen: no layout overflow (an overflow fails the test by
 /// itself), and Android's tap target, label and contrast guidelines.
 void main() {
+  // The home screen's planner makes its weather chip through get_it.
+  setUp(
+    () => getIt
+      ..registerSingleton<LocationSource>(
+        FakeLocationSource()..permissionGranted = true,
+      )
+      ..registerFactory<WeatherRepository>(FakeWeatherRepository.new),
+  );
+  tearDown(getIt.reset);
+
+  Widget planner(WeatherCubit weather) => BlocProvider(
+    create: (_) => TripFormCubit(),
+    child: TripFormView(
+      weather: BlocProvider(
+        create: (_) => weather..load(),
+        child: const WeatherChip(),
+      ),
+    ),
+  );
+
   Widget onboarding() => MultiBlocProvider(
     providers: [
       BlocProvider(create: (_) => LocaleCubit(FakeLanguageRepository())),
@@ -146,6 +171,14 @@ void main() {
         ..arriveBy(DateTime(2026, 11, 2, 18, 30)),
       child: const TripFormView(),
     ),
+    'trip form with the weather': () => planner(
+      WeatherCubit(
+        FakeWeatherRepository(),
+        FakeLocationSource()..permissionGranted = true,
+      ),
+    ),
+    'trip form, weather needs location': () =>
+        planner(WeatherCubit(FakeWeatherRepository(), FakeLocationSource())),
     'trip results': () => BlocProvider(
       create: (_) => TripResultsCubit(
         FakeTripRepository(),
