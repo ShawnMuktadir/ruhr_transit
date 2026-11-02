@@ -229,6 +229,25 @@ void main() {
 
       expect(find.text('S1'), findsOneWidget);
       expect(find.text('RE11'), findsOneWidget);
+      // RE11 has no live data; S1 has.
+      expect(find.text('Timetable only'), findsOneWidget);
+    });
+
+    testWidgets('a card without live data says so, also to TalkBack', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      repository.replies = [
+        Ok([laterRe11]),
+      ];
+      await pumpResults(tester);
+
+      expect(find.text('Timetable only'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp(r'RE11, Timetable only$')),
+        findsOneWidget,
+      );
+      semantics.dispose();
     });
 
     testWidgets('no trips says so', (tester) async {
@@ -492,6 +511,106 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Umleitung wegen Baustelle'), findsOneWidget);
+    });
+
+    testWidgets('a walk shows its directions on request', (tester) async {
+      final semantics = tester.ensureSemantics();
+      tallScreen(tester);
+      await tester.pumpWidget(
+        app(JourneyDetailsPage(journey: withWalk, runs: null)),
+      );
+
+      expect(find.text('Südring'), findsNothing);
+      expect(
+        tester.getSemantics(find.text('Show directions')),
+        isSemantics(
+          isButton: true,
+          hasTapAction: true,
+          hasExpandedState: true,
+          isExpanded: false,
+          label: 'Show directions',
+        ),
+      );
+
+      await tester.tap(find.text('Show directions'));
+      await tester.pump();
+
+      expect(find.text('Hide directions'), findsOneWidget);
+      expect(find.text('Lift from level -2 to 0'), findsOneWidget);
+      expect(find.text('Ausstieg U-Bahn U35 rechts'), findsOneWidget);
+      expect(find.text('Get off'), findsOneWidget);
+      // A way without a name.
+      expect(find.text('Footpath'), findsOneWidget);
+      expect(find.text('Straight on · 60 m'), findsOneWidget);
+      expect(find.text('Turn right · 123 m'), findsOneWidget);
+      expect(find.byIcon(Icons.turn_right), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('Turn right, Südring, 123 metres'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Hide directions'));
+      await tester.pump();
+      expect(find.text('Südring'), findsNothing);
+      semantics.dispose();
+    });
+
+    testWidgets('a change inside a station has its way on the ride', (
+      tester,
+    ) async {
+      tallScreen(tester);
+      final ride = withWalk.legs.first as TransitLeg;
+      final bus = withWalk.legs.last as TransitLeg;
+      final journey = Journey([
+        TransitLeg(
+          line: ride.line,
+          mode: ride.mode,
+          direction: ride.direction,
+          origin: ride.origin,
+          destination: ride.destination,
+          isRealtime: true,
+          transferSteps: const [
+            WalkStep(
+              turn: WalkTurn.slightRight,
+              name: 'Rolltreppe abwärts zur Ebene 0',
+              distanceMeters: 9,
+              duration: Duration(seconds: 18),
+            ),
+          ],
+          transferPaths: const [
+            StationPath(
+              kind: StationPathKind.escalator,
+              levelFrom: 1,
+              levelTo: 0,
+            ),
+          ],
+        ),
+        bus,
+      ]);
+      await tester.pumpWidget(
+        app(JourneyDetailsPage(journey: journey, runs: null)),
+      );
+
+      await tester.tap(find.text('Show directions'));
+      await tester.pump();
+
+      expect(find.text('Escalator from level 1 to 0'), findsOneWidget);
+      expect(find.text('Rolltreppe abwärts zur Ebene 0'), findsOneWidget);
+      expect(find.text('Bear right · 9 m'), findsOneWidget);
+    });
+
+    testWidgets('without live data the times are the timetable\'s', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(JourneyDetailsPage(journey: laterRe11, runs: null)),
+      );
+
+      expect(
+        find.textContaining('No live data: all times are from the timetable'),
+        findsOneWidget,
+      );
+      expect(find.text('Show directions'), findsNothing);
     });
 
     testWidgets('a direct trip has no change', (tester) async {

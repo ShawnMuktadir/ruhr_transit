@@ -39,7 +39,11 @@ abstract final class StopPicker {
     return Navigator.of(context).push(
       MaterialPageRoute<Stop>(
         builder: (context) => BlocProvider(
-          create: (_) => StopSearchCubit(getIt<StopRepository>()),
+          create: (_) => StopSearchCubit(
+            getIt<StopRepository>(),
+            // A trip can start or end at an address or a place too.
+            includeAddresses: true,
+          ),
           child: StopSearchView(
             title: title,
             onPicked: (stop) {

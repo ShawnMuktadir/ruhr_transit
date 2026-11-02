@@ -10,6 +10,7 @@ import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository
 import 'package:ruhr_transit/features/trip_planner/presentation/ride_stops.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_notices.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/walk_directions.dart';
 
 /// Less spare time than this after walking is flagged as a short
 /// connection.
@@ -67,6 +68,7 @@ class JourneyDetailsPage extends StatelessWidget {
                   l10n.tripDirect
                 else
                   l10n.tripTransfers(journey.transfers),
+                if (journey.isTimetableOnly) l10n.tripTimetableOnlyDetail,
               ].join(' · '),
             ),
           ),
@@ -100,6 +102,9 @@ class JourneyDetailsPage extends StatelessWidget {
               _ChangeTile(
                 gap: leg.origin.time.difference(previousRide.destination.time),
                 walking: walking,
+                // A change inside a station: its way is on the ride before.
+                steps: previousRide.transferSteps,
+                paths: previousRide.transferPaths,
               ),
             );
           }
@@ -169,7 +174,7 @@ class _WalkTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final minutes = leg.duration.inMinutes;
-    return ListTile(
+    final tile = ListTile(
       dense: true,
       leading: const Icon(Icons.directions_walk),
       title: Text(switch (leg.distanceMeters) {
@@ -178,16 +183,34 @@ class _WalkTile extends StatelessWidget {
       }),
       subtitle: Text('${leg.origin.name} → ${leg.destination.name}'),
     );
+    if (leg.steps.isEmpty) return tile;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        tile,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(56, 0, 16, 4),
+          child: WalkDirections(steps: leg.steps, paths: leg.stationPaths),
+        ),
+      ],
+    );
   }
 }
 
 /// Time between arriving and the next ride, flagged when walking leaves
 /// less than [shortConnection] to spare.
 class _ChangeTile extends StatelessWidget {
-  const _ChangeTile({required this.gap, required this.walking});
+  const _ChangeTile({
+    required this.gap,
+    required this.walking,
+    this.steps = const [],
+    this.paths = const [],
+  });
 
   final Duration gap;
   final Duration walking;
+  final List<WalkStep> steps;
+  final List<StationPath> paths;
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +218,7 @@ class _ChangeTile extends StatelessWidget {
     final theme = Theme.of(context);
     final isShort = gap - walking < shortConnection;
     final color = isShort ? theme.colorScheme.error : null;
-    return ListTile(
+    final tile = ListTile(
       dense: true,
       leading: Icon(
         isShort ? Icons.warning_amber : Icons.transfer_within_a_station,
@@ -208,6 +231,17 @@ class _ChangeTile extends StatelessWidget {
         ].join(' · '),
         style: TextStyle(color: color),
       ),
+    );
+    if (steps.isEmpty) return tile;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        tile,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(56, 0, 16, 4),
+          child: WalkDirections(steps: steps, paths: paths),
+        ),
+      ],
     );
   }
 }

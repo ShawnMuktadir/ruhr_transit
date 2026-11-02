@@ -14,9 +14,16 @@ class FakeStopRepository implements StopRepository {
   /// When set, calls complete immediately with this result instead.
   Result<List<Stop>>? autoReply;
 
+  /// Whether each call asked for addresses and places too.
+  final List<bool> includedAddresses = [];
+
   @override
-  Future<Result<List<Stop>>> searchStops(String query) {
+  Future<Result<List<Stop>>> searchStops(
+    String query, {
+    bool includeAddresses = false,
+  }) {
     queries.add(query);
+    includedAddresses.add(includeAddresses);
     if (autoReply case final reply?) return Future.value(reply);
     final completer = Completer<Result<List<Stop>>>();
     _pending.add(completer);

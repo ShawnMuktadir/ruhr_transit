@@ -34,6 +34,21 @@ void main() {
     expect(StopSearchCubit(repository).state, isA<StopSearchIdle>());
   });
 
+  test('asks for addresses and places only when told to', () {
+    fakeAsync((async) {
+      final stopsOnly = StopSearchCubit(repository)..queryChanged('Bochum');
+      final planner = StopSearchCubit(repository, includeAddresses: true)
+        ..queryChanged('Kortumstr');
+      async.elapse(_debounce);
+      stopsOnly.close();
+      planner.close();
+      async.flushMicrotasks();
+    });
+
+    expect(repository.queries, ['Bochum', 'Kortumstr']);
+    expect(repository.includedAddresses, [false, true]);
+  });
+
   test('does not search for queries shorter than two characters', () {
     run((cubit, async) {
       cubit.queryChanged('B');

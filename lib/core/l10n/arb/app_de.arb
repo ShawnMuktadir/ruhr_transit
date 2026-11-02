@@ -809,5 +809,131 @@
   "recentStopsCleared": "Verlauf gelöscht",
   "@recentStopsCleared": {
     "description": "Snack bar after clearing the recent stops."
+  },
+  "locationAddress": "Adresse",
+  "@locationAddress": {
+    "description": "Kind of a search result that is a street address."
+  },
+  "locationPlace": "Ort",
+  "@locationPlace": {
+    "description": "Kind of a search result that is a point of interest (museum, town hall)."
+  },
+  "tripTimetableOnly": "Nach Fahrplan",
+  "@tripTimetableOnly": {
+    "description": "On a connection without live data: all times are from the timetable."
+  },
+  "tripTimetableOnlyDetail": "Keine Echtzeitdaten: alle Zeiten nach Fahrplan",
+  "@tripTimetableOnlyDetail": {
+    "description": "Note on the trip details of a connection without live data."
+  },
+  "walkDirectionsShow": "Wegbeschreibung anzeigen",
+  "@walkDirectionsShow": {
+    "description": "Expands the turn-by-turn directions of a walk."
+  },
+  "walkDirectionsHide": "Wegbeschreibung ausblenden",
+  "@walkDirectionsHide": {
+    "description": "Collapses the turn-by-turn directions of a walk."
+  },
+  "walkStepFootpath": "Fußweg",
+  "@walkStepFootpath": {
+    "description": "A step of a walk on a way without a name."
+  },
+  "walkStepDistance": "{meters} m",
+  "@walkStepDistance": {
+    "description": "Length of one step of a walk.",
+    "placeholders": {
+      "meters": {
+        "type": "int",
+        "example": "182"
+      }
+    }
+  },
+  "walkStepDistanceSpoken": "{meters} Meter",
+  "@walkStepDistanceSpoken": {
+    "description": "Length of one step of a walk, read by screen readers.",
+    "placeholders": {
+      "meters": {
+        "type": "int",
+        "example": "182"
+      }
+    }
+  },
+  "walkTurnStraight": "Geradeaus",
+  "@walkTurnStraight": {
+    "description": "Direction of a walking step."
+  },
+  "walkTurnSlightLeft": "Leicht links",
+  "@walkTurnSlightLeft": {
+    "description": "Direction of a walking step."
+  },
+  "walkTurnLeft": "Links abbiegen",
+  "@walkTurnLeft": {
+    "description": "Direction of a walking step."
+  },
+  "walkTurnSharpLeft": "Scharf links",
+  "@walkTurnSharpLeft": {
+    "description": "Direction of a walking step."
+  },
+  "walkTurnSlightRight": "Leicht rechts",
+  "@walkTurnSlightRight": {
+    "description": "Direction of a walking step."
+  },
+  "walkTurnRight": "Rechts abbiegen",
+  "@walkTurnRight": {
+    "description": "Direction of a walking step."
+  },
+  "walkTurnSharpRight": "Scharf rechts",
+  "@walkTurnSharpRight": {
+    "description": "Direction of a walking step."
+  },
+  "walkTurnUTurn": "Wenden",
+  "@walkTurnUTurn": {
+    "description": "Direction of a walking step."
+  },
+  "walkTurnBoard": "Einsteigen",
+  "@walkTurnBoard": {
+    "description": "Step of a walk: getting on the vehicle."
+  },
+  "walkTurnAlight": "Aussteigen",
+  "@walkTurnAlight": {
+    "description": "Step of a walk: getting off the vehicle."
+  },
+  "walkTurnUnknown": "Weiter",
+  "@walkTurnUnknown": {
+    "description": "Step of a walk without a known direction, e.g. taking a lift."
+  },
+  "stationPathElevator": "Aufzug",
+  "@stationPathElevator": {
+    "description": "A lift inside a station."
+  },
+  "stationPathEscalator": "Rolltreppe",
+  "@stationPathEscalator": {
+    "description": "An escalator inside a station."
+  },
+  "stationPathStairs": "Treppe",
+  "@stationPathStairs": {
+    "description": "Stairs inside a station."
+  },
+  "stationPathOther": "Weg",
+  "@stationPathOther": {
+    "description": "Another way between levels of a station."
+  },
+  "stationPathLevels": "{path} von Ebene {from} nach {to}",
+  "@stationPathLevels": {
+    "description": "A lift, escalator or stairs between two levels of a station; levels may be negative (underground).",
+    "placeholders": {
+      "path": {
+        "type": "String",
+        "example": "Aufzug"
+      },
+      "from": {
+        "type": "int",
+        "example": "-2"
+      },
+      "to": {
+        "type": "int",
+        "example": "0"
+      }
+    }
   }
 }

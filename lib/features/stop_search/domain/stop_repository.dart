@@ -7,5 +7,11 @@ abstract interface class StopRepository {
   ///
   /// Starting a new search cancels the previous one on the same instance;
   /// the cancelled call completes with a `CancelledFailure`.
-  Future<Result<List<Stop>>> searchStops(String query);
+  ///
+  /// With [includeAddresses], addresses and places are found too (for the
+  /// trip planner); otherwise only stops.
+  Future<Result<List<Stop>>> searchStops(
+    String query, {
+    bool includeAddresses = false,
+  });
 }

@@ -18,14 +18,19 @@ class StopRepositoryImpl implements StopRepository {
   CancelToken? _inFlight;
 
   @override
-  Future<Result<List<Stop>>> searchStops(String query) async {
+  Future<Result<List<Stop>>> searchStops(
+    String query, {
+    bool includeAddresses = false,
+  }) async {
     // Only the newest query matters; don't let older requests use up
     // bandwidth or the API's goodwill.
     _inFlight?.cancel();
     final cancelToken = _inFlight = CancelToken();
     try {
       final json = await _remote.findStops(query, cancelToken: cancelToken);
-      return Ok(mapStopFinderResponse(json));
+      return Ok(
+        mapStopFinderResponse(json, includeAddresses: includeAddresses),
+      );
     } on DioException catch (e) {
       return Err(failureFromDioException(e));
     } on EfaServerException catch (e) {
