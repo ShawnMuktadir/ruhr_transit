@@ -23,6 +23,15 @@ class TripResultsCubit extends Cubit<TripResultsState> {
   /// clocks are often slightly off.
   static const _clockTolerance = Duration(minutes: 1);
 
+  /// EFA answers with about three journeys per request, whatever is asked
+  /// for (live: 3 for calcNumberOfTrips 5, 8 and 10), and some may have
+  /// left already. Later journeys are fetched until this many are shown.
+  static const minimumJourneys = 5;
+
+  /// At most this many extra requests to reach [minimumJourneys], so a
+  /// quiet night does not keep asking VRR.
+  static const _maxFillRequests = 3;
+
   /// Searches from scratch, showing a spinner. Used on opening and to
   /// retry.
   Future<void> load() async {
@@ -32,6 +41,7 @@ class TripResultsCubit extends Cubit<TripResultsState> {
     switch (result) {
       case Ok(value: final journeys):
         emit(TripResultsLoaded(_withoutDeparted(journeys)));
+        await _fillUp();
       // A newer request replaced this one and will set the state.
       case Err(failure: CancelledFailure()):
         return;
@@ -40,13 +50,31 @@ class TripResultsCubit extends Cubit<TripResultsState> {
     }
   }
 
-  /// Appends the journeys leaving after the last one shown.
-  Future<void> loadLater() async {
+  /// Fetches later journeys until [minimumJourneys] are shown, EFA finds no
+  /// new ones, or [_maxFillRequests] were made. The list shows meanwhile.
+  Future<void> _fillUp() async {
+    for (var i = 0; i < _maxFillRequests; i++) {
+      final current = state;
+      if (current is! TripResultsLoaded ||
+          current.journeys.length >= minimumJourneys) {
+        return;
+      }
+      // Nothing new (or a failure): asking again would not help.
+      if (await _appendLater(reportFailure: false) == 0) return;
+    }
+  }
+
+  /// Appends the journeys leaving after the last one shown ("later trips").
+  Future<void> loadLater() => _appendLater(reportFailure: true);
+
+  /// Returns how many journeys were added. A failure only shows when the
+  /// user asked; while filling up automatically the list just stays.
+  Future<int> _appendLater({required bool reportFailure}) async {
     final current = state;
     if (current is! TripResultsLoaded ||
         current.isLoadingLater ||
         current.journeys.isEmpty) {
-      return;
+      return 0;
     }
     emit(TripResultsLoaded(current.journeys, isLoadingLater: true));
 
@@ -56,21 +84,27 @@ class TripResultsCubit extends Cubit<TripResultsState> {
       const Duration(minutes: 1),
     );
     final result = await _repository.trips(query.withTime(DepartAt(after)));
-    if (isClosed) return;
+    if (isClosed) return 0;
     switch (result) {
       case Ok(value: final later):
         final known = {for (final j in current.journeys) _key(j)};
-        emit(
-          TripResultsLoaded([
-            ...current.journeys,
-            for (final journey in later)
-              if (!known.contains(_key(journey))) journey,
-          ]),
-        );
+        // EFA may send journeys again, also ones that have left by now.
+        final added = [
+          for (final journey in _withoutDeparted(later))
+            if (!known.contains(_key(journey))) journey,
+        ];
+        emit(TripResultsLoaded([...current.journeys, ...added]));
+        return added.length;
       case Err(failure: CancelledFailure()):
-        return;
+        return 0;
       case Err(:final failure):
-        emit(TripResultsLoaded(current.journeys, laterFailure: failure));
+        emit(
+          TripResultsLoaded(
+            current.journeys,
+            laterFailure: reportFailure ? failure : null,
+          ),
+        );
+        return 0;
     }
   }
 

@@ -16,9 +16,13 @@ class FakeTripRepository implements TripRepository {
   ];
   Completer<Result<List<Journey>>>? pending;
 
+  /// Called on every query, before answering; tests change [replies] here.
+  void Function()? onQuery;
+
   @override
   Future<Result<List<Journey>>> trips(TripQuery query) {
     queries.add(query);
+    onQuery?.call();
     if (pending case final pending?) return pending.future;
     final index = queries.length - 1;
     return Future.value(replies[index.clamp(0, replies.length - 1)]);
