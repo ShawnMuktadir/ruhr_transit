@@ -139,5 +139,10 @@
   "runStopsAfter": "{count, plural, =1{1 stop after} other{{count} stops after}}",
   "runBoard": "Board",
   "runAlight": "Get off",
-  "runVehicleHere": "Vehicle is here"
+  "runVehicleHere": "Vehicle is here",
+  "recentStopsTitle": "Recent",
+  "recentStopsClear": "Clear history",
+  "recentStopRemove": "Remove from history",
+  "recentStopRemoved": "Removed “{stop}” from history",
+  "recentStopsCleared": "History cleared"
 }

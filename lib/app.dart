@@ -19,6 +19,8 @@ import 'package:ruhr_transit/features/onboarding/presentation/onboarding_page.da
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
+import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
+import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -27,6 +29,7 @@ import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 class RuhrTransitApp extends StatefulWidget {
   const RuhrTransitApp({
     this.initialFavourites = const [],
+    this.initialRecentStops = const [],
     this.launchedStop,
     this.language,
     this.showOnboarding = false,
@@ -36,6 +39,9 @@ class RuhrTransitApp extends StatefulWidget {
 
   /// What the favourites repository had stored when the app started.
   final List<Stop> initialFavourites;
+
+  /// What the recent stops repository had stored when the app started.
+  final List<Stop> initialRecentStops;
 
   /// The stop whose home-screen widget started the app. Its board opens
   /// above the favourite stops, so Back leads there.
@@ -70,6 +76,10 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     getIt<LanguageRepository>(),
     initial: widget.language,
   );
+  late final _recentStops = RecentStopsCubit(
+    getIt<RecentStopsRepository>(),
+    initial: widget.initialRecentStops,
+  );
   late final _favouriteJourneys = FavouriteJourneysCubit(
     getIt<FavouriteJourneysRepository>(),
   );
@@ -103,6 +113,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     unawaited(_widgetTaps.cancel());
     unawaited(_favourites.close());
     unawaited(_favouriteJourneys.close());
+    unawaited(_recentStops.close());
     unawaited(_locale.close());
     unawaited(_onboarding.close());
     unawaited(_theme.close());
@@ -129,6 +140,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
       providers: [
         BlocProvider.value(value: _favourites),
         BlocProvider.value(value: _favouriteJourneys),
+        BlocProvider.value(value: _recentStops),
         BlocProvider.value(value: _locale),
         BlocProvider.value(value: _onboarding),
         BlocProvider.value(value: _theme),

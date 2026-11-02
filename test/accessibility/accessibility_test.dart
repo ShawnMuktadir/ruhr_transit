@@ -22,8 +22,10 @@ import 'package:ruhr_transit/features/onboarding/presentation/onboarding_cubit.d
 import 'package:ruhr_transit/features/onboarding/presentation/onboarding_page.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_page.dart';
+import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
 import 'package:ruhr_transit/features/settings/presentation/settings_page.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
@@ -37,6 +39,7 @@ import '../helpers/fake_departure_repository.dart';
 import '../helpers/fake_favourite_journeys_repository.dart';
 import '../helpers/fake_favourites_repository.dart';
 import '../helpers/fake_nearby_stops.dart';
+import '../helpers/fake_recent_stops_repository.dart';
 import '../helpers/fake_settings.dart';
 import '../helpers/fake_stop_repository.dart';
 import '../helpers/fake_trip_repository.dart';
@@ -85,6 +88,10 @@ void main() {
     'start screen without favourites': () => BlocProvider(
       create: (_) => StopSearchCubit(FakeStopRepository()),
       child: const StopSearchView(),
+    ),
+    'stop picker with favourites and history': () => BlocProvider(
+      create: (_) => StopSearchCubit(FakeStopRepository()),
+      child: StopSearchView(title: 'Start wählen', onPicked: (_) {}),
     ),
     'start screen with favourites': () => BlocProvider(
       create: (_) => StopSearchCubit(FakeStopRepository()),
@@ -243,6 +250,8 @@ void main() {
           final favourites = FakeFavouritesRepository(
             name.contains('with favourites') ? [bochumHbf, dortmundHbf] : [],
           );
+          // The picker test shows Dortmund as a favourite only.
+          if (name.contains('history')) favourites.saved = [dortmundHbf];
 
           await tester.pumpWidget(
             MultiBlocProvider(
@@ -250,6 +259,24 @@ void main() {
                 BlocProvider(
                   create: (_) =>
                       FavouritesCubit(favourites, initial: favourites.saved),
+                ),
+                BlocProvider(
+                  create: (_) => RecentStopsCubit(
+                    FakeRecentStopsRepository(),
+                    initial: name.contains('history')
+                        ? [
+                            bochumHbf,
+                            const Stop(
+                              id: 'de:05913:131',
+                              name: 'Hbf',
+                              fullName: 'Dortmund, Hbf',
+                              locality: 'Dortmund',
+                              latitude: 51.5,
+                              longitude: 7.4,
+                            ),
+                          ]
+                        : const [],
+                  ),
                 ),
                 BlocProvider(
                   create: (_) => FavouriteJourneysCubit(

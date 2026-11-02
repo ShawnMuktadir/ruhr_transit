@@ -15,6 +15,7 @@ import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repository.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
+import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
@@ -24,6 +25,7 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_pag
 import '../../helpers/fake_favourite_journeys_repository.dart';
 import '../../helpers/fake_favourites_repository.dart';
 import '../../helpers/fake_nearby_stops.dart';
+import '../../helpers/fake_recent_stops_repository.dart';
 import '../../helpers/fake_settings.dart';
 import '../../helpers/fake_stop_repository.dart';
 import '../../helpers/fake_trip_repository.dart';
@@ -86,6 +88,9 @@ void main() {
           BlocProvider(create: (_) => FavouriteJourneysCubit(journeys)),
           BlocProvider(create: (_) => LocaleCubit(FakeLanguageRepository())),
           BlocProvider(create: (_) => ThemeCubit(FakeThemeRepository())),
+          BlocProvider(
+            create: (_) => RecentStopsCubit(FakeRecentStopsRepository()),
+          ),
           BlocProvider(
             create: (_) =>
                 ProfileCubit(FakeProfileRepository(), FakeAuthRepository()),

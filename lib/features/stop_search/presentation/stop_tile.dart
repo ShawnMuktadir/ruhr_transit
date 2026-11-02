@@ -10,6 +10,7 @@ class StopTile extends StatelessWidget {
   const StopTile(
     this.stop, {
     this.isFavourite = false,
+    this.icon,
     this.detail,
     this.onSelected,
     super.key,
@@ -17,6 +18,9 @@ class StopTile extends StatelessWidget {
 
   final Stop stop;
   final bool isFavourite;
+
+  /// Replaces the star or place icon, e.g. a clock for a recent stop.
+  final IconData? icon;
 
   /// Shown after the town, e.g. the distance of a nearby stop.
   final String? detail;
@@ -27,7 +31,7 @@ class StopTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(isFavourite ? Icons.star : Icons.place_outlined),
+      leading: Icon(icon ?? (isFavourite ? Icons.star : Icons.place_outlined)),
       title: Text(stop.name),
       subtitle: switch ([?stop.locality, ?detail]) {
         [] => null,

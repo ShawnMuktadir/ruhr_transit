@@ -783,5 +783,31 @@
   "runVehicleHere": "Fahrzeug ist hier",
   "@runVehicleHere": {
     "description": "Marker in the run between two stops."
+  },
+  "recentStopsTitle": "Zuletzt gesucht",
+  "@recentStopsTitle": {
+    "description": "Heading of the last stops picked for From or To, in the stop picker."
+  },
+  "recentStopsClear": "Verlauf löschen",
+  "@recentStopsClear": {
+    "description": "Button next to the recent stops heading."
+  },
+  "recentStopRemove": "Aus dem Verlauf entfernen",
+  "@recentStopRemove": {
+    "description": "Screen reader action on a recent stop."
+  },
+  "recentStopRemoved": "„{stop}“ aus dem Verlauf entfernt",
+  "@recentStopRemoved": {
+    "description": "Snack bar after removing one recent stop.",
+    "placeholders": {
+      "stop": {
+        "type": "String",
+        "example": "Bochum, Hbf"
+      }
+    }
+  },
+  "recentStopsCleared": "Verlauf gelöscht",
+  "@recentStopsCleared": {
+    "description": "Snack bar after clearing the recent stops."
   }
 }

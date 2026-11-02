@@ -5,6 +5,7 @@ import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/features/favourites/domain/favourites_repository.dart';
 import 'package:ruhr_transit/features/language/domain/language_repository.dart';
 import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
+import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
@@ -16,6 +17,8 @@ Future<void> main() async {
   // Loaded up front, so the start screen never flashes the empty state and
   // a change can never race the load. It is a single local read.
   final favourites = await getIt<FavouritesRepository>().load();
+  // Also loaded up front, for the same reason as favourites.
+  final recentStops = await getIt<RecentStopsRepository>().load();
   final launchedStop = await getIt<WidgetSync>().launchedStop();
   // Also read up front, so the first frame is already in the right language,
   // theme and screen.
@@ -27,6 +30,7 @@ Future<void> main() async {
   runApp(
     RuhrTransitApp(
       initialFavourites: favourites,
+      initialRecentStops: recentStops,
       launchedStop: launchedStop,
       language: language,
       showOnboarding: !onboarded,

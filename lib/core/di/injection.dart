@@ -23,6 +23,8 @@ import 'package:ruhr_transit/features/profile/data/profile_repository_impl.dart'
 import 'package:ruhr_transit/features/profile/data/signed_out_auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
+import 'package:ruhr_transit/features/recent_stops/data/recent_stops_repository_impl.dart';
+import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/settings/data/theme_repository_impl.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/data/efa_stop_remote_source.dart';
@@ -96,6 +98,9 @@ void configureDependencies() {
     ..registerLazySingleton(AppDatabase.new)
     ..registerLazySingleton<FavouriteJourneysRepository>(
       () => FavouriteJourneysRepositoryImpl(getIt()),
+    )
+    ..registerLazySingleton<RecentStopsRepository>(
+      () => RecentStopsRepositoryImpl(getIt()),
     )
     ..registerLazySingleton<ThemeRepository>(() => ThemeRepositoryImpl(getIt()))
     ..registerLazySingleton<ProfileRepository>(

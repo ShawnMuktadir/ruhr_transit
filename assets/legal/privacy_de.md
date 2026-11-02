@@ -29,6 +29,7 @@ Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der von Ihnen ang
 Nur auf Ihrem Gerät gespeichert werden:
 
 - Ihre Favoriten: Haltestellen und gemerkte Verbindungen, mit den Bezeichnungen, die Sie vergeben.
+- Ihr Suchverlauf: die zuletzt bei „Von“ und „Nach“ gewählten Haltestellen, höchstens 10. Sie können ihn in der Haltestellenauswahl ganz oder einzeln löschen.
 - Die zuletzt abgerufenen Abfahrten von bis zu 10 Haltestellen, damit sie ohne Internetverbindung sichtbar bleiben, und die Daten des Startbildschirm-Widgets.
 - Ihre Einstellungen: Sprache, Darstellung und, falls Sie einen eingeben, Ihr Anzeigename.
 

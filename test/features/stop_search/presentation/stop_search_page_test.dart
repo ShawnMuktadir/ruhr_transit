@@ -9,7 +9,9 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
+import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
@@ -17,16 +19,19 @@ import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 import '../../../helpers/fake_departure_repository.dart';
 import '../../../helpers/fake_favourites_repository.dart';
+import '../../../helpers/fake_recent_stops_repository.dart';
 import '../../../helpers/fake_stop_repository.dart';
 import '../../../helpers/fake_widget_sync.dart';
 
 void main() {
   late FakeStopRepository repository;
   late FakeFavouritesRepository favourites;
+  late FakeRecentStopsRepository recent;
 
   setUp(() {
     repository = FakeStopRepository();
     favourites = FakeFavouritesRepository();
+    recent = FakeRecentStopsRepository();
     // Tapping a stop opens the real departures page, which resolves its
     // dependencies through get_it.
     getIt
@@ -43,8 +48,16 @@ void main() {
   }) async {
     await tester.pumpWidget(
       // Above MaterialApp like in the app, so pushed routes see it too.
-      BlocProvider(
-        create: (_) => FavouritesCubit(favourites, initial: favourites.saved),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) =>
+                FavouritesCubit(favourites, initial: favourites.saved),
+          ),
+          BlocProvider(
+            create: (_) => RecentStopsCubit(recent, initial: recent.saved),
+          ),
+        ],
         child: MaterialApp(
           locale: const Locale('en'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -268,5 +281,124 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('at least two letters'), findsOneWidget);
+  });
+
+  group('recent stops in the From/To picker', () {
+    testWidgets('shows the history below favourites, without repeating '
+        'them', (tester) async {
+      favourites.saved = [dortmundHbf];
+      recent.saved = [bochumHbf, dortmundHbf];
+      await pumpPage(tester, onPicked: (_) {});
+
+      expect(find.text('Recent'), findsOneWidget);
+      expect(find.text('Clear history'), findsOneWidget);
+      // Dortmund is a favourite, so only Bochum is listed as recent.
+      expect(find.text('Bochum'), findsOneWidget);
+      expect(find.text('Dortmund'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Recent')).dy,
+        greaterThan(tester.getTopLeft(find.text('Favourites')).dy),
+      );
+    });
+
+    testWidgets('the history alone replaces the hint', (tester) async {
+      recent.saved = [bochumHbf];
+      await pumpPage(tester, onPicked: (_) {});
+
+      expect(find.textContaining('at least two letters'), findsNothing);
+      expect(find.byIcon(Icons.history), findsOneWidget);
+    });
+
+    testWidgets('tapping a recent stop picks it', (tester) async {
+      final picked = <Stop>[];
+      recent.saved = [bochumHbf];
+      await pumpPage(tester, onPicked: picked.add);
+
+      await tester.tap(find.text('Bochum'));
+
+      expect(picked, [bochumHbf]);
+    });
+
+    testWidgets('no history outside the picker', (tester) async {
+      recent.saved = [bochumHbf];
+      await pumpPage(tester);
+
+      expect(find.text('Recent'), findsNothing);
+    });
+
+    testWidgets('one stop can be removed, with undo', (tester) async {
+      final semantics = tester.ensureSemantics();
+      recent.saved = [bochumHbf, dortmundHbf];
+      await pumpPage(tester, onPicked: (_) {});
+
+      await tester.drag(find.text('Bochum'), const Offset(-600, 0));
+      await tester.pumpAndSettle();
+      expect(recent.saved, [dortmundHbf]);
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect(recent.saved, [bochumHbf, dortmundHbf]);
+
+      // TalkBack users get an action instead of the swipe.
+      tester.semantics.customAction(
+        find.semantics.byLabel(RegExp('Dortmund')),
+        const CustomSemanticsAction(label: 'Remove from history'),
+      );
+      await tester.pumpAndSettle();
+      expect(recent.saved, [bochumHbf]);
+      semantics.dispose();
+    });
+
+    testWidgets('clearing the history can be undone', (tester) async {
+      recent.saved = [bochumHbf, dortmundHbf];
+      await pumpPage(tester, onPicked: (_) {});
+
+      await tester.tap(find.text('Clear history'));
+      await tester.pumpAndSettle();
+      expect(recent.saved, isEmpty);
+      expect(find.text('History cleared'), findsOneWidget);
+      expect(find.textContaining('at least two letters'), findsOneWidget);
+
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect(recent.saved, [bochumHbf, dortmundHbf]);
+    });
+
+    testWidgets('a stop picked for From or To goes to the top', (tester) async {
+      recent.saved = [dortmundHbf];
+      getIt.registerFactory<StopRepository>(
+        () => FakeStopRepository()..autoReply = const Ok([bochumHbf]),
+      );
+      Stop? picked;
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => FavouritesCubit(favourites)),
+            BlocProvider(
+              create: (_) => RecentStopsCubit(recent, initial: recent.saved),
+            ),
+          ],
+          child: MaterialApp(
+            locale: const Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (context) => TextButton(
+                onPressed: () async =>
+                    picked = await StopPicker.pick(context, title: 'From'),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await search(tester, 'Bochum');
+      await tester.tap(find.text('Hbf').last);
+      await tester.pumpAndSettle();
+
+      expect(picked, bochumHbf);
+      expect(recent.saved, [bochumHbf, dortmundHbf]);
+    });
   });
 }

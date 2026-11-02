@@ -29,8 +29,9 @@ Known limits:
   near me", never at app start or in the background. The coordinates are
   sent to the VRR server to find nearby stops and are not stored by the
   app.
-- **Favourite stops and journeys, saved boards, widget data, settings
-  (language, theme, optional display name):** stored on the device only.
+- **Favourite stops and journeys, the From/To search history (last 10
+  stops), saved boards, widget data, settings (language, theme, optional
+  display name):** stored on the device only.
 - **No accounts yet:** `AuthRepository` has a local "signed out"
   implementation; a backend can replace it without UI changes.
 
