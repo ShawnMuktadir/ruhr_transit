@@ -35,6 +35,13 @@ class Journey {
   bool get hasWarning =>
       notices.any((notice) => notice.severity == TripNoticeSeverity.warning);
 
+  /// No ride has live data from VRR: every time is the timetable's. True
+  /// for most journeys outside the VRR area.
+  bool get isTimetableOnly {
+    final rides = legs.whereType<TransitLeg>();
+    return rides.isNotEmpty && rides.every((ride) => !ride.isRealtime);
+  }
+
   /// Changes between vehicles; walks are not counted as rides.
   int get transfers {
     final rides = legs.whereType<TransitLeg>().length;
@@ -109,6 +116,9 @@ final class TransitLeg extends Leg {
     this.runKey,
     this.originId,
     this.destinationId,
+    this.isRealtime = false,
+    this.transferSteps = const [],
+    this.transferPaths = const [],
     super.notices,
   });
 
@@ -132,6 +142,17 @@ final class TransitLeg extends Leg {
   /// or trip code.
   final RunKey? runKey;
 
+  /// VRR has live data for this ride (`realtimeStatus: MONITORED`).
+  final bool isRealtime;
+
+  /// The way from getting off to boarding the next ride when no walk leg
+  /// lies in between: EFA puts a change inside a station on the ride
+  /// before it. Empty after the last ride.
+  final List<WalkStep> transferSteps;
+
+  /// Lifts, escalators and stairs on that way.
+  final List<StationPath> transferPaths;
+
   /// Where the user boards and gets off, down to the platform, to find
   /// them in the whole run.
   final StopRef? originId;
@@ -145,6 +166,8 @@ final class WalkLeg extends Leg {
     required super.origin,
     required super.destination,
     this.distanceMeters,
+    this.steps = const [],
+    this.stationPaths = const [],
     super.notices,
   });
 
@@ -152,6 +175,63 @@ final class WalkLeg extends Leg {
   final Duration duration;
 
   final int? distanceMeters;
+
+  /// Turn by turn, as EFA describes the way (`pathDescriptions`); empty
+  /// when it sends none.
+  final List<WalkStep> steps;
+
+  /// Lifts, escalators and stairs on the way in or out of a stop
+  /// (`footPathInfo`).
+  final List<StationPath> stationPaths;
+}
+
+/// How a [WalkStep] begins, from EFA's `turnDirection` and `manoeuvre`.
+enum WalkTurn {
+  straight,
+  slightLeft,
+  left,
+  sharpLeft,
+  slightRight,
+  right,
+  sharpRight,
+  uTurn,
+
+  /// Getting on a vehicle, e.g. "Einstieg Zug RE 6".
+  board,
+
+  /// Getting off a vehicle.
+  alight,
+  unknown,
+}
+
+/// One step of a walk: "right into Südring, 182 m".
+class WalkStep {
+  const WalkStep({
+    required this.turn,
+    required this.distanceMeters,
+    required this.duration,
+    this.name,
+  });
+
+  final WalkTurn turn;
+
+  /// The street or way, in German as VRR sends it ("Südring",
+  /// "Treppe aufwärts zur Ebene 1"); null for a generic footpath.
+  final String? name;
+
+  final int distanceMeters;
+  final Duration duration;
+}
+
+enum StationPathKind { elevator, escalator, stairs, other }
+
+/// A lift, escalator or stairs between two levels of a stop.
+class StationPath {
+  const StationPath({required this.kind, this.levelFrom, this.levelTo});
+
+  final StationPathKind kind;
+  final int? levelFrom;
+  final int? levelTo;
 }
 
 /// What a notice is about, from EFA's `infos[].type`.

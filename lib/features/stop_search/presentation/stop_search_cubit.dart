@@ -14,7 +14,12 @@ class StopSearchCubit extends Cubit<StopSearchState> {
   StopSearchCubit(
     this._repository, {
     this.debounce = const Duration(milliseconds: 300),
+    this.includeAddresses = false,
   }) : super(const StopSearchIdle());
+
+  /// Also find addresses and places: only for the trip planner, as they
+  /// have no departures.
+  final bool includeAddresses;
 
   /// Shorter queries match too much to be useful and waste requests.
   static const minQueryLength = 2;
@@ -55,7 +60,10 @@ class StopSearchCubit extends Cubit<StopSearchState> {
     final generation = ++_generation;
     emit(StopSearchLoading(query));
 
-    final result = await _repository.searchStops(query);
+    final result = await _repository.searchStops(
+      query,
+      includeAddresses: includeAddresses,
+    );
     if (isClosed || generation != _generation) return;
 
     switch (result) {

@@ -11,6 +11,7 @@ Map<String, Object?> stopToJson(Stop stop) => {
   'latitude': stop.latitude,
   'longitude': stop.longitude,
   'modes': [for (final mode in stop.modes) mode.name],
+  'kind': stop.kind.name,
 };
 
 /// Reads [stopToJson] output. Throws [FormatException] if a required field
@@ -40,6 +41,12 @@ Stop stopFromJson(Object? json) {
         },
         _ => const {},
       },
+      // Stored before addresses existed: a stop.
+      kind:
+          LocationKind.values
+              .where((kind) => kind.name == json['kind'])
+              .firstOrNull ??
+          LocationKind.stop,
     );
   }
   throw FormatException('Not a saved stop: $json');

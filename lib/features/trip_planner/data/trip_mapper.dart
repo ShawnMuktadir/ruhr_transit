@@ -4,8 +4,9 @@ import 'package:ruhr_transit/core/network/efa_transport.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
-/// EFA product class of a walk between stops (`"name": "footpath"`).
-const _footpathClass = 99;
+/// EFA product classes of walks (`"name": "footpath"`): 99 between two
+/// stops, 100 to or from an address or place (both seen live).
+const _footpathClasses = {99, 100};
 
 /// EFA code for "origin too close to destination": nothing to ride, so no
 /// journeys rather than an error.
@@ -62,7 +63,9 @@ Leg _mapLeg(Object? json) {
   final destination = _mapStop(json['destination'], 'arrival');
   final notices = _mapNotices(json['infos']);
 
-  if (transportation case {'product': {'class': _footpathClass}}) {
+  if (transportation case {
+    'product': {'class': final int productClass},
+  } when _footpathClasses.contains(productClass)) {
     return WalkLeg(
       duration: switch (json['duration']) {
         final int seconds => Duration(seconds: seconds),
@@ -75,6 +78,8 @@ Leg _mapLeg(Object? json) {
       },
       origin: origin,
       destination: destination,
+      steps: _mapWalkSteps(json['pathDescriptions']),
+      stationPaths: _mapStationPaths(json['footPathInfo']),
       notices: notices,
     );
   }
@@ -94,6 +99,12 @@ Leg _mapLeg(Object? json) {
     runKey: _mapRunKey(transportation, json['origin'], origin.plannedTime),
     originId: _mapStopRef(json['origin']),
     destinationId: _mapStopRef(json['destination']),
+    isRealtime: switch (json['realtimeStatus']) {
+      final List<Object?> status => status.contains('MONITORED'),
+      _ => json['isRealtimeControlled'] == true,
+    },
+    transferSteps: _mapWalkSteps(json['pathDescriptions']),
+    transferPaths: _mapStationPaths(json['footPathInfo']),
     notices: notices,
   );
 }
@@ -157,6 +168,78 @@ RunKey? _mapRunKey(
     stopId: stopId,
     plannedDeparture: plannedDeparture,
   );
+}
+
+List<WalkStep> _mapWalkSteps(Object? json) => switch (json) {
+  final List<Object?> steps => [
+    for (final step in steps)
+      if (step is Map<String, Object?>) _mapWalkStep(step),
+  ],
+  _ => const [],
+};
+
+WalkStep _mapWalkStep(Map<String, Object?> json) {
+  final name = readNonEmptyString(json['name'])?.trim();
+  return WalkStep(
+    turn: switch ((json['manoeuvre'], json['turnDirection'])) {
+      ('ENTER_TRAIN' || 'ENTER', _) => WalkTurn.board,
+      ('LEAVE' || 'LEAVE_TRAIN', _) => WalkTurn.alight,
+      (_, 'STRAIGHT') => WalkTurn.straight,
+      (_, 'SLIGHT_LEFT') => WalkTurn.slightLeft,
+      (_, 'LEFT') => WalkTurn.left,
+      (_, 'SHARP_LEFT') => WalkTurn.sharpLeft,
+      (_, 'SLIGHT_RIGHT') => WalkTurn.slightRight,
+      (_, 'RIGHT') => WalkTurn.right,
+      (_, 'SHARP_RIGHT') => WalkTurn.sharpRight,
+      (_, 'U_TURN' || 'UTURN') => WalkTurn.uTurn,
+      _ => WalkTurn.unknown,
+    },
+    // "Fußweg" says nothing the walking icon does not.
+    name: name == null || name == 'Fußweg' ? null : name,
+    distanceMeters: switch (json['distance']) {
+      final int meters => meters,
+      _ => 0,
+    },
+    duration: Duration(
+      seconds: switch (json['duration']) {
+        final int seconds => seconds,
+        _ => 0,
+      },
+    ),
+  );
+}
+
+/// `footPathInfo` is a list of positions (before or after the walk), each
+/// with its elements: lifts, escalators, stairs between levels.
+List<StationPath> _mapStationPaths(Object? json) => switch (json) {
+  final List<Object?> infos => [
+    for (final info in infos)
+      if (info case {'footPathElem': final List<Object?> elements})
+        for (final element in elements)
+          if (element is Map<String, Object?>) ?_mapStationPath(element),
+  ],
+  _ => const [],
+};
+
+/// Null for `LEVEL`, a walk on one level, which is no lift or stairs.
+StationPath? _mapStationPath(Map<String, Object?> json) {
+  final kind = switch (json['type']) {
+    'ELEVATOR' => StationPathKind.elevator,
+    'ESCALATOR' => StationPathKind.escalator,
+    'STAIRS' => StationPathKind.stairs,
+    'LEVEL' => null,
+    _ => StationPathKind.other,
+  };
+  final from = switch (json['levelFrom']) {
+    final int level => level,
+    _ => null,
+  };
+  final to = switch (json['levelTo']) {
+    final int level => level,
+    _ => null,
+  };
+  if (kind == null || (from != null && from == to)) return null;
+  return StationPath(kind: kind, levelFrom: from, levelTo: to);
 }
 
 StopRef? _mapStopRef(Object? json) => switch (json) {

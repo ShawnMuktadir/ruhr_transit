@@ -49,6 +49,7 @@ final directS1 = Journey([
       plannedTime: _utc(7, 37),
       estimatedTime: _utc(7, 39),
     ),
+    isRealtime: true,
   ),
 ]);
 
@@ -87,6 +88,7 @@ final withWalk = Journey([
       'de:05911:5194:3:3',
       parentId: 'de:05911:5194',
     ),
+    isRealtime: true,
   ),
   WalkLeg(
     duration: const Duration(minutes: 4),
@@ -96,6 +98,28 @@ final withWalk = Journey([
       name: 'Bochum Hbf/Boulevard',
       plannedTime: _utc(7, 35),
     ),
+    steps: const [
+      WalkStep(
+        turn: WalkTurn.alight,
+        name: 'Ausstieg U-Bahn U35 rechts',
+        distanceMeters: 0,
+        duration: Duration.zero,
+      ),
+      WalkStep(
+        turn: WalkTurn.straight,
+        distanceMeters: 60,
+        duration: Duration(seconds: 54),
+      ),
+      WalkStep(
+        turn: WalkTurn.right,
+        name: 'Südring',
+        distanceMeters: 123,
+        duration: Duration(seconds: 110),
+      ),
+    ],
+    stationPaths: const [
+      StationPath(kind: StationPathKind.elevator, levelFrom: -2, levelTo: 0),
+    ],
   ),
   TransitLeg(
     line: '339',
@@ -107,6 +131,7 @@ final withWalk = Journey([
       plannedTime: _utc(7, 37),
     ),
     notes: const ['Umleitung wegen Baustelle'],
+    isRealtime: true,
   ),
 ]);
 

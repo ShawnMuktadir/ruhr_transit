@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/network/efa_json.dart';
 import 'package:ruhr_transit/features/stop_search/data/stop_mapper.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 
 import '../../../helpers/fixtures.dart';
 
@@ -59,6 +60,37 @@ void main() {
       expect(readSystemMessages(json).single.code, -8011);
 
       expect(mapStopFinderResponse(json), isNotEmpty);
+    });
+
+    test('finds an address for the trip planner', () {
+      final json = readEfaFixtureJson('stopfinder_address');
+
+      final address = mapStopFinderResponse(json, includeAddresses: true).first;
+      expect(address.kind, LocationKind.address);
+      expect(address.name, 'Kortumstr. 10');
+      expect(address.fullName, 'Bochum, Kortumstr. 10');
+      expect(address.locality, 'Bochum');
+      expect(address.modes, isEmpty);
+
+      // Departure boards and favourites only ever get stops.
+      expect(
+        mapStopFinderResponse(json).map((s) => s.kind),
+        everyElement(LocationKind.stop),
+      );
+    });
+
+    test('mixes stops, addresses and places, best first, at most 25', () {
+      final json = readEfaFixtureJson('stopfinder_places');
+
+      final all = mapStopFinderResponse(json, includeAddresses: true);
+      // The fixture has 87 matches for "Rathaus Essen".
+      expect(all, hasLength(maxLocations));
+      expect(all.first.fullName, 'Essen, Rathaus Essen');
+      expect(all.first.kind, LocationKind.stop);
+      expect(all.map((s) => s.kind), contains(LocationKind.place));
+
+      final stopsOnly = mapStopFinderResponse(json);
+      expect(stopsOnly, hasLength(22));
     });
 
     test('returns an empty list for "no match" (-8020)', () {

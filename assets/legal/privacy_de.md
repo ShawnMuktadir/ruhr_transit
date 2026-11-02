@@ -10,13 +10,14 @@ Stand: [DATUM]
 
 ## Überblick
 
-RuhrTransit zeigt Abfahrten, Haltestellen und Verbindungen im Gebiet des Verkehrsverbunds Rhein-Ruhr (VRR). Die App hat **kein Benutzerkonto**, **keine Werbung** und **keine Analyse- oder Tracking-Werkzeuge**. Es gibt keine eigenen Server; die App speichert nichts außerhalb Ihres Geräts.
+RuhrTransit zeigt Abfahrten und Haltestellen im Gebiet des Verkehrsverbunds Rhein-Ruhr (VRR) sowie Verbindungen in ganz Deutschland, mit Daten der Fahrplanauskunft des VRR. Die App hat **kein Benutzerkonto**, **keine Werbung** und **keine Analyse- oder Tracking-Werkzeuge**. Es gibt keine eigenen Server; die App speichert nichts außerhalb Ihres Geräts.
 
 ## Welche Daten an wen übertragen werden
 
 Für jede Abfrage verbindet sich die App mit der Fahrplanauskunft des VRR (openservice.vrr.de). Dabei werden übertragen:
 
-- **Suchbegriffe** für Haltestellen, **Haltestellen-IDs** für Abfahrten und Verbindungen sowie die **gewählte Zeit** einer Verbindungssuche.
+- **Suchbegriffe** für Haltestellen und, bei „Von“ und „Nach“, auch für **Adressen und Orte**: Was Sie dort eingeben, etwa Straße und Hausnummer Ihrer Wohnung, wird an den VRR gesendet.
+- **Kennungen** der gewählten Haltestellen, Adressen und Orte für Abfahrten und Verbindungen sowie die **gewählte Zeit** einer Verbindungssuche.
 - **Standort**, nur wenn Sie unter „In der Nähe“ auf „Standort verwenden“ tippen und den Standortzugriff erlauben: Die Koordinaten werden einmal ermittelt und an den VRR gesendet, um Haltestellen im Umkreis von 1 km zu finden. Die App ermittelt den Standort nie im Hintergrund und speichert ihn nicht.
 - Technisch bedingt erhält der Server des VRR, wie bei jedem Internetzugriff, Ihre **IP-Adresse**.
 
@@ -28,8 +29,8 @@ Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der von Ihnen ang
 
 Nur auf Ihrem Gerät gespeichert werden:
 
-- Ihre Favoriten: Haltestellen und gemerkte Verbindungen, mit den Bezeichnungen, die Sie vergeben.
-- Ihr Suchverlauf: die zuletzt bei „Von“ und „Nach“ gewählten Haltestellen, höchstens 10. Sie können ihn in der Haltestellenauswahl ganz oder einzeln löschen.
+- Ihre Favoriten: Haltestellen und gemerkte Verbindungen, mit den Bezeichnungen, die Sie vergeben. Start und Ziel einer gemerkten Verbindung können Adressen sein.
+- Ihr Suchverlauf: die zuletzt bei „Von“ und „Nach“ gewählten Haltestellen, Adressen und Orte, höchstens 10. Sie können ihn in der Haltestellenauswahl ganz oder einzeln löschen.
 - Die zuletzt abgerufenen Abfahrten von bis zu 10 Haltestellen, damit sie ohne Internetverbindung sichtbar bleiben, und die Daten des Startbildschirm-Widgets.
 - Ihre Einstellungen: Sprache, Darstellung und, falls Sie einen eingeben, Ihr Anzeigename.
 

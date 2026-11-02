@@ -155,6 +155,7 @@ String journeySummary(BuildContext context, Journey journey) {
     if (journey.notices case final notices when notices.isNotEmpty)
       l10n.tripNotices(notices.length),
     if (journey.hasWarning) l10n.noticeAffectsTrip,
+    if (journey.isTimetableOnly) l10n.tripTimetableOnly,
   ].join(', ');
   return l10n.tripSummary(
     timeOf(journey.departure),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -30,10 +31,26 @@ class StopTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final kind = switch (stop.kind) {
+      LocationKind.stop => null,
+      LocationKind.address => l10n.locationAddress,
+      LocationKind.place => l10n.locationPlace,
+    };
     return ListTile(
-      leading: Icon(icon ?? (isFavourite ? Icons.star : Icons.place_outlined)),
+      leading: Icon(
+        icon ??
+            switch (stop.kind) {
+              LocationKind.address => Icons.home_outlined,
+              LocationKind.place => Icons.account_balance_outlined,
+              LocationKind.stop =>
+                isFavourite ? Icons.star : Icons.place_outlined,
+            },
+      ),
       title: Text(stop.name),
-      subtitle: switch ([?stop.locality, ?detail]) {
+      // "Adresse · Bochum": the kind first, so a street is not taken for a
+      // stop of the same name.
+      subtitle: switch ([?kind, ?stop.locality, ?detail]) {
         [] => null,
         final parts => Text(parts.join(' · ')),
       },

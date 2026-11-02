@@ -10,13 +10,14 @@ Last updated: [DATE]
 
 ## Overview
 
-RuhrTransit shows departures, stops and connections in the area of the Verkehrsverbund Rhein-Ruhr (VRR). The app has **no user account**, **no ads** and **no analytics or tracking tools**. There are no servers of its own; the app stores nothing outside your device.
+RuhrTransit shows departures and stops in the area of the Verkehrsverbund Rhein-Ruhr (VRR) and connections across Germany, with data from the VRR timetable service. The app has **no user account**, **no ads** and **no analytics or tracking tools**. There are no servers of its own; the app stores nothing outside your device.
 
 ## What is sent, and to whom
 
 For every query the app connects to the VRR timetable service (openservice.vrr.de) and sends:
 
-- **Search terms** for stops, **stop IDs** for departures and trips, and the **chosen time** of a trip search.
+- **Search terms** for stops and, under "From" and "To", also for **addresses and places**: what you type there, such as the street and house number of your home, is sent to VRR.
+- **IDs** of the chosen stops, addresses and places for departures and trips, and the **chosen time** of a trip search.
 - **Location**, only when you tap "Use my location" under "Stops near me" and allow location access: the coordinates are read once and sent to VRR to find stops within 1 km. The app never reads the location in the background and does not store it.
 - As with any internet request, VRR's server receives your **IP address**.
 
@@ -28,8 +29,8 @@ The legal basis is Art. 6(1)(b) GDPR (providing the information you request); fo
 
 Stored on your device only:
 
-- Your favourites: stops and saved journeys, with the labels you give them.
-- Your search history: the stops you last chose for "From" and "To", at most 10. You can delete it, entirely or one by one, in the stop picker.
+- Your favourites: stops and saved journeys, with the labels you give them. The start and destination of a saved journey can be addresses.
+- Your search history: the stops, addresses and places you last chose for "From" and "To", at most 10. You can delete it, entirely or one by one, in the stop picker.
 - The last fetched departures of up to 10 stops, so they stay visible without an internet connection, and the data of the home-screen widget.
 - Your settings: language, appearance and, if you enter one, your display name.
 

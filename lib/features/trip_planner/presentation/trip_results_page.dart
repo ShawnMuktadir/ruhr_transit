@@ -166,6 +166,14 @@ class _JourneyCard extends StatelessWidget {
                             : l10n.tripTransfers(transfers),
                         style: theme.textTheme.bodySmall,
                       ),
+                      if (journey.isTimetableOnly)
+                        Text(
+                          l10n.tripTimetableOnly,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
                       // Red with a warning icon only when a notice affects
                       // the ride; most are about lifts and stops.
                       if (notices > 0)

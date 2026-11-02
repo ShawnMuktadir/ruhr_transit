@@ -106,6 +106,42 @@ void main() {
     expect(find.byType(DeparturesPage), findsNothing);
   });
 
+  testWidgets('an address or place says what it is', (tester) async {
+    const address = Stop(
+      id: 'streetID:1500000926:10:5911000',
+      name: 'Kortumstr. 10',
+      fullName: 'Bochum, Kortumstr. 10',
+      latitude: 51.476333,
+      longitude: 7.216526,
+      locality: 'Bochum',
+      kind: LocationKind.address,
+    );
+    const place = Stop(
+      id: 'poiID:1000029001:5113000',
+      name: 'Rathaus Essen (Porscheplatz 1)',
+      fullName: 'Essen, Rathaus Essen (Porscheplatz 1)',
+      latitude: 51.4573,
+      longitude: 7.0153,
+      locality: 'Essen',
+      kind: LocationKind.place,
+    );
+    final picked = <Stop>[];
+    repository.autoReply = const Ok([address, place, bochumHbf]);
+    await pumpPage(tester, onPicked: picked.add);
+
+    await search(tester, 'Kortum');
+
+    expect(find.text('Address · Bochum'), findsOneWidget);
+    expect(find.byIcon(Icons.home_outlined), findsOneWidget);
+    expect(find.text('Place · Essen'), findsOneWidget);
+    // A stop keeps its plain town line.
+    expect(find.text('Bochum'), findsOneWidget);
+
+    await tester.tap(find.text('Kortumstr. 10'));
+    await tester.pumpAndSettle();
+    expect(picked, [address]);
+  });
+
   testWidgets('shows results and opens the departures on tap', (tester) async {
     // Needed to find the transport icons by their screen reader labels.
     // ListTile merges them into one label per row, e.g. "Hbf\nBochum\nTrain…".

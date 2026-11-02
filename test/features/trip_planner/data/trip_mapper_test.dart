@@ -63,6 +63,77 @@ void main() {
       expect(journeys[1].legs.single, isA<TransitLeg>());
     });
 
+    test('a walk between stops has its directions', () {
+      final journeys = mapTripResponse(readEfaFixtureJson('trip_with_walk'));
+      final walk = journeys.first.legs[1] as WalkLeg;
+
+      expect(walk.steps, isNotEmpty);
+      expect(walk.steps.last.turn, WalkTurn.board);
+    });
+
+    test('maps walks to and from an address or place (class 100)', () {
+      final journeys = mapTripResponse(
+        readEfaFixtureJson('trip_address_to_place'),
+      );
+
+      expect(journeys, hasLength(2));
+      final viaTram = journeys.firstWhere((j) => j.legs.length == 4);
+      final [toStation, re6, tram, toPlace] = viaTram.legs;
+
+      expect(toStation, isA<WalkLeg>());
+      toStation as WalkLeg;
+      expect(toStation.origin.name, 'Bochum, Kortumstr. 10');
+      expect(toStation.distanceMeters, 734);
+      expect(toStation.duration, const Duration(minutes: 17));
+      expect(toStation.steps, hasLength(15));
+      final first = toStation.steps.first;
+      expect(first.turn, WalkTurn.straight);
+      // A generic "Fußweg" says nothing the walking icon does not.
+      expect(first.name, isNull);
+      expect(first.distanceMeters, 118);
+      expect(first.duration, const Duration(seconds: 106));
+      expect(
+        toStation.steps.map((s) => s.turn),
+        containsAllInOrder([
+          WalkTurn.sharpLeft,
+          WalkTurn.right,
+          WalkTurn.left,
+          WalkTurn.slightRight,
+        ]),
+      );
+      expect(toStation.steps[8].name, 'Südring');
+      expect(toStation.steps[8].distanceMeters, 182);
+      expect(toStation.steps.last.turn, WalkTurn.board);
+      expect(toStation.steps.last.name, 'Einstieg Zug RE 6 (RRX)');
+
+      expect(toPlace, isA<WalkLeg>());
+      toPlace as WalkLeg;
+      expect(toPlace.destination.name, 'Essen, Rathaus Essen (Porscheplatz 1)');
+      expect(toPlace.steps.first.turn, WalkTurn.alight);
+      expect(toPlace.steps.map((s) => s.turn), contains(WalkTurn.uTurn));
+      expect(toPlace.stationPaths.single.kind, StationPathKind.elevator);
+      expect(toPlace.stationPaths.single.levelFrom, -2);
+      expect(toPlace.stationPaths.single.levelTo, 0);
+
+      // Live data for both rides.
+      expect((re6 as TransitLeg).isRealtime, isTrue);
+      expect((tram as TransitLeg).isRealtime, isTrue);
+      expect(viaTram.isTimetableOnly, isFalse);
+      // The change at Essen Hbf has no walk leg: its way is on the RE 6.
+      expect(re6.transferSteps.first.turn, WalkTurn.alight);
+      expect(re6.transferSteps.last.turn, WalkTurn.board);
+      expect(re6.transferSteps.last.name, 'Einstieg Straßenbahn 101');
+      expect(re6.transferPaths.map((p) => p.kind), [
+        StationPathKind.stairs,
+        StationPathKind.stairs,
+        StationPathKind.stairs,
+        StationPathKind.escalator,
+      ]);
+      expect(tram.transferSteps, isEmpty);
+      // Walks are not rides.
+      expect(viaTram.transfers, 1);
+    });
+
     test('maps the stops in between with live times and platforms', () {
       final journeys = mapTripResponse(
         readEfaFixtureJson('trip_bochum_dortmund'),

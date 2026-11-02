@@ -5,12 +5,21 @@ import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 /// EFA code for "no location matches the input".
 const _noMatchCode = -8020;
 
+/// The most results kept when addresses and places are included: a word
+/// like "Rathaus" matches dozens across Germany (live: 87).
+const maxLocations = 25;
+
 /// Maps an `XML_STOPFINDER_REQUEST` response to stops, best match first.
 ///
-/// Only `type: "stop"` locations are kept; POIs, streets and localities
-/// have no departures. Throws [EfaServerException] when EFA reports an
-/// error without results, and [FormatException] when the shape is wrong.
-List<Stop> mapStopFinderResponse(Map<String, Object?> json) {
+/// By default only `type: "stop"` locations are kept: POIs, streets and
+/// localities have no departures. With [includeAddresses], addresses
+/// (`singlehouse`, `street`) and places (`poi`) are kept too, for the trip
+/// planner. Throws [EfaServerException] when EFA reports an error without
+/// results, and [FormatException] when the shape is wrong.
+List<Stop> mapStopFinderResponse(
+  Map<String, Object?> json, {
+  bool includeAddresses = false,
+}) {
   final locations = switch (json['locations']) {
     null => const <Object?>[],
     final List<Object?> list => list,
@@ -35,9 +44,15 @@ List<Stop> mapStopFinderResponse(Map<String, Object?> json) {
     if (location is! Map<String, Object?>) {
       throw const FormatException('Location is not an object');
     }
-    if (location['type'] != 'stop') continue;
+    final kind = switch (location['type']) {
+      'stop' => LocationKind.stop,
+      'singlehouse' || 'street' when includeAddresses => LocationKind.address,
+      'poi' when includeAddresses => LocationKind.place,
+      _ => null,
+    };
+    if (kind == null) continue;
     ranked.add((
-      stop: mapEfaStop(location, nameIncludesLocality: true),
+      stop: mapEfaStop(location, nameIncludesLocality: true, kind: kind),
       isBest: location['isBest'] == true,
       quality: switch (location['matchQuality']) {
         final int quality => quality,
@@ -53,7 +68,12 @@ List<Stop> mapStopFinderResponse(Map<String, Object?> json) {
     final byQuality = b.quality.compareTo(a.quality);
     return byQuality != 0 ? byQuality : a.index.compareTo(b.index);
   });
-  return [for (final entry in ranked) entry.stop];
+  return [
+    for (final entry in ranked.take(
+      includeAddresses ? maxLocations : ranked.length,
+    ))
+      entry.stop,
+  ];
 }
 
 /// Maps one EFA location of `type: "stop"`.
@@ -66,6 +86,7 @@ List<Stop> mapStopFinderResponse(Map<String, Object?> json) {
 Stop mapEfaStop(
   Map<String, Object?> json, {
   required bool nameIncludesLocality,
+  LocationKind kind = LocationKind.stop,
 }) {
   final id = json['id'];
   final rawName = json['name'];
@@ -102,6 +123,7 @@ Stop mapEfaStop(
       locality: locality,
       latitude: latitude.toDouble(),
       longitude: longitude.toDouble(),
+      kind: kind,
       modes: switch (json['productClasses']) {
         final List<Object?> classes => {
           for (final productClass in classes)
