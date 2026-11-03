@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -37,30 +38,32 @@ class StopTile extends StatelessWidget {
       LocationKind.address => l10n.locationAddress,
       LocationKind.place => l10n.locationPlace,
     };
-    return ListTile(
-      leading: Icon(
-        icon ??
-            switch (stop.kind) {
-              LocationKind.address => Icons.home_outlined,
-              LocationKind.place => Icons.account_balance_outlined,
-              LocationKind.stop =>
-                isFavourite ? Icons.star : Icons.place_outlined,
-            },
-      ),
-      title: Text(stop.name),
-      // "Adresse · Bochum": the kind first, so a street is not taken for a
-      // stop of the same name.
-      subtitle: switch ([?kind, ?stop.locality, ?detail]) {
-        [] => null,
-        final parts => Text(parts.join(' · ')),
-      },
-      trailing: _ModeIcons(stop.modes),
-      onTap: switch (onSelected) {
-        final onSelected? => () => onSelected(stop),
-        null => () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => DeparturesPage(stop: stop)),
+    return ListCard(
+      child: ListTile(
+        leading: Icon(
+          icon ??
+              switch (stop.kind) {
+                LocationKind.address => Icons.home_outlined,
+                LocationKind.place => Icons.account_balance_outlined,
+                LocationKind.stop =>
+                  isFavourite ? Icons.star : Icons.place_outlined,
+              },
         ),
-      },
+        title: Text(stop.name),
+        // "Adresse · Bochum": the kind first, so a street is not taken for a
+        // stop of the same name.
+        subtitle: switch ([?kind, ?stop.locality, ?detail]) {
+          [] => null,
+          final parts => Text(parts.join(' · ')),
+        },
+        trailing: _ModeIcons(stop.modes),
+        onTap: switch (onSelected) {
+          final onSelected? => () => onSelected(stop),
+          null => () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => DeparturesPage(stop: stop)),
+          ),
+        },
+      ),
     );
   }
 }

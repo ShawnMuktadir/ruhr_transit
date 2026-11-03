@@ -71,7 +71,8 @@ class TripFormView extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 20),
                 child: Align(alignment: Alignment.centerLeft, child: weather),
               ),
-            Card.outlined(
+            Card(
+              margin: EdgeInsets.zero,
               child: Row(
                 children: [
                   Expanded(

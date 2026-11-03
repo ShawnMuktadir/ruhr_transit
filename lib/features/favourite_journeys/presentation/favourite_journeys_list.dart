@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/dismiss_background.dart';
 import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journey.dart';
@@ -32,6 +33,7 @@ class FavouriteJourneysList extends StatelessWidget {
         FavouriteJourneysLoaded(:final journeys) when journeys.isEmpty =>
           CenteredMessage(l10n.journeysEmpty, icon: Icons.bookmark_border),
         FavouriteJourneysLoaded(:final journeys) => ListView(
+          padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
             for (final journey in journeys)
               _JourneyTile(journey, onOpen: () => onOpen(journey)),
@@ -66,34 +68,36 @@ class _JourneyTile extends StatelessWidget {
           CustomSemanticsAction(label: l10n.journeyRemove): () =>
               _removeWithUndo(context),
         },
-        child: ListTile(
-          leading: const Icon(Icons.bookmark),
-          title: Text(
-            '${journey.from.fullName} → ${journey.to.fullName}',
-            semanticsLabel: l10n.journeyRoute(
-              journey.from.fullName,
-              journey.to.fullName,
+        child: ListCard(
+          child: ListTile(
+            leading: const Icon(Icons.bookmark),
+            title: Text(
+              '${journey.from.fullName} → ${journey.to.fullName}',
+              semanticsLabel: l10n.journeyRoute(
+                journey.from.fullName,
+                journey.to.fullName,
+              ),
             ),
+            subtitle: label == null ? null : Text(label),
+            trailing: PopupMenuButton<_MenuAction>(
+              tooltip: l10n.journeyOptions,
+              onSelected: (action) => switch (action) {
+                _MenuAction.editLabel => _editLabel(context),
+                _MenuAction.remove => _removeWithUndo(context),
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: _MenuAction.editLabel,
+                  child: Text(l10n.journeyEditLabel),
+                ),
+                PopupMenuItem(
+                  value: _MenuAction.remove,
+                  child: Text(l10n.journeyRemove),
+                ),
+              ],
+            ),
+            onTap: onOpen,
           ),
-          subtitle: label == null ? null : Text(label),
-          trailing: PopupMenuButton<_MenuAction>(
-            tooltip: l10n.journeyOptions,
-            onSelected: (action) => switch (action) {
-              _MenuAction.editLabel => _editLabel(context),
-              _MenuAction.remove => _removeWithUndo(context),
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                value: _MenuAction.editLabel,
-                child: Text(l10n.journeyEditLabel),
-              ),
-              PopupMenuItem(
-                value: _MenuAction.remove,
-                child: Text(l10n.journeyRemove),
-              ),
-            ],
-          ),
-          onTap: onOpen,
         ),
       ),
     );

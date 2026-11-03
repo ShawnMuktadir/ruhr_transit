@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/features/language/presentation/language_options.dart';
 import 'package:ruhr_transit/features/language/presentation/locale_cubit.dart';
 import 'package:ruhr_transit/features/legal/presentation/legal_page.dart';
@@ -36,62 +37,79 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navSettings)),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 16),
         children: [
           _SectionHeader(l10n.settingsAppearance),
-          RadioGroup<ThemeMode>(
-            groupValue: themeMode,
-            onChanged: (mode) {
-              if (mode != null) context.read<ThemeCubit>().select(mode);
-            },
-            child: Column(
-              children: [
-                for (final (mode, label) in [
-                  (ThemeMode.system, l10n.themeSystem),
-                  (ThemeMode.light, l10n.themeLight),
-                  (ThemeMode.dark, l10n.themeDark),
-                ])
-                  RadioListTile<ThemeMode>(value: mode, title: Text(label)),
-              ],
-            ),
+          GroupCard(
+            children: [
+              RadioGroup<ThemeMode>(
+                groupValue: themeMode,
+                onChanged: (mode) {
+                  if (mode != null) context.read<ThemeCubit>().select(mode);
+                },
+                child: Column(
+                  children: [
+                    for (final (mode, label) in [
+                      (ThemeMode.system, l10n.themeSystem),
+                      (ThemeMode.light, l10n.themeLight),
+                      (ThemeMode.dark, l10n.themeDark),
+                    ])
+                      RadioListTile<ThemeMode>(value: mode, title: Text(label)),
+                  ],
+                ),
+              ),
+            ],
           ),
           _SectionHeader(l10n.settingsLanguage),
-          LanguageOptions(
-            selected: language,
-            onSelected: context.read<LocaleCubit>().select,
+          GroupCard(
+            children: [
+              LanguageOptions(
+                selected: language,
+                onSelected: context.read<LocaleCubit>().select,
+              ),
+            ],
           ),
           _SectionHeader(l10n.settingsProfile),
-          ListTile(
-            leading: const Icon(Icons.person_outline),
-            title: Text(l10n.settingsProfile),
-            subtitle: profile.isLoading
-                ? null
-                : Text(profile.displayName ?? l10n.profileNoName),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => open(const ProfilePage()),
+          GroupCard(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: Text(l10n.settingsProfile),
+                subtitle: profile.isLoading
+                    ? null
+                    : Text(profile.displayName ?? l10n.profileNoName),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => open(const ProfilePage()),
+              ),
+              // Only with a real sign-in; until accounts exist there is nothing
+              // to log out of, so no button that would do nothing.
+              if (profile.auth is SignedIn)
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: Text(l10n.logOut),
+                  onTap: context.read<ProfileCubit>().signOut,
+                ),
+            ],
           ),
-          // Only with a real sign-in; until accounts exist there is nothing
-          // to log out of, so no button that would do nothing.
-          if (profile.auth is SignedIn)
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: Text(l10n.logOut),
-              onTap: context.read<ProfileCubit>().signOut,
-            ),
           _SectionHeader(l10n.settingsLegal),
-          ListTile(
-            leading: const Icon(Icons.privacy_tip_outlined),
-            title: Text(l10n.privacyPolicy),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => open(const LegalPage(LegalDocument.privacy)),
-          ),
-          ListTile(
-            leading: const Icon(Icons.description_outlined),
-            title: Text(l10n.termsOfUse),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => open(const LegalPage(LegalDocument.terms)),
+          GroupCard(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: Text(l10n.privacyPolicy),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => open(const LegalPage(LegalDocument.privacy)),
+              ),
+              ListTile(
+                leading: const Icon(Icons.description_outlined),
+                title: Text(l10n.termsOfUse),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => open(const LegalPage(LegalDocument.terms)),
+              ),
+            ],
           ),
           _SectionHeader(l10n.settingsAbout),
-          _About(packageInfo: packageInfo),
+          GroupCard(children: [_About(packageInfo: packageInfo)]),
         ],
       ),
     );

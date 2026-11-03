@@ -135,7 +135,7 @@ class _JourneyCard extends StatelessWidget {
     // One node for TalkBack: the summary sentence plus the tap action,
     // instead of every time, badge and chevron on its own.
     return MergeSemantics(
-      child: Card.outlined(
+      child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         clipBehavior: Clip.antiAlias,
         child: InkWell(

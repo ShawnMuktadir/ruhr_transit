@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
@@ -56,24 +57,26 @@ class JourneyDetailsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          ListTile(
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [JourneyDate(journey), JourneyTimes(journey)],
-            ),
-            subtitle: Text(
-              [
-                formatTripDuration(l10n, journey.duration),
-                if (journey.transfers == 0)
-                  l10n.tripDirect
-                else
-                  l10n.tripTransfers(journey.transfers),
-                if (journey.isTimetableOnly) l10n.tripTimetableOnlyDetail,
-              ].join(' · '),
+          ListCard(
+            child: ListTile(
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [JourneyDate(journey), JourneyTimes(journey)],
+              ),
+              subtitle: Text(
+                [
+                  formatTripDuration(l10n, journey.duration),
+                  if (journey.transfers == 0)
+                    l10n.tripDirect
+                  else
+                    l10n.tripTransfers(journey.transfers),
+                  if (journey.isTimetableOnly) l10n.tripTimetableOnlyDetail,
+                ].join(' · '),
+              ),
             ),
           ),
-          if (notices.isNotEmpty) TripNoticesSection(notices),
-          const Divider(),
+          if (notices.isNotEmpty) ListCard(child: TripNoticesSection(notices)),
+          const SizedBox(height: 4),
           ..._legsWithChanges(journey.legs, runs, now),
         ],
       ),
@@ -95,7 +98,7 @@ class JourneyDetailsPage extends StatelessWidget {
       switch (leg) {
         case WalkLeg():
           walking += leg.duration;
-          widgets.add(_WalkTile(leg));
+          widgets.add(ListCard(child: _WalkTile(leg)));
         case TransitLeg():
           if (previousRide != null) {
             widgets.add(
@@ -108,7 +111,12 @@ class JourneyDetailsPage extends StatelessWidget {
               ),
             );
           }
-          widgets.add(_RideTile(leg, runs: runs, now: now));
+          widgets.add(
+            AccentCard(
+              mode: leg.mode,
+              child: _RideTile(leg, runs: runs, now: now),
+            ),
+          );
           previousRide = leg;
           walking = Duration.zero;
       }

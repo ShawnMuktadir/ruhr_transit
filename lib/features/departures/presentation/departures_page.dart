@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
@@ -208,12 +209,12 @@ class _Board extends StatelessWidget {
       child: departures.isEmpty
           // Scrollable itself, so pull-to-refresh works on an empty board.
           ? CenteredMessage(l10n.departuresEmpty)
-          : ListView.separated(
+          : ListView.builder(
               physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: departures.length,
               itemBuilder: (context, index) =>
-                  _DepartureTile(departures[index]),
-              separatorBuilder: (_, _) => const Divider(height: 1),
+                  ListCard(child: _DepartureTile(departures[index])),
             ),
     );
   }

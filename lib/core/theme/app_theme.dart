@@ -20,6 +20,16 @@ abstract final class AppTheme {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
       ),
+      // One look for every card: lists, trips, settings. Tonal, flat, with
+      // a hairline so cards stand out in light mode too.
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: colorScheme.surfaceContainerLow,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: colorScheme.outlineVariant),
+        ),
+      ),
     );
   }
 }
