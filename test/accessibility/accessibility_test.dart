@@ -27,6 +27,7 @@ import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cub
 import 'package:ruhr_transit/features/settings/presentation/settings_page.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
@@ -61,7 +62,8 @@ void main() {
       ..registerSingleton<LocationSource>(
         FakeLocationSource()..permissionGranted = true,
       )
-      ..registerFactory<WeatherRepository>(FakeWeatherRepository.new),
+      ..registerFactory<WeatherRepository>(FakeWeatherRepository.new)
+      ..registerFactory<StopRepository>(FakeStopRepository.new),
   );
   tearDown(getIt.reset);
 

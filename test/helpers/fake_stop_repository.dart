@@ -30,6 +30,19 @@ class FakeStopRepository implements StopRepository {
     return completer.future;
   }
 
+  /// What [locationAt] answers; the points asked for are recorded.
+  Result<Stop?> locationReply = const Ok(kortumstr10);
+  final List<(double, double)> locationPoints = [];
+
+  @override
+  Future<Result<Stop?>> locationAt({
+    required double latitude,
+    required double longitude,
+  }) async {
+    locationPoints.add((latitude, longitude));
+    return locationReply;
+  }
+
   /// Answers the [index]-th call (0 = first call made).
   void complete(int index, Result<List<Stop>> result) =>
       _pending[index].complete(result);
@@ -52,4 +65,15 @@ const dortmundHbf = Stop(
   locality: 'Dortmund',
   latitude: 51.517,
   longitude: 7.459,
+);
+
+/// What VRR answered for a point in Bochum's centre.
+const kortumstr10 = Stop(
+  id: 'coord:803333:5294017:MRCV:Innenstadt (Bochum), Kortumstr. 10:0',
+  name: 'Kortumstr. 10',
+  fullName: 'Innenstadt (Bochum), Kortumstr. 10',
+  locality: 'Innenstadt (Bochum)',
+  latitude: 51.476305,
+  longitude: 7.216463,
+  kind: LocationKind.address,
 );

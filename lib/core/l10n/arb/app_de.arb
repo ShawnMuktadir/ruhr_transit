@@ -1043,5 +1043,45 @@
   "weatherAttribution": "Wetterdaten: Deutscher Wetterdienst, über Bright Sky",
   "@weatherAttribution": {
     "description": "Source of the weather data, required by the DWD terms."
+  },
+  "tripUseLocation": "Aktuellen Standort als Start verwenden",
+  "@tripUseLocation": {
+    "description": "Tooltip of the button in the From field."
+  },
+  "tripCurrentLocation": "Aktueller Standort",
+  "@tripCurrentLocation": {
+    "description": "Label next to \"Von\" when the start is the user's location."
+  },
+  "tripLocating": "Standort wird ermittelt …",
+  "@tripLocating": {
+    "description": "TalkBack while the location is read."
+  },
+  "tripHereDenied": "Ohne Standortzugriff kann die App Ihren Standort nicht verwenden.",
+  "@tripHereDenied": {
+    "description": "Snack bar after the location permission was denied."
+  },
+  "tripHereDeniedForever": "Standortzugriff ist für die App gesperrt.",
+  "@tripHereDeniedForever": {
+    "description": "Snack bar after the permission was denied for good; action opens the app settings."
+  },
+  "tripHereOff": "Die Standortdienste sind ausgeschaltet.",
+  "@tripHereOff": {
+    "description": "Snack bar when location is off; action opens the location settings."
+  },
+  "tripHereNoPosition": "Standort nicht gefunden. Bitte erneut versuchen.",
+  "@tripHereNoPosition": {
+    "description": "Snack bar when no position arrived in time."
+  },
+  "tripHereNothingThere": "An Ihrem Standort wurde keine Adresse gefunden.",
+  "@tripHereNothingThere": {
+    "description": "Snack bar when VRR knows no address at the position."
+  },
+  "actionSettings": "Einstellungen",
+  "@actionSettings": {
+    "description": "Snack bar action that opens the app settings."
+  },
+  "actionTurnOn": "Einschalten",
+  "@actionTurnOn": {
+    "description": "Snack bar action that opens the location settings."
   }
 }

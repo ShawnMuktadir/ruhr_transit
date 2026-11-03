@@ -76,6 +76,41 @@ List<Stop> mapStopFinderResponse(
   ];
 }
 
+/// Maps a stop finder response for a point (`type_sf=coord`) to the place
+/// there: live, an `address` with the street and house number. Null when
+/// EFA found nothing. Throws like [mapStopFinderResponse].
+Stop? mapCoordLookupResponse(Map<String, Object?> json) {
+  final locations = switch (json['locations']) {
+    null => const <Object?>[],
+    final List<Object?> list => list,
+    _ => throw const FormatException('"locations" is not a list'),
+  };
+  if (locations.isEmpty) {
+    final errors = readSystemMessages(
+      json,
+    ).where((m) => m.isError && m.code != _noMatchCode);
+    if (errors.isNotEmpty) {
+      throw EfaServerException(errors.first.code, errors.first.text);
+    }
+    return null;
+  }
+  for (final location in locations) {
+    if (location is! Map<String, Object?>) {
+      throw const FormatException('Location is not an object');
+    }
+    final kind = switch (location['type']) {
+      'stop' => LocationKind.stop,
+      'address' || 'singlehouse' || 'street' => LocationKind.address,
+      'poi' => LocationKind.place,
+      _ => null,
+    };
+    if (kind != null) {
+      return mapEfaStop(location, nameIncludesLocality: true, kind: kind);
+    }
+  }
+  return null;
+}
+
 /// Maps one EFA location of `type: "stop"`.
 ///
 /// The stop finder sends `name` with the town ("Bochum, Hbf") and the short

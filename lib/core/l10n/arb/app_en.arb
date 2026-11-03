@@ -186,5 +186,15 @@
   "weatherNoPosition": "Location not found – tap to retry",
   "weatherFailed": "Weather not available right now – tap to retry",
   "weatherRefreshHint": "refresh",
-  "weatherAttribution": "Weather data: Deutscher Wetterdienst, via Bright Sky"
+  "weatherAttribution": "Weather data: Deutscher Wetterdienst, via Bright Sky",
+  "tripUseLocation": "Use current location as start",
+  "tripCurrentLocation": "Current location",
+  "tripLocating": "Finding your location …",
+  "tripHereDenied": "Without location access the app cannot use your location.",
+  "tripHereDeniedForever": "Location access is blocked for the app.",
+  "tripHereOff": "Location services are turned off.",
+  "tripHereNoPosition": "Location not found. Please try again.",
+  "tripHereNothingThere": "No address found at your location.",
+  "actionSettings": "Settings",
+  "actionTurnOn": "Turn on"
 }

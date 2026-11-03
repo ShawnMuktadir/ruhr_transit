@@ -29,6 +29,65 @@ void main() {
     Ok() => fail('Expected Err, got $result'),
   };
 
+  group('locationAt', () {
+    test('asks for the place at a point, about 10 m exact', () async {
+      final repository = repositoryAnswering(
+        (_) async => textResponse(readEfaFixture('stopfinder_coord')),
+      );
+
+      final result = await repository.locationAt(
+        latitude: 51.476312,
+        longitude: 7.216498,
+      );
+
+      final uri = adapter.requests.single.uri;
+      expect(uri.path, '/openservice/XML_STOPFINDER_REQUEST');
+      expect(uri.queryParameters, {
+        'outputFormat': 'rapidJSON',
+        'type_sf': 'coord',
+        // Longitude first.
+        'name_sf': '7.2165:51.4763:WGS84[dd.ddddd]',
+        'coordOutputFormat': 'WGS84[dd.ddddd]',
+      });
+      final address = (result as Ok<Stop?>).value!;
+      expect(address.kind, LocationKind.address);
+      expect(address.name, 'Kortumstr. 10');
+      expect(address.fullName, 'Innenstadt (Bochum), Kortumstr. 10');
+      expect(address.locality, 'Innenstadt (Bochum)');
+      expect(address.id, startsWith('coord:'));
+    });
+
+    test('nothing there is Ok(null)', () async {
+      final repository = repositoryAnswering(
+        (_) async => textResponse(readEfaFixture('stopfinder_no_match')),
+      );
+
+      final result = await repository.locationAt(latitude: 0, longitude: 0);
+
+      expect(result, isA<Ok<Stop?>>().having((r) => r.value, 'value', null));
+    });
+
+    test('offline is a NetworkFailure', () async {
+      final repository = repositoryAnswering(
+        (options) async => throw DioException.connectionError(
+          requestOptions: options,
+          reason: 'offline',
+        ),
+      );
+
+      final result = await repository.locationAt(latitude: 51, longitude: 7);
+
+      expect(
+        result,
+        isA<Err<Stop?>>().having(
+          (r) => r.failure,
+          'failure',
+          isA<NetworkFailure>(),
+        ),
+      );
+    });
+  });
+
   test('sends a stop finder request and maps the response', () async {
     final repository = repositoryAnswering(
       (_) async => textResponse(readEfaFixture('stopfinder_bochum_hbf')),

@@ -14,4 +14,11 @@ abstract interface class StopRepository {
     String query, {
     bool includeAddresses = false,
   });
+
+  /// The address (or stop) at a point, e.g. the user's location; `Ok(null)`
+  /// when there is none.
+  Future<Result<Stop?>> locationAt({
+    required double latitude,
+    required double longitude,
+  });
 }
