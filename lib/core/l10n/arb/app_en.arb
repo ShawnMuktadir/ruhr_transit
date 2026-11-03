@@ -197,5 +197,16 @@
   "tripHereNothingThere": "No address found at your location.",
   "actionSettings": "Settings",
   "actionTurnOn": "Turn on",
-  "offlineBanner": "No internet connection"
+  "offlineBanner": "No internet connection",
+  "mapShowTrip": "Show on map",
+  "mapTitle": "Map",
+  "mapTripSummary": "Map of the trip from {from} to {to}, {rides, plural, =1{1 ride} other{{rides} rides}}",
+  "mapStart": "Start",
+  "mapDestination": "Destination",
+  "mapChange": "Change",
+  "mapVehicle": "{line}: position estimated from the times",
+  "nearbyViewList": "List",
+  "nearbyViewMap": "Map",
+  "mapNearbySummary": "Map with {count, plural, =1{1 stop} other{{count} stops}} near you",
+  "mapYou": "Your location"
 }

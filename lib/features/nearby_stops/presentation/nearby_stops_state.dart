@@ -1,3 +1,4 @@
+import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stop.dart';
@@ -26,9 +27,12 @@ final class NearbyLoading extends NearbyStopsState {
 
 /// The stops around the user, closest first; possibly none.
 final class NearbyLoaded extends NearbyStopsState {
-  const NearbyLoaded(this.stops, {this.isApproximate = false});
+  const NearbyLoaded(this.stops, {this.isApproximate = false, this.here});
 
   final List<NearbyStop> stops;
+
+  /// Where the user was, for the map; null in tests that do not need it.
+  final GeoPoint? here;
 
   /// The position was only approximate, so [stops] may not be the closest.
   final bool isApproximate;

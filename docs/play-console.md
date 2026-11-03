@@ -54,6 +54,7 @@ servers of its own and no SDKs that collect data.
 | Data type | Collected / shared | Why | Notes |
 |---|---|---|---|
 | Location › Approximate location | Collected, shared with VRR and Bright Sky | App functionality | Optional, only with the location permission; not stored; processed ephemerally. Weather: rounded to ~1 km, sent to Bright Sky when "Plan trip" opens. |
+| Location › Approximate location (map) | Shared with BKG (basemap.de) | App functionality | Only while a map is open: the tile requests show the area around the user ("Stops near me" map) |
 | Location › Precise location | Collected, shared with VRR | App functionality | Optional: "Stops near me" and "Use current location as start" (rounded to ~10 m); not stored |
 | App activity › In-app search history | Collected, shared with VRR | App functionality | Search terms for stops, addresses and places are sent to find them; not stored off the device |
 

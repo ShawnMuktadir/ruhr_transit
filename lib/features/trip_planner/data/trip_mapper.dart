@@ -1,3 +1,4 @@
+import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/network/efa_json.dart';
 import 'package:ruhr_transit/core/network/efa_text.dart';
 import 'package:ruhr_transit/core/network/efa_transport.dart';
@@ -78,6 +79,7 @@ Leg _mapLeg(Object? json) {
       },
       origin: origin,
       destination: destination,
+      path: readGeoPath(json['coords']),
       steps: _mapWalkSteps(json['pathDescriptions']),
       stationPaths: _mapStationPaths(json['footPathInfo']),
       notices: notices,
@@ -103,6 +105,7 @@ Leg _mapLeg(Object? json) {
       final List<Object?> status => status.contains('MONITORED'),
       _ => json['isRealtimeControlled'] == true,
     },
+    path: readGeoPath(json['coords']),
     transferSteps: _mapWalkSteps(json['pathDescriptions']),
     transferPaths: _mapStationPaths(json['footPathInfo']),
     notices: notices,
@@ -141,6 +144,7 @@ TripStop? _mapIntermediateStop(Map<String, Object?> json) {
     ),
     platform: readNonEmptyString(properties['platformName']),
     plannedPlatform: readNonEmptyString(properties['plannedPlatformName']),
+    position: readGeoPoint(json['coord']),
   );
 }
 
@@ -323,5 +327,6 @@ TripStop _mapStop(Object? json, String timeKind) {
     estimatedTime: readEfaTime(json['${timeKind}TimeEstimated']),
     platform: readNonEmptyString(properties['platformName']),
     plannedPlatform: readNonEmptyString(properties['plannedPlatformName']),
+    position: readGeoPoint(json['coord']),
   );
 }

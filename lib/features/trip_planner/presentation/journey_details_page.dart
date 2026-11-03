@@ -9,6 +9,7 @@ import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/ride_stops.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/trip_map_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_notices.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/walk_directions.dart';
@@ -50,6 +51,17 @@ class JourneyDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.tripDetailsTitle),
         actions: [
+          if (hasMap(journey))
+            IconButton(
+              icon: const Icon(Icons.map_outlined),
+              tooltip: l10n.mapShowTrip,
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      TripMapPage(journey: journey, runs: runs, now: now),
+                ),
+              ),
+            ),
           if (query case final query?)
             FavouriteJourneyButton(from: query.from, to: query.to),
         ],

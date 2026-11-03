@@ -27,6 +27,9 @@ class EfaRunRemoteSource {
             // Every stop of the run, not only those after `stop`.
             'tStOTType': 'all',
             'useRealtime': '1',
+            // Points as latitude/longitude for the map (EFA's own
+            // projection otherwise).
+            'coordOutputFormat': 'WGS84[dd.ddddd]',
           },
           cancelToken: cancelToken,
         )

@@ -104,6 +104,7 @@ void main() {
         'time': '${two(local.hour)}${two(local.minute)}',
         'tStOTType': 'all',
         'useRealtime': '1',
+        'coordOutputFormat': 'WGS84[dd.ddddd]',
       });
     });
 

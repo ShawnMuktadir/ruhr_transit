@@ -27,6 +27,8 @@ Für die Verarbeitung durch den VRR gilt dessen Datenschutzerklärung: https://w
 
 Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der von Ihnen angeforderten Auskunft); für den Standort zusätzlich Ihre Einwilligung über die Android-Berechtigung, die Sie jederzeit in den Systemeinstellungen widerrufen können.
 
+**Karten:** Öffnen Sie eine Karte (Verbindung auf der Karte, Haltestellen in der Nähe als Karte), lädt die App die Kartenbilder für den angezeigten Ausschnitt von basemap.de beim Bundesamt für Kartographie und Geodäsie (BKG, sgx.geodatenzentrum.de). Das BKG erhält dabei Ihre IP-Adresse und welcher Ausschnitt geladen wird – bei „In der Nähe“ also ungefähr, wo Sie sind. Es gilt die Datenschutzerklärung des BKG: https://www.bkg.bund.de/datenschutz
+
 ## Daten auf Ihrem Gerät
 
 Nur auf Ihrem Gerät gespeichert werden:

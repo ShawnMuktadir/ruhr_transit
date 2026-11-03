@@ -1087,5 +1087,75 @@
   "offlineBanner": "Keine Internetverbindung",
   "@offlineBanner": {
     "description": "Banner above every page while the phone is offline."
+  },
+  "mapShowTrip": "Auf der Karte zeigen",
+  "@mapShowTrip": {
+    "description": "App bar button of the trip details that opens the map."
+  },
+  "mapTitle": "Karte",
+  "@mapTitle": {
+    "description": "Title of the trip map."
+  },
+  "mapTripSummary": "Karte der Verbindung von {from} nach {to}, {rides, plural, =1{1 Fahrt} other{{rides} Fahrten}}",
+  "@mapTripSummary": {
+    "description": "TalkBack label of the trip map; the details list is the accessible view.",
+    "placeholders": {
+      "from": {
+        "type": "String",
+        "example": "Bochum Hbf"
+      },
+      "to": {
+        "type": "String",
+        "example": "Dortmund Hbf"
+      },
+      "rides": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mapStart": "Start",
+  "@mapStart": {
+    "description": "Map marker at the start of the trip."
+  },
+  "mapDestination": "Ziel",
+  "@mapDestination": {
+    "description": "Map marker at the destination."
+  },
+  "mapChange": "Umstieg",
+  "@mapChange": {
+    "description": "Map marker where the user changes vehicles."
+  },
+  "mapVehicle": "{line}: Position geschätzt aus den Fahrzeiten",
+  "@mapVehicle": {
+    "description": "Tooltip of a vehicle on the map: EFA sends no GPS, the point is interpolated between stops.",
+    "placeholders": {
+      "line": {
+        "type": "String",
+        "example": "RE6"
+      }
+    }
+  },
+  "nearbyViewList": "Liste",
+  "@nearbyViewList": {
+    "description": "Segment to show nearby stops as a list."
+  },
+  "nearbyViewMap": "Karte",
+  "@nearbyViewMap": {
+    "description": "Segment to show nearby stops on a map."
+  },
+  "mapNearbySummary": "Karte mit {count, plural, =1{1 Haltestelle} other{{count} Haltestellen}} in Ihrer Nähe",
+  "@mapNearbySummary": {
+    "description": "TalkBack label of the nearby map; the list is the accessible view.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "mapYou": "Ihr Standort",
+  "@mapYou": {
+    "description": "Map marker of the user's position."
   }
 }

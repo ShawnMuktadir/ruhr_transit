@@ -1,3 +1,4 @@
+import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
@@ -61,6 +62,7 @@ class TripStop {
     this.estimatedTime,
     this.platform,
     this.plannedPlatform,
+    this.position,
   });
 
   /// Stop name including the town, e.g. `Bochum Hbf`.
@@ -74,6 +76,9 @@ class TripStop {
 
   final String? platform;
   final String? plannedPlatform;
+
+  /// Where the stop (or address) is; null when EFA sends no point.
+  final GeoPoint? position;
 
   /// The best known time. With delays, EFA plans connections from the
   /// estimates, so planned times of different legs may not fit together.
@@ -94,10 +99,15 @@ sealed class Leg {
     required this.origin,
     required this.destination,
     this.notices = const [],
+    this.path = const [],
   });
 
   final TripStop origin;
   final TripStop destination;
+
+  /// The way the vehicle or walker takes (`coords`), for the map; empty
+  /// when EFA sends none.
+  final List<GeoPoint> path;
 
   /// VRR's notices for this leg, e.g. a lift out of order at a stop.
   final List<TripNotice> notices;
@@ -120,6 +130,7 @@ final class TransitLeg extends Leg {
     this.transferSteps = const [],
     this.transferPaths = const [],
     super.notices,
+    super.path,
   });
 
   /// Line as passengers know it, e.g. `U35`, `RE11`.
@@ -169,6 +180,7 @@ final class WalkLeg extends Leg {
     this.steps = const [],
     this.stationPaths = const [],
     super.notices,
+    super.path,
   });
 
   /// EFA's walking time, which may be shorter than the gap to the next leg.

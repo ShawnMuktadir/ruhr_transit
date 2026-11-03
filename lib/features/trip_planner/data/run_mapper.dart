@@ -1,3 +1,4 @@
+import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/network/efa_transport.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
@@ -60,5 +61,6 @@ RunStop? _mapStop(Map<String, Object?> json) {
     departureEstimated: readEfaTime(json['departureTimeEstimated']),
     platform: readNonEmptyString(properties['platformName']),
     plannedPlatform: readNonEmptyString(properties['plannedPlatformName']),
+    position: readGeoPoint(json['coord']),
   );
 }

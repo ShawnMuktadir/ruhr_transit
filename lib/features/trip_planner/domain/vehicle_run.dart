@@ -1,3 +1,5 @@
+import 'package:ruhr_transit/core/domain/geo_point.dart';
+
 /// What identifies one vehicle's run, so its whole stop sequence can be
 /// requested: the line, EFA's trip code, and one stop with its planned
 /// departure. All four come with every ride in a trip response.
@@ -36,6 +38,7 @@ class RunStop {
     this.departureEstimated,
     this.platform,
     this.plannedPlatform,
+    this.position,
   }) : assert(
          arrivalPlanned != null || departurePlanned != null,
          'A stop needs a time',
@@ -46,6 +49,9 @@ class RunStop {
 
   /// The station, e.g. `de:05911:5194`.
   final String? parentId;
+
+  /// Where the stop is, for the vehicle on the map.
+  final GeoPoint? position;
 
   final String name;
 
@@ -145,6 +151,32 @@ class VehicleRun {
       if (now.isBefore(stops[i + 1].arrival)) return RunBetween(i);
     }
     return const RunEnded();
+  }
+
+  /// Where on the map the vehicle is at [now], estimated from the stop
+  /// times: on a stop while it stands there, else on the straight line
+  /// between the two stops, as far as the time between them has passed.
+  /// Null before the start, after the end, or without the stops' points.
+  GeoPoint? pointAt(DateTime now) {
+    switch (positionAt(now)) {
+      case RunAtStop(:final index):
+        return stops[index].position;
+      case RunBetween(:final from, :final to):
+        final (a, b) = (stops[from], stops[to]);
+        final (start, end) = (a.position, b.position);
+        if (start == null || end == null) return start ?? end;
+        final leaves = from == 0 ? a.departure : _leaves(a);
+        final total = b.arrival.difference(leaves).inMilliseconds;
+        final done = total <= 0
+            ? 1.0
+            : (now.difference(leaves).inMilliseconds / total).clamp(0.0, 1.0);
+        return GeoPoint(
+          start.latitude + (end.latitude - start.latitude) * done,
+          start.longitude + (end.longitude - start.longitude) * done,
+        );
+      case RunNotStarted() || RunEnded():
+        return null;
+    }
   }
 
   /// When the vehicle leaves [stop]. Timetables count in minutes: "07:21

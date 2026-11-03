@@ -27,6 +27,8 @@ VRR's own privacy policy applies to its processing: https://www.vrr.de/de/datens
 
 The legal basis is Art. 6(1)(b) GDPR (providing the information you request); for location additionally your consent through the Android permission, which you can withdraw at any time in the system settings.
 
+**Maps:** When you open a map (a trip on the map, stops near me as a map), the app loads the map images for the area shown from basemap.de at the German Federal Agency for Cartography and Geodesy (BKG, sgx.geodatenzentrum.de). BKG receives your IP address and which area is loaded – for "Stops near me" roughly where you are. BKG's privacy policy applies: https://www.bkg.bund.de/datenschutz
+
 ## Data on your device
 
 Stored on your device only:
