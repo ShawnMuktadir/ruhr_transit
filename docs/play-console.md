@@ -40,20 +40,25 @@ reason, but avoids the Families policy requirements).
 **Content rating questionnaire:** category "Utility, Productivity,
 Communication or Other"; no violence, sexual content, profanity, drugs,
 gambling; no user-generated content or user interaction; shares location
-with a third party (see below); no digital purchases.
+with third parties (VRR, Bright Sky; see below); no digital purchases.
 
 **News app:** No. **Government app:** No. **Health app:** No.
 
 ## Data safety
 
-Data sent off the device always goes to the VRR timetable service over
-HTTPS. The app has no servers of its own and no SDKs that collect data.
+Data sent off the device goes over HTTPS to two services: the VRR
+timetable service (openservice.vrr.de) and, for the weather, Bright Sky
+(api.brightsky.dev, Deutscher Wetterdienst open data). The app has no
+servers of its own and no SDKs that collect data.
 
 | Data type | Collected / shared | Why | Notes |
 |---|---|---|---|
-| Location › Approximate location | Collected, shared with VRR | App functionality | Optional ("Stops near me" only); not stored; processed ephemerally |
-| Location › Precise location | Collected, shared with VRR | App functionality | Same as above |
-| App activity › In-app search history | Collected, shared with VRR | App functionality | Stop search terms are sent to find stops; not stored by the app |
+| Location › Approximate location | Collected, shared with VRR and Bright Sky | App functionality | Optional, only with the location permission; not stored; processed ephemerally. Weather: rounded to ~1 km, sent to Bright Sky when "Plan trip" opens. |
+| Location › Precise location | Collected, shared with VRR | App functionality | Optional: "Stops near me" and "Use current location as start" (rounded to ~10 m); not stored |
+| App activity › In-app search history | Collected, shared with VRR | App functionality | Search terms for stops, addresses and places are sent to find them; not stored off the device |
+
+The search terms can be home addresses: a user may type their own street
+and house number under From/To. They are only used to answer the search.
 
 - Data is encrypted in transit: **Yes** (HTTPS only).
 - Users can request deletion: the app stores nothing off the device;
@@ -62,16 +67,25 @@ HTTPS. The app has no servers of its own and no SDKs that collect data.
 - Not collected: personal info, financial info, contacts, messages, photos,
   files, health, device IDs, crash logs, diagnostics, analytics. The
   optional display name in Settings › Profile and the search history (the
-  last 10 stops chosen for From/To) stay on the device, so they are not
+  last 10 stops, addresses or places chosen for From/To) stay on the device, so they are not
   "collected" in Google's sense. Revisit this once accounts exist.
 
-Whether sending data to VRR counts as "shared" depends on Google's current
-definitions (a provider acting on your behalf is not "sharing"; VRR is an
-independent service). Declaring it as shared is the cautious choice.
+Whether sending data to VRR and Bright Sky counts as "shared" depends on
+Google's current definitions (a provider acting on your behalf is not
+"sharing"; both are independent services). Declaring it as shared is the
+cautious choice.
+
+**Bright Sky publishes no privacy policy of its own** (checked 2026-11-03:
+brightsky.dev links only to the DWD's legal notice and an email contact).
+Before publishing, decide with legal advice whether that is acceptable or
+ask the operator; the privacy text links to brightsky.dev until then.
 
 ## Permissions to justify
 
 - `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`: find stops near the
-  user, requested only when "Stops near me" is opened; no background
-  location.
-- `INTERNET`: timetable queries.
+  user, start a trip at the current location, and show the weather there.
+  Requested only after a tap ("Use my location", the location button in
+  From, or the weather chip); no background location.
+- `INTERNET`: timetable and weather queries.
+- `ACCESS_NETWORK_STATE`: show "no internet connection" and retry when the
+  connection returns (normal permission, granted at install).
