@@ -1083,5 +1083,9 @@
   "actionTurnOn": "Einschalten",
   "@actionTurnOn": {
     "description": "Snack bar action that opens the location settings."
+  },
+  "offlineBanner": "Keine Internetverbindung",
+  "@offlineBanner": {
+    "description": "Banner above every page while the phone is offline."
   }
 }

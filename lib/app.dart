@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/connectivity/connectivity.dart';
+import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
@@ -91,6 +93,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     getIt<ProfileRepository>(),
     getIt<AuthRepository>(),
   );
+  late final _connectivity = ConnectivityCubit(getIt<ConnectivitySource>());
   late final _onboarding = OnboardingCubit(
     getIt<OnboardingRepository>(),
     completed: !widget.showOnboarding,
@@ -118,6 +121,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     unawaited(_onboarding.close());
     unawaited(_theme.close());
     unawaited(_profile.close());
+    unawaited(_connectivity.close());
     super.dispose();
   }
 
@@ -145,6 +149,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
         BlocProvider.value(value: _onboarding),
         BlocProvider.value(value: _theme),
         BlocProvider.value(value: _profile),
+        BlocProvider.value(value: _connectivity),
       ],
       child: Builder(
         builder: (context) => MaterialApp(
@@ -158,6 +163,8 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
           // we don't support. English devices get English.
           supportedLocales: AppLocalizations.supportedLocales,
           debugShowCheckedModeBanner: false,
+          // Above every page and dialog route.
+          builder: (context, child) => OfflineBanner(child: child!),
           home: BlocBuilder<OnboardingCubit, bool>(
             builder: (context, completed) =>
                 completed ? HomeShell(key: _shellKey) : const OnboardingPage(),

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
@@ -33,8 +36,17 @@ class NearbyStopsPage extends StatelessWidget {
 class NearbyStopsView extends StatelessWidget {
   const NearbyStopsView({super.key});
 
+  /// Retries what failed when the phone is back online.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => OnReconnect(
+    onReconnect: () {
+      final cubit = context.read<NearbyStopsCubit>();
+      if (cubit.state is NearbyFailed) unawaited(cubit.load());
+    },
+    child: Builder(builder: _build),
+  );
+
+  Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<NearbyStopsCubit>();
     return Scaffold(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
@@ -50,8 +51,21 @@ class _WeatherChipState extends State<WeatherChip> {
     super.dispose();
   }
 
+  /// Retries what failed when the phone is back online.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => OnReconnect(
+    onReconnect: () {
+      final cubit = context.read<WeatherCubit>();
+      if (cubit.state case WeatherUnavailable(
+        problem: WeatherProblem.offline,
+      )) {
+        unawaited(cubit.load());
+      }
+    },
+    child: Builder(builder: _build),
+  );
+
+  Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;

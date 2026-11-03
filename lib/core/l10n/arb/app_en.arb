@@ -196,5 +196,6 @@
   "tripHereNoPosition": "Location not found. Please try again.",
   "tripHereNothingThere": "No address found at your location.",
   "actionSettings": "Settings",
-  "actionTurnOn": "Turn on"
+  "actionTurnOn": "Turn on",
+  "offlineBanner": "No internet connection"
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ruhr_transit/app.dart';
+import 'package:ruhr_transit/core/connectivity/connectivity.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/app_language.dart';
@@ -20,6 +21,7 @@ import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
+import 'helpers/fake_connectivity.dart';
 import 'helpers/fake_departure_repository.dart';
 import 'helpers/fake_favourite_journeys_repository.dart';
 import 'helpers/fake_favourites_repository.dart';
@@ -59,7 +61,8 @@ void main() {
       ..registerSingleton<AuthRepository>(FakeAuthRepository())
       // Not granted: the planner shows the chip asking for location.
       ..registerSingleton<LocationSource>(FakeLocationSource())
-      ..registerFactory<WeatherRepository>(FakeWeatherRepository.new);
+      ..registerFactory<WeatherRepository>(FakeWeatherRepository.new)
+      ..registerSingleton<ConnectivitySource>(FakeConnectivitySource());
     PackageInfo.setMockInitialValues(
       appName: 'RuhrTransit',
       packageName: 'de.muktadir.ruhrtransit',

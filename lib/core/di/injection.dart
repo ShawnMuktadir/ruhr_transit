@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:ruhr_transit/core/connectivity/connectivity.dart';
 import 'package:ruhr_transit/core/database/app_database.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
 import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
@@ -85,6 +86,7 @@ void configureDependencies() {
     )
     ..registerLazySingleton(() => BrightSkyRemoteSource(createBrightSkyDio()))
     ..registerFactory<WeatherRepository>(() => WeatherRepositoryImpl(getIt()))
+    ..registerLazySingleton<ConnectivitySource>(AndroidConnectivitySource.new)
     ..registerLazySingleton(SharedPreferencesAsync.new)
     // A singleton, because it queues its own writes: two instances could
     // overwrite each other's boards.
