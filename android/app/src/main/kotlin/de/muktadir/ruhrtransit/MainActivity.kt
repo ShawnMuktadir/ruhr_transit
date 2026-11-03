@@ -5,12 +5,15 @@ import android.os.Build
 import android.os.LocaleList
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
 
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
+    EventChannel(flutterEngine.dartExecutor.binaryMessenger, CONNECTIVITY_CHANNEL)
+        .setStreamHandler(ConnectivityStreamHandler(applicationContext))
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, APP_LOCALE_CHANNEL)
         .setMethodCallHandler { call, result ->
           // Per-app languages exist from Android 13; before, the app only
@@ -37,5 +40,6 @@ class MainActivity : FlutterActivity() {
 
   private companion object {
     const val APP_LOCALE_CHANNEL = "de.muktadir.ruhrtransit/app_locale"
+    const val CONNECTIVITY_CHANNEL = "de.muktadir.ruhrtransit/connectivity"
   }
 }

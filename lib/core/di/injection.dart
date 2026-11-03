@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:ruhr_transit/core/connectivity/connectivity.dart';
 import 'package:ruhr_transit/core/database/app_database.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
 import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
@@ -36,6 +37,9 @@ import 'package:ruhr_transit/features/trip_planner/data/trip_repository_impl.dar
 import 'package:ruhr_transit/features/trip_planner/data/vehicle_run_repository_impl.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
+import 'package:ruhr_transit/features/weather/data/bright_sky_remote_source.dart';
+import 'package:ruhr_transit/features/weather/data/weather_repository_impl.dart';
+import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/data/home_widget_sync.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -80,6 +84,9 @@ void configureDependencies() {
     ..registerFactory<VehicleRunRepository>(
       () => VehicleRunRepositoryImpl(getIt()),
     )
+    ..registerLazySingleton(() => BrightSkyRemoteSource(createBrightSkyDio()))
+    ..registerFactory<WeatherRepository>(() => WeatherRepositoryImpl(getIt()))
+    ..registerLazySingleton<ConnectivitySource>(AndroidConnectivitySource.new)
     ..registerLazySingleton(SharedPreferencesAsync.new)
     // A singleton, because it queues its own writes: two instances could
     // overwrite each other's boards.

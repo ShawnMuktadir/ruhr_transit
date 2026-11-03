@@ -18,10 +18,12 @@ Für jede Abfrage verbindet sich die App mit der Fahrplanauskunft des VRR (opens
 
 - **Suchbegriffe** für Haltestellen und, bei „Von“ und „Nach“, auch für **Adressen und Orte**: Was Sie dort eingeben, etwa Straße und Hausnummer Ihrer Wohnung, wird an den VRR gesendet.
 - **Kennungen** der gewählten Haltestellen, Adressen und Orte für Abfahrten und Verbindungen sowie die **gewählte Zeit** einer Verbindungssuche.
-- **Standort**, nur wenn Sie unter „In der Nähe“ auf „Standort verwenden“ tippen und den Standortzugriff erlauben: Die Koordinaten werden einmal ermittelt und an den VRR gesendet, um Haltestellen im Umkreis von 1 km zu finden. Die App ermittelt den Standort nie im Hintergrund und speichert ihn nicht.
+- **Standort**, nur wenn Sie unter „In der Nähe“ auf „Standort verwenden“ tippen und den Standortzugriff erlauben: Die Koordinaten werden einmal ermittelt und an den VRR gesendet, um Haltestellen im Umkreis von 1 km zu finden. Ebenso, wenn Sie bei „Von“ auf „Aktuellen Standort verwenden“ tippen: Dann werden die auf etwa 10 m gerundeten Koordinaten an den VRR gesendet, der die Adresse dort als Start liefert. Dieser Start wird nicht im Suchverlauf gespeichert. Zum Wetter siehe unten. Die App ermittelt den Standort nie im Hintergrund und speichert ihn nicht.
 - Technisch bedingt erhält der Server des VRR, wie bei jedem Internetzugriff, Ihre **IP-Adresse**.
 
 Für die Verarbeitung durch den VRR gilt dessen Datenschutzerklärung: [LINK ZUR DATENSCHUTZERKLÄRUNG DES VRR].
+
+**Wetter:** Hat die App Zugriff auf Ihren Standort, sendet sie beim Öffnen von „Verbindung“ Ihre auf etwa 1 km gerundeten Koordinaten an Bright Sky (api.brightsky.dev), einen Dienst, der Daten des Deutschen Wetterdienstes bereitstellt, um das Wetter in Ihrer Nähe anzuzeigen. Ohne Standortzugriff fragt die App erst, wenn Sie auf die Wetteranzeige tippen. Auch Bright Sky erhält dabei Ihre IP-Adresse. Es gilt die Datenschutzerklärung von Bright Sky: [LINK ZUR DATENSCHUTZERKLÄRUNG VON BRIGHT SKY].
 
 Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der von Ihnen angeforderten Auskunft); für den Standort zusätzlich Ihre Einwilligung über die Android-Berechtigung, die Sie jederzeit in den Systemeinstellungen widerrufen können.
 

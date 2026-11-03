@@ -21,6 +21,7 @@ import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
+import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 
 import '../../helpers/fake_favourite_journeys_repository.dart';
 import '../../helpers/fake_favourites_repository.dart';
@@ -29,6 +30,7 @@ import '../../helpers/fake_recent_stops_repository.dart';
 import '../../helpers/fake_settings.dart';
 import '../../helpers/fake_stop_repository.dart';
 import '../../helpers/fake_trip_repository.dart';
+import '../../helpers/fake_weather_repository.dart';
 
 void main() {
   late FakeLocationSource location;
@@ -50,7 +52,8 @@ void main() {
       )
       ..registerSingleton<LocationSource>(location)
       ..registerFactory<NearbyStopsRepository>(FakeNearbyStopsRepository.new)
-      ..registerFactory<TripRepository>(() => trips);
+      ..registerFactory<TripRepository>(() => trips)
+      ..registerFactory<WeatherRepository>(FakeWeatherRepository.new);
 
     PackageInfo.setMockInitialValues(
       appName: 'RuhrTransit',
@@ -127,7 +130,7 @@ void main() {
   ) async {
     await pumpShell(tester);
 
-    expect(find.text('Plan a trip'), findsOneWidget);
+    expect(find.text('Where to today?'), findsOneWidget);
     expect(find.byIcon(Icons.directions), findsOneWidget);
     expect(find.byIcon(Icons.directions_outlined), findsNothing);
     expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
@@ -177,7 +180,7 @@ void main() {
 
     await openTab(tester, 'Settings');
     await back(tester);
-    expect(find.text('Plan a trip'), findsOneWidget);
+    expect(find.text('Where to today?'), findsOneWidget);
     expect(platformCalls, isNot(contains('SystemNavigator.pop')));
 
     await back(tester);
@@ -236,7 +239,7 @@ void main() {
     await openTab(tester, 'Plan trip');
 
     expect(find.byType(TextField), findsNothing);
-    expect(find.text('Plan a trip'), findsOneWidget);
+    expect(find.text('Where to today?'), findsOneWidget);
   });
 
   testWidgets('a saved journey fills in the planner and searches', (

@@ -2,16 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journey.dart';
 import 'package:ruhr_transit/features/home/presentation/favourites_tab.dart';
+import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
 import 'package:ruhr_transit/features/settings/presentation/settings_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
+import 'package:ruhr_transit/features/weather/presentation/weather_chip.dart';
 
 enum HomeTab { plan, nearby, favourites, settings }
 
@@ -168,7 +173,13 @@ class HomeShellState extends State<HomeShell> {
   Widget _root(HomeTab tab) => switch (tab) {
     HomeTab.plan => BlocProvider.value(
       value: _tripForm,
-      child: const TripFormView(),
+      child: TripFormView(
+        weather: const WeatherSection(),
+        here: CurrentLocationFinder(
+          getIt<LocationSource>(),
+          getIt<StopRepository>(),
+        ),
+      ),
     ),
     HomeTab.nearby => const NearbyStopsPage(),
     HomeTab.favourites => FavouritesTab(

@@ -1,31 +1,52 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
+import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/greeting_header.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 
 /// The planner. Its [TripFormCubit] comes from the home shell, which can
 /// fill it in from a saved journey.
 class TripFormView extends StatelessWidget {
-  const TripFormView({this.pickStop = StopPicker.pick, super.key});
+  const TripFormView({
+    this.pickStop = StopPicker.pick,
+    this.now = DateTime.now,
+    this.weather,
+    this.here,
+    super.key,
+  });
+
+  /// Finds the user's location as a start; without it, no location button.
+  final CurrentLocationFinder? here;
+
+  /// Below the greeting; the app passes the weather chip, tests may not.
+  final Widget? weather;
 
   /// Opens the stop picker; tests replace it.
   final Future<Stop?> Function(BuildContext context, {required String title})
   pickStop;
+
+  /// The clock the greeting is for.
+  final DateTime Function() now;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<TripFormCubit>();
     return Scaffold(
+      // The greeting below is the title; the bar keeps the bookmark.
       appBar: AppBar(
-        title: Text(l10n.tripTitle),
         actions: [
           BlocBuilder<TripFormCubit, TripFormState>(
             builder: (context, state) =>
@@ -35,9 +56,23 @@ class TripFormView extends StatelessWidget {
       ),
       body: BlocBuilder<TripFormCubit, TripFormState>(
         builder: (context, state) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [
-            Card.outlined(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
+              child: BlocSelector<ProfileCubit, ProfileState, String?>(
+                selector: (state) => state.displayName,
+                builder: (context, name) =>
+                    GreetingHeader(displayName: name, now: now),
+              ),
+            ),
+            if (weather case final weather?)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Align(alignment: Alignment.centerLeft, child: weather),
+              ),
+            Card(
+              margin: EdgeInsets.zero,
               child: Row(
                 children: [
                   Expanded(
@@ -48,6 +83,12 @@ class TripFormView extends StatelessWidget {
                           placeholder: l10n.tripChooseFrom,
                           icon: Icons.trip_origin,
                           stop: state.from,
+                          isHere:
+                              state.from != null && state.from == state.here,
+                          trailing: switch (here) {
+                            final here? => _HereButton(here),
+                            null => null,
+                          },
                           onTap: () async {
                             final stop = await pickStop(
                               context,
@@ -62,6 +103,7 @@ class TripFormView extends StatelessWidget {
                           placeholder: l10n.tripChooseTo,
                           icon: Icons.place,
                           stop: state.to,
+                          isHere: state.to != null && state.to == state.here,
                           onTap: () async {
                             final stop = await pickStop(
                               context,
@@ -122,6 +164,8 @@ class _StopField extends StatelessWidget {
     required this.icon,
     required this.stop,
     required this.onTap,
+    this.isHere = false,
+    this.trailing,
   });
 
   final String label;
@@ -130,12 +174,24 @@ class _StopField extends StatelessWidget {
   final Stop? stop;
   final VoidCallback onTap;
 
+  /// [stop] is the user's location: "Von · Aktueller Standort".
+  final bool isHere;
+  final Widget? trailing;
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon),
-      title: Text(label, style: theme.textTheme.labelMedium),
+      leading: Icon(
+        isHere ? Icons.my_location : icon,
+        color: isHere ? theme.colorScheme.primary : null,
+      ),
+      title: Text(
+        isHere ? '$label · ${l10n.tripCurrentLocation}' : label,
+        style: theme.textTheme.labelMedium,
+      ),
+      trailing: trailing,
       subtitle: Text(
         stop?.fullName ?? placeholder,
         // Two lines, so names stay readable at large font sizes.
@@ -253,6 +309,81 @@ class _TimeChooser extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Puts the user's location into "Von": asks for the permission if needed
+/// and explains in a snack bar when it cannot.
+class _HereButton extends StatefulWidget {
+  const _HereButton(this.finder);
+
+  final CurrentLocationFinder finder;
+
+  @override
+  State<_HereButton> createState() => _HereButtonState();
+}
+
+class _HereButtonState extends State<_HereButton> {
+  var _finding = false;
+
+  Future<void> _find() async {
+    setState(() => _finding = true);
+    final result = await widget.finder.find();
+    if (!mounted) return;
+    setState(() => _finding = false);
+
+    if (result case HereFound(:final stop)) {
+      context.read<TripFormCubit>().setFromHere(stop);
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    final (String message, SnackBarAction? action) = switch (result) {
+      HereFound() => throw StateError('Handled above'),
+      HereDenied(permanently: true) => (
+        l10n.tripHereDeniedForever,
+        SnackBarAction(
+          label: l10n.actionSettings,
+          onPressed: () => unawaited(widget.finder.openAppSettings()),
+        ),
+      ),
+      HereDenied() => (l10n.tripHereDenied, null),
+      HereLocationOff() => (
+        l10n.tripHereOff,
+        SnackBarAction(
+          label: l10n.actionTurnOn,
+          onPressed: () => unawaited(widget.finder.openLocationSettings()),
+        ),
+      ),
+      HereNoPosition() => (l10n.tripHereNoPosition, null),
+      HereNothingThere() => (l10n.tripHereNothingThere, null),
+      HereFailed(:final failure) => (failureMessage(l10n, failure), null),
+    };
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message), action: action));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (_finding) {
+      return Semantics(
+        label: l10n.tripLocating,
+        liveRegion: true,
+        child: const SizedBox.square(
+          dimension: 48,
+          child: Padding(
+            padding: EdgeInsets.all(14),
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+    return IconButton(
+      icon: const Icon(Icons.my_location),
+      tooltip: l10n.tripUseLocation,
+      onPressed: () => unawaited(_find()),
     );
   }
 }

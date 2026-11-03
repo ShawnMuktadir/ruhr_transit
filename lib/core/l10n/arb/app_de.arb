@@ -260,10 +260,6 @@
   "@nearbyTimeout": {
     "description": "No position within the time limit."
   },
-  "tripTitle": "Verbindung suchen",
-  "@tripTitle": {
-    "description": "Start screen entry and title of the trip form."
-  },
   "tripFrom": "Von",
   "@tripFrom": {
     "description": "Label of the start stop."
@@ -935,5 +931,161 @@
         "example": "0"
       }
     }
+  },
+  "homeGreeting": "{period, select, morning{Guten Morgen} afternoon{Guten Tag} evening{Guten Abend} other{Gute Nacht}}",
+  "@homeGreeting": {
+    "description": "Greeting at the top of the planner, by the time of day: morning 05-11, afternoon 11-18, evening 18-22, night 22-05.",
+    "placeholders": {
+      "period": {
+        "type": "String",
+        "example": "morning"
+      }
+    }
+  },
+  "homeGreetingWithName": "{greeting}, {name}",
+  "@homeGreetingWithName": {
+    "description": "The greeting with the display name from the profile.",
+    "placeholders": {
+      "greeting": {
+        "type": "String",
+        "example": "Guten Morgen"
+      },
+      "name": {
+        "type": "String",
+        "example": "Shawn"
+      }
+    }
+  },
+  "homeGreetingQuestion": "Wohin geht’s heute?",
+  "@homeGreetingQuestion": {
+    "description": "Below the greeting, above the trip form."
+  },
+  "weatherSky": "{sky, select, clearDay{Sonnig} clearNight{Klar} partlyCloudyDay{Leicht bewölkt} partlyCloudyNight{Leicht bewölkt} cloudy{Bewölkt} fog{Nebel} wind{Windig} rain{Regen} sleet{Schneeregen} snow{Schnee} hail{Hagel} thunderstorm{Gewitter} other{}}",
+  "@weatherSky": {
+    "description": "The sky in the weather chip, from Deutscher Wetterdienst. Empty when unknown.",
+    "placeholders": {
+      "sky": {
+        "type": "String",
+        "example": "cloudy"
+      }
+    }
+  },
+  "weatherTemperature": "{degrees} °C",
+  "@weatherTemperature": {
+    "description": "Temperature in the weather chip.",
+    "placeholders": {
+      "degrees": {
+        "type": "int",
+        "example": "9"
+      }
+    }
+  },
+  "weatherRainNow": "Es regnet – Schirm nicht vergessen",
+  "@weatherRainNow": {
+    "description": "Hint below the weather when it rains now."
+  },
+  "weatherRainFrom": "Regen ab {time} – Schirm einpacken",
+  "@weatherRainFrom": {
+    "description": "Hint below the weather when rain is forecast within 6 hours.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "17:00"
+      }
+    }
+  },
+  "weatherSnowNow": "Es schneit – warm anziehen",
+  "@weatherSnowNow": {
+    "description": "Hint below the weather when it snows now."
+  },
+  "weatherSnowFrom": "Schnee ab {time} – warm anziehen",
+  "@weatherSnowFrom": {
+    "description": "Hint below the weather when snow is forecast within 6 hours.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "17:00"
+      }
+    }
+  },
+  "weatherLoading": "Wetter wird geladen …",
+  "@weatherLoading": {
+    "description": "Weather chip while loading."
+  },
+  "weatherNeedsLocation": "Wetter nicht verfügbar – Standort aktivieren",
+  "@weatherNeedsLocation": {
+    "description": "Weather chip without location permission; tapping asks for it."
+  },
+  "weatherLocationOff": "Wetter nicht verfügbar – Standortdienste einschalten",
+  "@weatherLocationOff": {
+    "description": "Weather chip when location is off on the phone; tapping opens the location settings."
+  },
+  "weatherOffline": "Wetter offline – zum Wiederholen tippen",
+  "@weatherOffline": {
+    "description": "Weather chip without internet connection."
+  },
+  "weatherNotHere": "Wetterdaten gibt es nur für Deutschland",
+  "@weatherNotHere": {
+    "description": "Weather chip outside Germany."
+  },
+  "weatherNoPosition": "Standort nicht gefunden – zum Wiederholen tippen",
+  "@weatherNoPosition": {
+    "description": "Weather chip when no position arrived in time."
+  },
+  "weatherFailed": "Wetter gerade nicht verfügbar – zum Wiederholen tippen",
+  "@weatherFailed": {
+    "description": "Weather chip after another error."
+  },
+  "weatherRefreshHint": "aktualisieren",
+  "@weatherRefreshHint": {
+    "description": "TalkBack: what tapping the weather chip does when it shows the weather."
+  },
+  "weatherAttribution": "Wetterdaten: Deutscher Wetterdienst, über Bright Sky",
+  "@weatherAttribution": {
+    "description": "Source of the weather data, required by the DWD terms."
+  },
+  "tripUseLocation": "Aktuellen Standort als Start verwenden",
+  "@tripUseLocation": {
+    "description": "Tooltip of the button in the From field."
+  },
+  "tripCurrentLocation": "Aktueller Standort",
+  "@tripCurrentLocation": {
+    "description": "Label next to \"Von\" when the start is the user's location."
+  },
+  "tripLocating": "Standort wird ermittelt …",
+  "@tripLocating": {
+    "description": "TalkBack while the location is read."
+  },
+  "tripHereDenied": "Ohne Standortzugriff kann die App Ihren Standort nicht verwenden.",
+  "@tripHereDenied": {
+    "description": "Snack bar after the location permission was denied."
+  },
+  "tripHereDeniedForever": "Standortzugriff ist für die App gesperrt.",
+  "@tripHereDeniedForever": {
+    "description": "Snack bar after the permission was denied for good; action opens the app settings."
+  },
+  "tripHereOff": "Die Standortdienste sind ausgeschaltet.",
+  "@tripHereOff": {
+    "description": "Snack bar when location is off; action opens the location settings."
+  },
+  "tripHereNoPosition": "Standort nicht gefunden. Bitte erneut versuchen.",
+  "@tripHereNoPosition": {
+    "description": "Snack bar when no position arrived in time."
+  },
+  "tripHereNothingThere": "An Ihrem Standort wurde keine Adresse gefunden.",
+  "@tripHereNothingThere": {
+    "description": "Snack bar when VRR knows no address at the position."
+  },
+  "actionSettings": "Einstellungen",
+  "@actionSettings": {
+    "description": "Snack bar action that opens the app settings."
+  },
+  "actionTurnOn": "Einschalten",
+  "@actionTurnOn": {
+    "description": "Snack bar action that opens the location settings."
+  },
+  "offlineBanner": "Keine Internetverbindung",
+  "@offlineBanner": {
+    "description": "Banner above every page while the phone is offline."
   }
 }

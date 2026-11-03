@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ruhr_transit/app.dart';
+import 'package:ruhr_transit/core/connectivity/connectivity.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/app_language.dart';
@@ -10,20 +11,25 @@ import 'package:ruhr_transit/features/departures/presentation/departures_page.da
 import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journeys_repository.dart';
 import 'package:ruhr_transit/features/favourites/domain/favourites_repository.dart';
 import 'package:ruhr_transit/features/language/domain/language_repository.dart';
+import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
+import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
+import 'helpers/fake_connectivity.dart';
 import 'helpers/fake_departure_repository.dart';
 import 'helpers/fake_favourite_journeys_repository.dart';
 import 'helpers/fake_favourites_repository.dart';
+import 'helpers/fake_nearby_stops.dart';
 import 'helpers/fake_recent_stops_repository.dart';
 import 'helpers/fake_settings.dart';
 import 'helpers/fake_stop_repository.dart';
+import 'helpers/fake_weather_repository.dart';
 import 'helpers/fake_widget_sync.dart';
 
 void main() {
@@ -52,7 +58,11 @@ void main() {
       ..registerSingleton<ThemeRepository>(FakeThemeRepository())
       ..registerSingleton<RecentStopsRepository>(FakeRecentStopsRepository())
       ..registerSingleton<ProfileRepository>(FakeProfileRepository())
-      ..registerSingleton<AuthRepository>(FakeAuthRepository());
+      ..registerSingleton<AuthRepository>(FakeAuthRepository())
+      // Not granted: the planner shows the chip asking for location.
+      ..registerSingleton<LocationSource>(FakeLocationSource())
+      ..registerFactory<WeatherRepository>(FakeWeatherRepository.new)
+      ..registerSingleton<ConnectivitySource>(FakeConnectivitySource());
     PackageInfo.setMockInitialValues(
       appName: 'RuhrTransit',
       packageName: 'de.muktadir.ruhrtransit',
@@ -73,7 +83,7 @@ void main() {
       await tester.pumpWidget(const RuhrTransitApp());
       await tester.pumpAndSettle();
 
-      expect(find.text('Verbindung suchen'), findsOneWidget);
+      expect(find.text('Wohin geht’s heute?'), findsOneWidget);
       expect(find.text('Einstellungen'), findsOneWidget);
       expect(find.textContaining('Alle Angaben ohne Gewähr'), findsOneWidget);
     });
@@ -85,7 +95,7 @@ void main() {
       await tester.pumpWidget(const RuhrTransitApp());
       await tester.pumpAndSettle();
 
-      expect(find.text('Plan a trip'), findsOneWidget);
+      expect(find.text('Where to today?'), findsOneWidget);
       expect(
         find.textContaining('All information without guarantee'),
         findsOneWidget,
@@ -192,7 +202,7 @@ void main() {
 
       await tester.tap(find.text("Los geht's"));
       await tester.pumpAndSettle();
-      expect(find.text('Verbindung suchen'), findsOneWidget);
+      expect(find.text('Wohin geht’s heute?'), findsOneWidget);
       expect(onboarding.completed, isTrue);
     });
 
@@ -210,7 +220,7 @@ void main() {
 
       // Saved, so a later change of the device language does not switch it.
       expect(language.saved, 'de');
-      expect(find.text('Verbindung suchen'), findsOneWidget);
+      expect(find.text('Wohin geht’s heute?'), findsOneWidget);
     });
 
     testWidgets('Back on the language step returns to the welcome', (
@@ -243,7 +253,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Plan a trip'), findsOneWidget);
+      expect(find.text('Where to today?'), findsOneWidget);
     });
 
     testWidgets('a widget launch before onboarding only opens the app', (
@@ -267,14 +277,14 @@ void main() {
         RuhrTransitApp(language: AppLanguages.byCode('de')),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Verbindung suchen'), findsOneWidget);
+      expect(find.text('Wohin geht’s heute?'), findsOneWidget);
 
       // Android reports the new per-app language and a locale change.
       language.saved = 'en';
       tester.platformDispatcher.localesTestValue = const [Locale('en')];
       await tester.pumpAndSettle();
 
-      expect(find.text('Plan a trip'), findsOneWidget);
+      expect(find.text('Where to today?'), findsOneWidget);
     });
   });
 }

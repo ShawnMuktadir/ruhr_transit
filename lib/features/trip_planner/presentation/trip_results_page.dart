@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
@@ -34,8 +37,17 @@ class TripResultsView extends StatelessWidget {
 
   final TripQuery query;
 
+  /// Retries what failed when the phone is back online.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => OnReconnect(
+    onReconnect: () {
+      final cubit = context.read<TripResultsCubit>();
+      if (cubit.state is TripResultsFailed) unawaited(cubit.load());
+    },
+    child: Builder(builder: _build),
+  );
+
+  Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<TripResultsCubit>();
     return Scaffold(
@@ -123,7 +135,7 @@ class _JourneyCard extends StatelessWidget {
     // One node for TalkBack: the summary sentence plus the tap action,
     // instead of every time, badge and chevron on its own.
     return MergeSemantics(
-      child: Card.outlined(
+      child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         clipBehavior: Clip.antiAlias,
         child: InkWell(

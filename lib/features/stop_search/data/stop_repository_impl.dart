@@ -41,4 +41,24 @@ class StopRepositoryImpl implements StopRepository {
       if (identical(_inFlight, cancelToken)) _inFlight = null;
     }
   }
+
+  @override
+  Future<Result<Stop?>> locationAt({
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final json = await _remote.findAt(
+        latitude: latitude,
+        longitude: longitude,
+      );
+      return Ok(mapCoordLookupResponse(json));
+    } on DioException catch (e) {
+      return Err(failureFromDioException(e));
+    } on EfaServerException catch (e) {
+      return Err(ServerFailure(code: e.code, message: e.message));
+    } on FormatException catch (e) {
+      return Err(ParseFailure(e.message));
+    }
+  }
 }

@@ -19,3 +19,16 @@ Dio createEfaDio({String baseUrl = AppConfig.efaBaseUrl}) {
     ),
   );
 }
+
+/// Creates the [Dio] instance for the weather (Bright Sky). Plain text
+/// like EFA, decoded by the remote source.
+Dio createBrightSkyDio({String baseUrl = AppConfig.brightSkyBaseUrl}) {
+  return Dio(
+    BaseOptions(
+      baseUrl: baseUrl.endsWith('/') ? baseUrl : '$baseUrl/',
+      connectTimeout: AppConfig.connectTimeout,
+      receiveTimeout: AppConfig.receiveTimeout,
+      responseType: ResponseType.plain,
+    ),
+  );
+}

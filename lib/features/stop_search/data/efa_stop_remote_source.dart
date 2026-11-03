@@ -23,4 +23,25 @@ class EfaStopRemoteSource {
     );
     return decodeEfaJson(response.data);
   }
+
+  /// The address or stop at a point (`type_sf=coord`), for "current
+  /// location". Rounded to 4 decimals, about 10 m: enough for a start.
+  Future<Map<String, Object?>> findAt({
+    required double latitude,
+    required double longitude,
+  }) async {
+    const wgs84 = 'WGS84[dd.ddddd]';
+    final response = await _dio.get<String>(
+      'XML_STOPFINDER_REQUEST',
+      queryParameters: {
+        'type_sf': 'coord',
+        // EFA expects longitude first: lon:lat:format.
+        'name_sf':
+            '${longitude.toStringAsFixed(4)}:'
+            '${latitude.toStringAsFixed(4)}:$wgs84',
+        'coordOutputFormat': wgs84,
+      },
+    );
+    return decodeEfaJson(response.data);
+  }
 }

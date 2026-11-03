@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,7 +9,10 @@ import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
+import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
+import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
@@ -20,6 +25,8 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cub
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 
 import '../../../helpers/fake_favourite_journeys_repository.dart';
+import '../../../helpers/fake_nearby_stops.dart';
+import '../../../helpers/fake_settings.dart';
 import '../../../helpers/fake_stop_repository.dart';
 import '../../../helpers/fake_trip_repository.dart';
 import '../../../helpers/fake_vehicle_run_repository.dart';
@@ -36,8 +43,17 @@ void main() {
   tearDown(getIt.reset);
 
   // Above MaterialApp like in the app; the bookmark on every page reads it.
-  Widget app(Widget home) => BlocProvider(
-    create: (_) => FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
+  Widget app(Widget home) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) =>
+            FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
+      ),
+      BlocProvider(
+        create: (_) =>
+            ProfileCubit(FakeProfileRepository(), FakeAuthRepository()),
+      ),
+    ],
     child: MaterialApp(
       locale: const Locale('en'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -105,6 +121,117 @@ void main() {
       expect(query.from, dortmundHbf);
       expect(query.to, bochumHbf);
       expect(query.time, isA<LeaveNow>());
+    });
+
+    group('current location', () {
+      late FakeLocationSource location;
+      late FakeStopRepository stops;
+
+      Future<void> pumpWithHere(WidgetTester tester) async {
+        location = FakeLocationSource();
+        stops = FakeStopRepository();
+        await tester.pumpWidget(
+          app(
+            BlocProvider(
+              create: (_) => TripFormCubit(),
+              child: TripFormView(
+                pickStop: (context, {required title}) async =>
+                    picks.removeAt(0),
+                here: CurrentLocationFinder(location, stops),
+              ),
+            ),
+          ),
+        );
+      }
+
+      testWidgets('the button puts the address where the user is in Von', (
+        tester,
+      ) async {
+        final semantics = tester.ensureSemantics();
+        picks = [dortmundHbf, bochumHbf];
+        await pumpWithHere(tester);
+
+        await tester.tap(find.byTooltip('Use current location as start'));
+        await tester.pump();
+        await tester.pump();
+
+        expect(location.calls, 1);
+        expect(find.text('From · Current location'), findsOneWidget);
+        expect(find.text('Innenstadt (Bochum), Kortumstr. 10'), findsOneWidget);
+        expect(find.byIcon(Icons.my_location), findsNWidgets(2));
+
+        // Swapped, To is the current location.
+        await tester.tap(find.text('Choose destination'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Swap start and destination'));
+        await tester.pump();
+        expect(find.text('To · Current location'), findsOneWidget);
+        expect(find.text('From'), findsOneWidget);
+
+        // Another start replaces it.
+        await tester.tap(find.text('Innenstadt (Bochum), Kortumstr. 10'));
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Current location'), findsNothing);
+        semantics.dispose();
+      });
+
+      testWidgets('explains what is missing, with a way to fix it', (
+        tester,
+      ) async {
+        picks = [];
+        await pumpWithHere(tester);
+
+        Future<void> tapHere() async {
+          await tester.tap(find.byTooltip('Use current location as start'));
+          await tester.pump();
+          await tester.pump();
+          // The last snack bar slides out and this one in before its
+          // button can be tapped.
+          await tester.pumpAndSettle();
+        }
+
+        location.result = const LocationPermissionDenied(permanently: true);
+        await tapHere();
+        expect(find.text('Location access is blocked for the app.'), findsOne);
+        await tester.tap(find.text('Settings'));
+        expect(location.appSettingsOpened, 1);
+
+        location.result = const LocationOff();
+        await tapHere();
+        expect(find.text('Location services are turned off.'), findsOne);
+        await tester.tap(find.text('Turn on'));
+        expect(location.locationSettingsOpened, 1);
+
+        location.result = bochumHbfLocation;
+        stops.locationReply = const Err(NetworkFailure());
+        await tapHere();
+        expect(find.textContaining('internet', findRichText: true), findsOne);
+        expect(find.text('Choose start'), findsOneWidget);
+      });
+
+      testWidgets('shows that it is looking', (tester) async {
+        picks = [];
+        await pumpWithHere(tester);
+        location.pending = Completer();
+
+        await tester.tap(find.byTooltip('Use current location as start'));
+        await tester.pump();
+
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        expect(find.byTooltip('Use current location as start'), findsNothing);
+
+        location.pending!.complete(bochumHbfLocation);
+        await tester.pump();
+        await tester.pump();
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+      });
+
+      testWidgets('no finder, no button', (tester) async {
+        picks = [];
+        await pumpForm(tester);
+
+        expect(find.byTooltip('Use current location as start'), findsNothing);
+      });
     });
 
     testWidgets('a cancelled pick keeps the form as it was', (tester) async {

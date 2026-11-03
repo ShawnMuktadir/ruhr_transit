@@ -2,6 +2,8 @@
     <!-- Needed for the VRR EFA API. Debug builds get it from the debug
          manifest, release builds only from here. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Whether the internet is reachable, for the offline banner. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Stops near me: read once when the user asks, never in the
          background. Android 12+ needs both, so the user can choose
          approximate location. -->
