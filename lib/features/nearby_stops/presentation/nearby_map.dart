@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/map/base_map.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stop.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 
 /// The stops around the user as pins, the user in the middle with the
 /// search radius. Tapping a pin names the stop; tapping the name opens its
@@ -127,21 +128,28 @@ class _NearbyMapState extends State<NearbyMap> {
               right: 16,
               bottom: 40,
               child: Card(
-                child: ListTile(
-                  leading: const Icon(Icons.departure_board),
-                  title: Text(selected.stop.name),
-                  subtitle: Text(
-                    [
-                      ?selected.stop.locality,
-                      l10n.nearbyDistance(selected.distanceMeters),
-                    ].join(' · '),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => DeparturesPage(stop: selected.stop),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.departure_board),
+                      title: Text(selected.stop.name),
+                      subtitle: Text(
+                        [
+                          ?selected.stop.locality,
+                          l10n.nearbyDistance(selected.distanceMeters),
+                        ].join(' · '),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => DeparturesPage(stop: selected.stop),
+                        ),
+                      ),
                     ),
-                  ),
+                    StopActions(selected.stop),
+                  ],
                 ),
               ),
             ),

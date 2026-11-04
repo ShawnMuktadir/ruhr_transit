@@ -226,5 +226,10 @@
   "reminderChannel": "Departure reminders",
   "reminderChannelDescription": "Reminders to leave that you set on a trip.",
   "remindersTitle": "Reminders",
-  "remindersEmpty": "No reminders set. You can set them in the details of a trip."
+  "remindersEmpty": "No reminders set. You can set them in the details of a trip.",
+  "stopFromHere": "From here",
+  "stopToHere": "To here",
+  "stopWalkThere": "Walk there",
+  "stopWalkNotFound": "No walking route found.",
+  "tripWalkOnly": "On foot"
 }

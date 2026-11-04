@@ -79,7 +79,9 @@ class JourneyDetailsPage extends StatelessWidget {
               subtitle: Text(
                 [
                   formatTripDuration(l10n, journey.duration),
-                  if (journey.transfers == 0)
+                  if (journey.legs.every((leg) => leg is WalkLeg))
+                    l10n.tripWalkOnly
+                  else if (journey.transfers == 0)
                     l10n.tripDirect
                   else
                     l10n.tripTransfers(journey.transfers),
@@ -112,7 +114,9 @@ class JourneyDetailsPage extends StatelessWidget {
       switch (leg) {
         case WalkLeg():
           walking += leg.duration;
-          widgets.add(ListCard(child: _WalkTile(leg)));
+          widgets.add(
+            ListCard(child: _WalkTile(leg, showDirections: legs.length == 1)),
+          );
         case TransitLeg():
           if (previousRide != null) {
             widgets.add(
@@ -188,9 +192,12 @@ class _RideTile extends StatelessWidget {
 }
 
 class _WalkTile extends StatelessWidget {
-  const _WalkTile(this.leg);
+  const _WalkTile(this.leg, {this.showDirections = false});
 
   final WalkLeg leg;
+
+  /// The whole journey is this walk, so its directions are open.
+  final bool showDirections;
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +219,11 @@ class _WalkTile extends StatelessWidget {
         tile,
         Padding(
           padding: const EdgeInsets.fromLTRB(56, 0, 16, 4),
-          child: WalkDirections(steps: leg.steps, paths: leg.stationPaths),
+          child: WalkDirections(
+            steps: leg.steps,
+            paths: leg.stationPaths,
+            initiallyExpanded: showDirections,
+          ),
         ),
       ],
     );

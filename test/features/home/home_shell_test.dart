@@ -125,6 +125,23 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('a stop can fill the planner from another tab', (tester) async {
+    await pumpShell(tester);
+    await tester.tap(find.text('Stops near me'));
+    await tester.pumpAndSettle();
+    final shell = tester.state<HomeShellState>(find.byType(HomeShell));
+
+    shell.planFrom(bochumHbf);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Where to today?'), findsOneWidget);
+    expect(find.text('Bochum, Hbf'), findsOneWidget);
+
+    shell.planTo(dortmundHbf);
+    await tester.pumpAndSettle();
+    expect(find.text('Dortmund, Hbf'), findsOneWidget);
+  });
+
   testWidgets('starts on the planner; only the selected icon is filled', (
     tester,
   ) async {

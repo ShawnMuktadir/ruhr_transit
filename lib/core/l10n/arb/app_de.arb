@@ -1261,5 +1261,25 @@
   "remindersEmpty": "Keine Erinnerungen gesetzt. Sie können sie in den Details einer Verbindung setzen.",
   "@remindersEmpty": {
     "description": "Reminder list without reminders."
+  },
+  "stopFromHere": "Von hier",
+  "@stopFromHere": {
+    "description": "Button on a stop: use it as the start of a trip."
+  },
+  "stopToHere": "Hierhin",
+  "@stopToHere": {
+    "description": "Button on a stop: use it as the destination of a trip."
+  },
+  "stopWalkThere": "Weg dorthin",
+  "@stopWalkThere": {
+    "description": "Button on a stop: the way on foot from the user's location."
+  },
+  "stopWalkNotFound": "Zu Fuß wurde kein Weg dorthin gefunden.",
+  "@stopWalkNotFound": {
+    "description": "Snack bar when there is no walk to the stop, or it is too long."
+  },
+  "tripWalkOnly": "Nur zu Fuß",
+  "@tripWalkOnly": {
+    "description": "Trip details of a journey that is only a walk."
   }
 }

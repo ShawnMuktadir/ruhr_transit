@@ -38,6 +38,27 @@ class EfaTripRemoteSource {
     return decodeEfaJson(response.data);
   }
 
+  /// A trip with every means of transport excluded: EFA answers with a
+  /// single walk (verified live). Product classes as in `efa_product.dart`.
+  Future<Map<String, Object?>> walk({
+    required String fromId,
+    required String toId,
+  }) async {
+    final response = await _dio.get<String>(
+      'XML_TRIP_REQUEST2',
+      queryParameters: {
+        'type_origin': 'any',
+        'name_origin': fromId,
+        'type_destination': 'any',
+        'name_destination': toId,
+        'coordOutputFormat': 'WGS84[dd.ddddd]',
+        'excludedMeans': 'checkbox',
+        for (var means = 0; means <= 11; means++) 'exclMOT_$means': '1',
+      },
+    );
+    return decodeEfaJson(response.data);
+  }
+
   /// EFA reads the time as German local time. The picked time is sent as
   /// shown on the phone, which matches while the phone is set to German
   /// time; converting other zones would need a time zone database.

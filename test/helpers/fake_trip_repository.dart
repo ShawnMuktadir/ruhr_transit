@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/result.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
@@ -15,6 +16,19 @@ class FakeTripRepository implements TripRepository {
     Ok([directS1, withWalk]),
   ];
   Completer<Result<List<Journey>>>? pending;
+
+  /// What [walkRoute] answers; the targets asked for are recorded.
+  Result<Journey?> walkReply = const Ok(null);
+  final List<(Stop, Stop)> walks = [];
+
+  @override
+  Future<Result<Journey?>> walkRoute({
+    required Stop from,
+    required Stop to,
+  }) async {
+    walks.add((from, to));
+    return walkReply;
+  }
 
   /// Called on every query, before answering; tests change [replies] here.
   void Function()? onQuery;

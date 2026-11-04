@@ -3,6 +3,7 @@ import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/network/efa_error_mapper.dart';
 import 'package:ruhr_transit/core/network/efa_json.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/data/efa_trip_remote_source.dart';
 import 'package:ruhr_transit/features/trip_planner/data/trip_mapper.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
@@ -34,6 +35,26 @@ class TripRepositoryImpl implements TripRepository {
       return Err(ParseFailure(e.message));
     } finally {
       if (identical(_inFlight, cancelToken)) _inFlight = null;
+    }
+  }
+
+  @override
+  Future<Result<Journey?>> walkRoute({
+    required Stop from,
+    required Stop to,
+  }) async {
+    try {
+      final json = await _remote.walk(fromId: from.id, toId: to.id);
+      final walks = mapTripResponse(
+        json,
+      ).where((journey) => journey.legs.every((leg) => leg is WalkLeg));
+      return Ok(walks.firstOrNull);
+    } on DioException catch (e) {
+      return Err(failureFromDioException(e));
+    } on EfaServerException catch (e) {
+      return Err(ServerFailure(code: e.code, message: e.message));
+    } on FormatException catch (e) {
+      return Err(ParseFailure(e.message));
     }
   }
 }
