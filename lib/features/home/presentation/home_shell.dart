@@ -13,6 +13,9 @@ import 'package:ruhr_transit/features/settings/presentation/settings_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
@@ -140,6 +143,23 @@ class HomeShellState extends State<HomeShell> {
     );
   }
 
+  /// Fills "Von" with [stop] and opens the planner.
+  void planFrom(Stop stop) {
+    _tripForm.setFrom(stop);
+    _inTab(HomeTab.plan, (_) {});
+  }
+
+  /// Fills "Nach" with [stop] and opens the planner.
+  void planTo(Stop stop) {
+    _tripForm.setTo(stop);
+    _inTab(HomeTab.plan, (_) {});
+  }
+
+  WalkToStop _walkToStop() => WalkToStop(
+    CurrentLocationFinder(getIt<LocationSource>(), getIt<StopRepository>()),
+    getIt<TripRepository>(),
+  );
+
   /// Whether Back stays in the app: something to pop in the open tab, or a
   /// tab other than the planner open. Only on the planner's start does the
   /// system get Back, which closes the app with its predictive animation.
@@ -197,60 +217,65 @@ class HomeShellState extends State<HomeShell> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) unawaited(_back());
       },
-      child: Scaffold(
-        body: NotificationListener<NavigationNotification>(
-          onNotification: _onTabNavigation,
-          child: IndexedStack(
-            index: _tab.index,
-            children: [
-              for (final tab in HomeTab.values)
-                if (_visited.contains(tab))
-                  // Hidden tabs keep their state but stop animating.
-                  TickerMode(
-                    enabled: tab == _tab,
-                    child: FocusScope(
-                      node: _focusScopes[tab],
-                      child: _TabNavigator(
-                        navigatorKey: _navigators[tab]!,
-                        root: _root(tab),
+      child: TripActions(
+        planFrom: planFrom,
+        planTo: planTo,
+        walkToStop: _walkToStop,
+        child: Scaffold(
+          body: NotificationListener<NavigationNotification>(
+            onNotification: _onTabNavigation,
+            child: IndexedStack(
+              index: _tab.index,
+              children: [
+                for (final tab in HomeTab.values)
+                  if (_visited.contains(tab))
+                    // Hidden tabs keep their state but stop animating.
+                    TickerMode(
+                      enabled: tab == _tab,
+                      child: FocusScope(
+                        node: _focusScopes[tab],
+                        child: _TabNavigator(
+                          navigatorKey: _navigators[tab]!,
+                          root: _root(tab),
+                        ),
                       ),
-                    ),
-                  )
-                else
-                  const SizedBox.shrink(),
-            ],
+                    )
+                  else
+                    const SizedBox.shrink(),
+              ],
+            ),
           ),
-        ),
-        // Material grows the labels up to 1.3x; "Einstellungen" then no
-        // longer fits a tab on a 360 dp phone and is cut off. 1.15x still
-        // fits; the icons and screen reader labels are not affected.
-        bottomNavigationBar: MediaQuery.withClampedTextScaling(
-          maxScaleFactor: 1.15,
-          child: NavigationBar(
-            selectedIndex: _tab.index,
-            onDestinationSelected: (index) => _select(HomeTab.values[index]),
-            destinations: [
-              NavigationDestination(
-                icon: const Icon(Icons.directions_outlined),
-                selectedIcon: const Icon(Icons.directions),
-                label: l10n.navPlan,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.near_me_outlined),
-                selectedIcon: const Icon(Icons.near_me),
-                label: l10n.navNearby,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.star_outline),
-                selectedIcon: const Icon(Icons.star),
-                label: l10n.navFavourites,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings),
-                label: l10n.navSettings,
-              ),
-            ],
+          // Material grows the labels up to 1.3x; "Einstellungen" then no
+          // longer fits a tab on a 360 dp phone and is cut off. 1.15x still
+          // fits; the icons and screen reader labels are not affected.
+          bottomNavigationBar: MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.15,
+            child: NavigationBar(
+              selectedIndex: _tab.index,
+              onDestinationSelected: (index) => _select(HomeTab.values[index]),
+              destinations: [
+                NavigationDestination(
+                  icon: const Icon(Icons.directions_outlined),
+                  selectedIcon: const Icon(Icons.directions),
+                  label: l10n.navPlan,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.near_me_outlined),
+                  selectedIcon: const Icon(Icons.near_me),
+                  label: l10n.navNearby,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.star_outline),
+                  selectedIcon: const Icon(Icons.star),
+                  label: l10n.navFavourites,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.settings_outlined),
+                  selectedIcon: const Icon(Icons.settings),
+                  label: l10n.navSettings,
+                ),
+              ],
+            ),
           ),
         ),
       ),

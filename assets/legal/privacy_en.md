@@ -18,14 +18,18 @@ For every query the app connects to the VRR timetable service (openservice.vrr.d
 
 - **Search terms** for stops and, under "From" and "To", also for **addresses and places**: what you type there, such as the street and house number of your home, is sent to VRR.
 - **IDs** of the chosen stops, addresses and places for departures and trips, and the **chosen time** of a trip search.
-- **Location**, only when you tap "Use my location" under "Stops near me" and allow location access: the coordinates are read once and sent to VRR to find stops within 1 km. Likewise when you tap "Use current location as start" next to "From": the coordinates, rounded to about 10 m, are sent to VRR, which returns the address there as the start. This start is not saved in the search history. For the weather, see below. The app never reads the location in the background and does not store it.
+- **Location**, only when you tap "Use my location" under "Stops near me" and allow location access: the coordinates are read once and sent to VRR to find stops within 1 km. Likewise when you tap "Use current location as start" next to "From" or "Walk there" on a stop: the coordinates, rounded to about 10 m, are sent to VRR, which returns the address there as the start. This start is not saved in the search history. For the weather, see below. The app never reads the location in the background and does not store it.
 - As with any internet request, VRR's server receives your **IP address**.
 
-VRR's own privacy policy applies to its processing: [LINK TO VRR'S PRIVACY POLICY].
+VRR's own privacy policy applies to its processing: https://www.vrr.de/de/datenschutz/.
 
-**Weather:** If the app may use your location, opening "Plan trip" sends your coordinates, rounded to about 1 km, to Bright Sky (api.brightsky.dev), a service providing Deutscher Wetterdienst data, to show the weather near you. Without location access the app only asks when you tap the weather display. Bright Sky also receives your IP address. Bright Sky's privacy policy applies: [LINK TO BRIGHT SKY'S PRIVACY POLICY].
+**Weather:** If the app may use your location, opening "Plan trip" sends your coordinates, rounded to about 1 km, to Bright Sky (api.brightsky.dev), a service providing Deutscher Wetterdienst data, to show the weather near you. Without location access the app only asks when you tap the weather display. Bright Sky also receives your IP address. Bright Sky is an open-source project; information and contact: https://brightsky.dev. The Deutscher Wetterdienst's terms of use apply to the weather data.
 
 The legal basis is Art. 6(1)(b) GDPR (providing the information you request); for location additionally your consent through the Android permission, which you can withdraw at any time in the system settings.
+
+**Reminders:** If you have set a reminder, the app asks VRR about the ride's delay when the reminder is due, sending the line, trip and stop. This also happens while the app is closed.
+
+**Maps:** When you open a map (a trip on the map, stops near me as a map), the app loads the map images for the area shown from basemap.de at the German Federal Agency for Cartography and Geodesy (BKG, sgx.geodatenzentrum.de). BKG receives your IP address and which area is loaded – for "Stops near me" roughly where you are. BKG's privacy policy applies: https://www.bkg.bund.de/datenschutz
 
 ## Data on your device
 
@@ -33,6 +37,7 @@ Stored on your device only:
 
 - Your favourites: stops and saved journeys, with the labels you give them. The start and destination of a saved journey can be addresses.
 - Your search history: the stops, addresses and places you last chose for "From" and "To", at most 10. You can delete it, entirely or one by one, in the stop picker.
+- Your reminders: the ride, stop and time, until the ride has left.
 - The last fetched departures of up to 10 stops, so they stay visible without an internet connection, and the data of the home-screen widget.
 - Your settings: language, appearance and, if you enter one, your display name.
 

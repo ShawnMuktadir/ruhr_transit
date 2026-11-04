@@ -15,6 +15,7 @@ import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.d
 import 'package:ruhr_transit/features/home/presentation/home_shell.dart';
 import 'package:ruhr_transit/features/language/domain/language_repository.dart';
 import 'package:ruhr_transit/features/language/presentation/locale_cubit.dart';
+import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
 import 'package:ruhr_transit/features/onboarding/presentation/onboarding_cubit.dart';
 import 'package:ruhr_transit/features/onboarding/presentation/onboarding_page.dart';
@@ -23,6 +24,8 @@ import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
+import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -94,6 +97,12 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     getIt<AuthRepository>(),
   );
   late final _connectivity = ConnectivityCubit(getIt<ConnectivitySource>());
+  late final _reminders = RemindersCubit(
+    getIt<ReminderRepository>(),
+    getIt<ReminderAlarms>(),
+    getIt<ReminderNotifier>(),
+    openAppSettings: getIt<LocationSource>().openAppSettings,
+  );
   late final _onboarding = OnboardingCubit(
     getIt<OnboardingRepository>(),
     completed: !widget.showOnboarding,
@@ -122,7 +131,14 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     unawaited(_theme.close());
     unawaited(_profile.close());
     unawaited(_connectivity.close());
+    unawaited(_reminders.close());
     super.dispose();
+  }
+
+  /// An alarm may have changed the reminders while the app was away.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) unawaited(_reminders.load());
   }
 
   /// The language may have been changed in Android's per-app settings.
@@ -150,6 +166,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
         BlocProvider.value(value: _theme),
         BlocProvider.value(value: _profile),
         BlocProvider.value(value: _connectivity),
+        BlocProvider.value(value: _reminders),
       ],
       child: Builder(
         builder: (context) => MaterialApp(

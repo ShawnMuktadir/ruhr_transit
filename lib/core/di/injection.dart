@@ -26,6 +26,9 @@ import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/data/recent_stops_repository_impl.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
+import 'package:ruhr_transit/features/reminders/data/android_reminder_platform.dart';
+import 'package:ruhr_transit/features/reminders/data/reminder_repository_impl.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/settings/data/theme_repository_impl.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/data/efa_stop_remote_source.dart';
@@ -87,6 +90,11 @@ void configureDependencies() {
     ..registerLazySingleton(() => BrightSkyRemoteSource(createBrightSkyDio()))
     ..registerFactory<WeatherRepository>(() => WeatherRepositoryImpl(getIt()))
     ..registerLazySingleton<ConnectivitySource>(AndroidConnectivitySource.new)
+    ..registerLazySingleton<ReminderRepository>(
+      () => ReminderRepositoryImpl(getIt()),
+    )
+    ..registerLazySingleton<ReminderAlarms>(AndroidReminderAlarms.new)
+    ..registerLazySingleton<ReminderNotifier>(AndroidReminderNotifier.new)
     ..registerLazySingleton(SharedPreferencesAsync.new)
     // A singleton, because it queues its own writes: two instances could
     // overwrite each other's boards.

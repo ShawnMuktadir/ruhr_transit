@@ -1087,5 +1087,199 @@
   "offlineBanner": "Keine Internetverbindung",
   "@offlineBanner": {
     "description": "Banner above every page while the phone is offline."
+  },
+  "mapShowTrip": "Auf der Karte zeigen",
+  "@mapShowTrip": {
+    "description": "App bar button of the trip details that opens the map."
+  },
+  "mapTitle": "Karte",
+  "@mapTitle": {
+    "description": "Title of the trip map."
+  },
+  "mapTripSummary": "Karte der Verbindung von {from} nach {to}, {rides, plural, =1{1 Fahrt} other{{rides} Fahrten}}",
+  "@mapTripSummary": {
+    "description": "TalkBack label of the trip map; the details list is the accessible view.",
+    "placeholders": {
+      "from": {
+        "type": "String",
+        "example": "Bochum Hbf"
+      },
+      "to": {
+        "type": "String",
+        "example": "Dortmund Hbf"
+      },
+      "rides": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "mapStart": "Start",
+  "@mapStart": {
+    "description": "Map marker at the start of the trip."
+  },
+  "mapDestination": "Ziel",
+  "@mapDestination": {
+    "description": "Map marker at the destination."
+  },
+  "mapChange": "Umstieg",
+  "@mapChange": {
+    "description": "Map marker where the user changes vehicles."
+  },
+  "mapVehicle": "{line}: Position geschätzt aus den Fahrzeiten",
+  "@mapVehicle": {
+    "description": "Tooltip of a vehicle on the map: EFA sends no GPS, the point is interpolated between stops.",
+    "placeholders": {
+      "line": {
+        "type": "String",
+        "example": "RE6"
+      }
+    }
+  },
+  "nearbyViewList": "Liste",
+  "@nearbyViewList": {
+    "description": "Segment to show nearby stops as a list."
+  },
+  "nearbyViewMap": "Karte",
+  "@nearbyViewMap": {
+    "description": "Segment to show nearby stops on a map."
+  },
+  "mapNearbySummary": "Karte mit {count, plural, =1{1 Haltestelle} other{{count} Haltestellen}} in Ihrer Nähe",
+  "@mapNearbySummary": {
+    "description": "TalkBack label of the nearby map; the list is the accessible view.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "mapYou": "Ihr Standort",
+  "@mapYou": {
+    "description": "Map marker of the user's position."
+  },
+  "reminderAdd": "Ans Losgehen erinnern",
+  "@reminderAdd": {
+    "description": "Row in the trip details that sets a reminder."
+  },
+  "reminderSheetTitle": "Wann erinnern?",
+  "@reminderSheetTitle": {
+    "description": "Title of the sheet with the reminder times."
+  },
+  "reminderLeadOption": "{minutes} Min. vor dem Losgehen",
+  "@reminderLeadOption": {
+    "description": "How long before leaving a reminder comes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "reminderSetFor": "Erinnerung um {time}",
+  "@reminderSetFor": {
+    "description": "When a reminder that is set will come.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "19:53"
+      }
+    }
+  },
+  "reminderRemove": "Erinnerung entfernen",
+  "@reminderRemove": {
+    "description": "Tooltip of the button that removes a reminder."
+  },
+  "reminderAdded": "Erinnerung gesetzt. Kurz vorher prüft die App, ob die Fahrt verspätet ist.",
+  "@reminderAdded": {
+    "description": "Snack bar after setting a reminder."
+  },
+  "reminderInexact": "Erinnerung gesetzt, sie kann aber einige Minuten später kommen.",
+  "@reminderInexact": {
+    "description": "Snack bar when Android does not allow exact alarms; the action opens that setting."
+  },
+  "reminderAllowExact": "Pünktlich",
+  "@reminderAllowExact": {
+    "description": "Snack bar action that opens the \"Alarms & reminders\" setting."
+  },
+  "reminderDenied": "Für Erinnerungen muss die App Benachrichtigungen senden dürfen.",
+  "@reminderDenied": {
+    "description": "Snack bar after the notification permission was refused."
+  },
+  "reminderTooLate": "Für eine Erinnerung ist es zu spät.",
+  "@reminderTooLate": {
+    "description": "Snack bar when the time has passed."
+  },
+  "reminderFailed": "Die Erinnerung konnte nicht gesetzt werden.",
+  "@reminderFailed": {
+    "description": "Snack bar after an error."
+  },
+  "reminderNotifyIn": "In {minutes} Min. losgehen",
+  "@reminderNotifyIn": {
+    "description": "Title of the reminder notification.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "reminderNotifyNow": "Jetzt losgehen",
+  "@reminderNotifyNow": {
+    "description": "Title of the reminder notification when it is time."
+  },
+  "reminderNotifyBody": "{line} ab {stop} um {time}",
+  "@reminderNotifyBody": {
+    "description": "The ride in a reminder.",
+    "placeholders": {
+      "line": {
+        "type": "String",
+        "example": "RE6"
+      },
+      "stop": {
+        "type": "String",
+        "example": "Bochum Hbf"
+      },
+      "time": {
+        "type": "String",
+        "example": "20:03"
+      }
+    }
+  },
+  "reminderChannel": "Abfahrtserinnerungen",
+  "@reminderChannel": {
+    "description": "Name of the notification channel in the Android settings."
+  },
+  "reminderChannelDescription": "Erinnert ans Losgehen, die Sie bei einer Verbindung gesetzt haben.",
+  "@reminderChannelDescription": {
+    "description": "Description of the notification channel."
+  },
+  "remindersTitle": "Erinnerungen",
+  "@remindersTitle": {
+    "description": "Settings row and title of the reminder list."
+  },
+  "remindersEmpty": "Keine Erinnerungen gesetzt. Sie können sie in den Details einer Verbindung setzen.",
+  "@remindersEmpty": {
+    "description": "Reminder list without reminders."
+  },
+  "stopFromHere": "Von hier",
+  "@stopFromHere": {
+    "description": "Button on a stop: use it as the start of a trip."
+  },
+  "stopToHere": "Hierhin",
+  "@stopToHere": {
+    "description": "Button on a stop: use it as the destination of a trip."
+  },
+  "stopWalkThere": "Weg dorthin",
+  "@stopWalkThere": {
+    "description": "Button on a stop: the way on foot from the user's location."
+  },
+  "stopWalkNotFound": "Zu Fuß wurde kein Weg dorthin gefunden.",
+  "@stopWalkNotFound": {
+    "description": "Snack bar when there is no walk to the stop, or it is too long."
+  },
+  "tripWalkOnly": "Nur zu Fuß",
+  "@tripWalkOnly": {
+    "description": "Trip details of a journey that is only a walk."
   }
 }

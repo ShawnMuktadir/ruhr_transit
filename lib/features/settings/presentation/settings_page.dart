@@ -10,6 +10,7 @@ import 'package:ruhr_transit/features/legal/presentation/legal_page.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_page.dart';
+import 'package:ruhr_transit/features/reminders/presentation/reminders_page.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 
 /// Appearance, language, profile, legal texts and about.
@@ -89,6 +90,17 @@ class SettingsPage extends StatelessWidget {
                   title: Text(l10n.logOut),
                   onTap: context.read<ProfileCubit>().signOut,
                 ),
+            ],
+          ),
+          _SectionHeader(l10n.remindersTitle),
+          GroupCard(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.notifications_outlined),
+                title: Text(l10n.remindersTitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => open(const RemindersPage()),
+              ),
             ],
           ),
           _SectionHeader(l10n.settingsLegal),

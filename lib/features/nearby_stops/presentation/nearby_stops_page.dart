@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
+import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
@@ -11,6 +12,7 @@ import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stop.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repository.dart';
+import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_map.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_cubit.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_state.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
@@ -80,10 +82,8 @@ class NearbyStopsView extends StatelessWidget {
           NearbyLoaded(:final stops) when stops.isEmpty => CenteredMessage(
             l10n.nearbyEmpty,
           ),
-          NearbyLoaded(:final stops, :final isApproximate) => _StopList(
-            stops,
-            isApproximate: isApproximate,
-          ),
+          NearbyLoaded(:final stops, :final isApproximate, :final here) =>
+            _NearbyResults(stops, isApproximate: isApproximate, here: here),
           NearbyLocationProblem(:final problem) => _LocationProblem(problem),
           NearbyFailed(:final failure) => CenteredMessage(
             failureMessage(l10n, failure),
@@ -210,6 +210,65 @@ class _LocationProblem extends StatelessWidget {
           child: Text(l10n.retry),
         ),
       },
+    );
+  }
+}
+
+/// The stops as a list or on a map; the list first, as it is what TalkBack
+/// reads.
+class _NearbyResults extends StatefulWidget {
+  const _NearbyResults(
+    this.stops, {
+    required this.isApproximate,
+    required this.here,
+  });
+
+  final List<NearbyStop> stops;
+  final bool isApproximate;
+  final GeoPoint? here;
+
+  @override
+  State<_NearbyResults> createState() => _NearbyResultsState();
+}
+
+class _NearbyResultsState extends State<_NearbyResults> {
+  var _onMap = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final here = widget.here;
+    final list = _StopList(widget.stops, isApproximate: widget.isApproximate);
+    if (here == null) return list;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(
+                  value: false,
+                  icon: const Icon(Icons.list),
+                  label: Text(l10n.nearbyViewList),
+                ),
+                ButtonSegment(
+                  value: true,
+                  icon: const Icon(Icons.map_outlined),
+                  label: Text(l10n.nearbyViewMap),
+                ),
+              ],
+              selected: {_onMap},
+              onSelectionChanged: (choice) =>
+                  setState(() => _onMap = choice.single),
+            ),
+          ),
+        ),
+        Expanded(
+          child: _onMap ? NearbyMap(stops: widget.stops, here: here) : list,
+        ),
+      ],
     );
   }
 }

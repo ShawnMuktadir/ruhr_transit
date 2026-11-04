@@ -20,6 +20,7 @@ import 'package:ruhr_transit/features/departures/presentation/departures_cubit.d
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 /// Composition root of the departure board: creates the cubit and starts
@@ -117,36 +118,45 @@ class DeparturesView extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocConsumer<DeparturesCubit, DeparturesState>(
-        listenWhen: (_, state) =>
-            state is DeparturesLoaded && state.refreshFailure != null,
-        listener: (context, state) {
-          final failure = (state as DeparturesLoaded).refreshFailure!;
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(content: Text(failureMessage(l10n, failure))),
-            );
-        },
-        builder: (context, state) => switch (state) {
-          DeparturesLoading() => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          DeparturesFailed(:final failure) => CenteredMessage(
-            failureMessage(l10n, failure),
-            action: FilledButton.tonal(
-              onPressed: cubit.load,
-              child: Text(l10n.retry),
+      body: Column(
+        children: [
+          StopActions(stop),
+          Expanded(
+            child: BlocConsumer<DeparturesCubit, DeparturesState>(
+              listenWhen: (_, state) =>
+                  state is DeparturesLoaded && state.refreshFailure != null,
+              listener: (context, state) {
+                final failure = (state as DeparturesLoaded).refreshFailure!;
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    SnackBar(content: Text(failureMessage(l10n, failure))),
+                  );
+              },
+              builder: (context, state) => switch (state) {
+                DeparturesLoading() => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                DeparturesFailed(:final failure) => CenteredMessage(
+                  failureMessage(l10n, failure),
+                  action: FilledButton.tonal(
+                    onPressed: cubit.load,
+                    child: Text(l10n.retry),
+                  ),
+                ),
+                DeparturesLoaded(:final departures) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _UpdatedAt(state),
+                    Expanded(
+                      child: _Board(departures, onRefresh: cubit.refresh),
+                    ),
+                  ],
+                ),
+              },
             ),
           ),
-          DeparturesLoaded(:final departures) => Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _UpdatedAt(state),
-              Expanded(child: _Board(departures, onRefresh: cubit.refresh)),
-            ],
-          ),
-        },
+        ],
       ),
       bottomNavigationBar: const DataAttribution(),
     );

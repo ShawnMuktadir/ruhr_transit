@@ -6,7 +6,15 @@ import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 /// collapsed until the user asks for them: most people only need the
 /// distance.
 class WalkDirections extends StatefulWidget {
-  const WalkDirections({required this.steps, this.paths = const [], super.key});
+  const WalkDirections({
+    required this.steps,
+    this.paths = const [],
+    this.initiallyExpanded = false,
+    super.key,
+  });
+
+  /// For a walk the user asked for: the directions are the point.
+  final bool initiallyExpanded;
 
   final List<WalkStep> steps;
 
@@ -18,7 +26,7 @@ class WalkDirections extends StatefulWidget {
 }
 
 class _WalkDirectionsState extends State<WalkDirections> {
-  var _expanded = false;
+  late var _expanded = widget.initiallyExpanded;
 
   @override
   Widget build(BuildContext context) {

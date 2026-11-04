@@ -11,7 +11,7 @@ Category: **Maps & Navigation** (alternatively Travel & Local).
 **App-Name:** RuhrTransit
 
 **Kurzbeschreibung:**
-Abfahrten, Verbindungen und Haltestellen im VRR – mit Echtzeit und Widget.
+Abfahrten in Echtzeit im VRR, Verbindungen in ganz Deutschland, mit Widget.
 
 **Vollständige Beschreibung:**
 
@@ -20,17 +20,25 @@ RuhrTransit zeigt, wann Bus und Bahn im Ruhrgebiet wirklich fahren – schnell,
 
 • Abfahrtstafel in Echtzeit: Verspätungen, Ausfälle und Gleiswechsel auf
   einen Blick
-• Verbindungssuche: jetzt, ab einer Uhrzeit oder mit Ankunftszeit – mit
-  Umstiegen, Fußwegen und Umstiegszeit
+• Verbindungssuche in ganz Deutschland: von und zu Haltestellen, Adressen
+  und Orten – jetzt, ab einer Uhrzeit oder mit Ankunftszeit
+• Fußwege mit Wegbeschreibung, Aufzügen und Treppen; Umstiegszeit und
+  knappe Anschlüsse auf einen Blick
+• Wo ist mein Zug? Die aktuelle Position im Verlauf der Fahrt
+• Hinweise und Störungen, nach Wichtigkeit sortiert
+• Start am aktuellen Standort und das Wetter dort, mit Regenhinweis
+  (Daten des Deutschen Wetterdienstes)
 • Haltestellen in der Nähe: auf Wunsch über Ihren Standort
-• Favoriten: Ihre Haltestellen mit einem Tipp
+• Favoriten: Haltestellen und Verbindungen mit einem Tipp, dazu ein
+  Suchverlauf
 • Ohne Verbindung: die zuletzt geladenen Abfahrten bleiben sichtbar, mit
-  Zeitstempel
+  Zeitstempel; nach der Rückkehr lädt die App neu
 • Widget: die nächsten Abfahrten Ihrer Haltestelle auf dem Startbildschirm
 • Deutsch und Englisch, helles und dunkles Design
 
 Keine Anmeldung, keine Werbung, kein Tracking. Der Standort wird nur
-verwendet, wenn Sie „Haltestellen in der Nähe“ öffnen.
+verwendet, wenn Sie es erlauben – für Haltestellen in der Nähe, den Start
+am Standort und das Wetter.
 
 Fahrplanauskünfte werden durch den Verkehrsverbund Rhein-Ruhr (VRR,
 www.vrr.de) zur Verfügung gestellt. Alle Angaben ohne Gewähr. RuhrTransit
@@ -41,7 +49,7 @@ ist keine App des VRR.
 **App name:** RuhrTransit
 
 **Short description:**
-Live departures, trips and stops in the VRR area, with a home-screen widget.
+Live departures in the VRR area, trips across Germany, home-screen widget.
 
 **Full description:**
 
@@ -50,17 +58,23 @@ clear and without ads.
 
 • Live departure board: delays, cancellations and platform changes at a
   glance
-• Trip planner: leave now, depart at or arrive by a time – with changes,
-  walks and the time to change
+• Trip planner across Germany: from and to stops, addresses and places –
+  leave now, depart at or arrive by a time
+• Walks with directions, lifts and stairs; time to change and tight
+  connections at a glance
+• Where is my train? Its current position along the run
+• Notices and disruptions, the important ones first
+• Start at your current location, with the weather there and a rain hint
+  (Deutscher Wetterdienst data)
 • Stops near you, using your location only when you ask
-• Favourites: your stops one tap away
+• Favourites: stops and journeys one tap away, plus a search history
 • Offline: the last loaded departures stay visible, with the time they were
-  fetched
+  fetched; the app reloads when you are back online
 • Widget: the next departures of your stop on the home screen
 • German and English, light and dark theme
 
-No sign-up, no ads, no tracking. Location is used only when you open "Stops
-near me".
+No sign-up, no ads, no tracking. Location is used only when you allow it –
+for stops near you, starting at your location and the weather.
 
 Timetable information provided by Verkehrsverbund Rhein-Ruhr (VRR,
 www.vrr.de). All information without guarantee. RuhrTransit is not an app of

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
@@ -13,6 +12,7 @@ import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.
 import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/greeting_header.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 
@@ -337,31 +337,7 @@ class _HereButtonState extends State<_HereButton> {
       context.read<TripFormCubit>().setFromHere(stop);
       return;
     }
-    final l10n = AppLocalizations.of(context);
-    final (String message, SnackBarAction? action) = switch (result) {
-      HereFound() => throw StateError('Handled above'),
-      HereDenied(permanently: true) => (
-        l10n.tripHereDeniedForever,
-        SnackBarAction(
-          label: l10n.actionSettings,
-          onPressed: () => unawaited(widget.finder.openAppSettings()),
-        ),
-      ),
-      HereDenied() => (l10n.tripHereDenied, null),
-      HereLocationOff() => (
-        l10n.tripHereOff,
-        SnackBarAction(
-          label: l10n.actionTurnOn,
-          onPressed: () => unawaited(widget.finder.openLocationSettings()),
-        ),
-      ),
-      HereNoPosition() => (l10n.tripHereNoPosition, null),
-      HereNothingThere() => (l10n.tripHereNothingThere, null),
-      HereFailed(:final failure) => (failureMessage(l10n, failure), null),
-    };
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message), action: action));
+    showHereProblem(context, result, widget.finder);
   }
 
   @override

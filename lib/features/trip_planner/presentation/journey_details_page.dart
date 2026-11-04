@@ -5,10 +5,12 @@ import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
+import 'package:ruhr_transit/features/reminders/presentation/reminder_tile.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/ride_stops.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/trip_map_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_notices.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/walk_directions.dart';
@@ -50,6 +52,17 @@ class JourneyDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.tripDetailsTitle),
         actions: [
+          if (hasMap(journey))
+            IconButton(
+              icon: const Icon(Icons.map_outlined),
+              tooltip: l10n.mapShowTrip,
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      TripMapPage(journey: journey, runs: runs, now: now),
+                ),
+              ),
+            ),
           if (query case final query?)
             FavouriteJourneyButton(from: query.from, to: query.to),
         ],
@@ -66,7 +79,9 @@ class JourneyDetailsPage extends StatelessWidget {
               subtitle: Text(
                 [
                   formatTripDuration(l10n, journey.duration),
-                  if (journey.transfers == 0)
+                  if (journey.legs.every((leg) => leg is WalkLeg))
+                    l10n.tripWalkOnly
+                  else if (journey.transfers == 0)
                     l10n.tripDirect
                   else
                     l10n.tripTransfers(journey.transfers),
@@ -75,6 +90,7 @@ class JourneyDetailsPage extends StatelessWidget {
               ),
             ),
           ),
+          ReminderTile(journey),
           if (notices.isNotEmpty) ListCard(child: TripNoticesSection(notices)),
           const SizedBox(height: 4),
           ..._legsWithChanges(journey.legs, runs, now),
@@ -98,7 +114,9 @@ class JourneyDetailsPage extends StatelessWidget {
       switch (leg) {
         case WalkLeg():
           walking += leg.duration;
-          widgets.add(ListCard(child: _WalkTile(leg)));
+          widgets.add(
+            ListCard(child: _WalkTile(leg, showDirections: legs.length == 1)),
+          );
         case TransitLeg():
           if (previousRide != null) {
             widgets.add(
@@ -174,9 +192,12 @@ class _RideTile extends StatelessWidget {
 }
 
 class _WalkTile extends StatelessWidget {
-  const _WalkTile(this.leg);
+  const _WalkTile(this.leg, {this.showDirections = false});
 
   final WalkLeg leg;
+
+  /// The whole journey is this walk, so its directions are open.
+  final bool showDirections;
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +219,11 @@ class _WalkTile extends StatelessWidget {
         tile,
         Padding(
           padding: const EdgeInsets.fromLTRB(56, 0, 16, 4),
-          child: WalkDirections(steps: leg.steps, paths: leg.stationPaths),
+          child: WalkDirections(
+            steps: leg.steps,
+            paths: leg.stationPaths,
+            initiallyExpanded: showDirections,
+          ),
         ),
       ],
     );

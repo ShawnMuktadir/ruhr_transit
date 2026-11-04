@@ -1,3 +1,4 @@
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/app.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
@@ -13,6 +14,8 @@ import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 Future<void> main() async {
   // Plugins (shared_preferences) need the binding before runApp.
   WidgetsFlutterBinding.ensureInitialized();
+  // Lets alarms run the reminder check while the app is closed.
+  await AndroidAlarmManager.initialize();
   configureDependencies();
   // Loaded up front, so the start screen never flashes the empty state and
   // a change can never race the load. It is a single local read.

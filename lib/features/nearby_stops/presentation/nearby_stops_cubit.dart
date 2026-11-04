@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
@@ -50,7 +51,13 @@ class NearbyStopsCubit extends Cubit<NearbyStopsState> {
       if (isClosed) return;
       switch (result) {
         case Ok(value: final stops):
-          emit(NearbyLoaded(stops, isApproximate: location.isApproximate));
+          emit(
+            NearbyLoaded(
+              stops,
+              isApproximate: location.isApproximate,
+              here: GeoPoint(location.latitude, location.longitude),
+            ),
+          );
         // Only one request runs at a time here, but the repository's
         // contract allows it; nothing to show for it.
         case Err(failure: CancelledFailure()):
