@@ -5,6 +5,7 @@ import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
+import 'package:ruhr_transit/features/reminders/presentation/reminder_tile.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
@@ -87,6 +88,7 @@ class JourneyDetailsPage extends StatelessWidget {
               ),
             ),
           ),
+          ReminderTile(journey),
           if (notices.isNotEmpty) ListCard(child: TripNoticesSection(notices)),
           const SizedBox(height: 4),
           ..._legsWithChanges(journey.legs, runs, now),

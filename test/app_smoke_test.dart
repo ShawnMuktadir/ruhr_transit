@@ -16,6 +16,7 @@ import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.da
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
@@ -27,6 +28,7 @@ import 'helpers/fake_favourite_journeys_repository.dart';
 import 'helpers/fake_favourites_repository.dart';
 import 'helpers/fake_nearby_stops.dart';
 import 'helpers/fake_recent_stops_repository.dart';
+import 'helpers/fake_reminders.dart';
 import 'helpers/fake_settings.dart';
 import 'helpers/fake_stop_repository.dart';
 import 'helpers/fake_weather_repository.dart';
@@ -62,7 +64,10 @@ void main() {
       // Not granted: the planner shows the chip asking for location.
       ..registerSingleton<LocationSource>(FakeLocationSource())
       ..registerFactory<WeatherRepository>(FakeWeatherRepository.new)
-      ..registerSingleton<ConnectivitySource>(FakeConnectivitySource());
+      ..registerSingleton<ConnectivitySource>(FakeConnectivitySource())
+      ..registerSingleton<ReminderRepository>(FakeReminderRepository())
+      ..registerSingleton<ReminderAlarms>(FakeReminderAlarms())
+      ..registerSingleton<ReminderNotifier>(FakeReminderNotifier());
     PackageInfo.setMockInitialValues(
       appName: 'RuhrTransit',
       packageName: 'de.muktadir.ruhrtransit',

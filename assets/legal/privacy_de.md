@@ -27,6 +27,8 @@ Für die Verarbeitung durch den VRR gilt dessen Datenschutzerklärung: https://w
 
 Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der von Ihnen angeforderten Auskunft); für den Standort zusätzlich Ihre Einwilligung über die Android-Berechtigung, die Sie jederzeit in den Systemeinstellungen widerrufen können.
 
+**Erinnerungen:** Haben Sie eine Erinnerung gesetzt, fragt die App zum Erinnerungszeitpunkt beim VRR nach der Verspätung der Fahrt und sendet dafür Linie, Fahrt und Haltestelle. Das geschieht auch, wenn die App geschlossen ist.
+
 **Karten:** Öffnen Sie eine Karte (Verbindung auf der Karte, Haltestellen in der Nähe als Karte), lädt die App die Kartenbilder für den angezeigten Ausschnitt von basemap.de beim Bundesamt für Kartographie und Geodäsie (BKG, sgx.geodatenzentrum.de). Das BKG erhält dabei Ihre IP-Adresse und welcher Ausschnitt geladen wird – bei „In der Nähe“ also ungefähr, wo Sie sind. Es gilt die Datenschutzerklärung des BKG: https://www.bkg.bund.de/datenschutz
 
 ## Daten auf Ihrem Gerät
@@ -35,6 +37,7 @@ Nur auf Ihrem Gerät gespeichert werden:
 
 - Ihre Favoriten: Haltestellen und gemerkte Verbindungen, mit den Bezeichnungen, die Sie vergeben. Start und Ziel einer gemerkten Verbindung können Adressen sein.
 - Ihr Suchverlauf: die zuletzt bei „Von“ und „Nach“ gewählten Haltestellen, Adressen und Orte, höchstens 10. Sie können ihn in der Haltestellenauswahl ganz oder einzeln löschen.
+- Ihre Erinnerungen: Fahrt, Haltestelle und Zeitpunkt, bis die Fahrt abgefahren ist.
 - Die zuletzt abgerufenen Abfahrten von bis zu 10 Haltestellen, damit sie ohne Internetverbindung sichtbar bleiben, und die Daten des Startbildschirm-Widgets.
 - Ihre Einstellungen: Sprache, Darstellung und, falls Sie einen eingeben, Ihr Anzeigename.
 

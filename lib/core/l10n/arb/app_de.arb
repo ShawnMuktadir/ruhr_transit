@@ -1157,5 +1157,109 @@
   "mapYou": "Ihr Standort",
   "@mapYou": {
     "description": "Map marker of the user's position."
+  },
+  "reminderAdd": "Ans Losgehen erinnern",
+  "@reminderAdd": {
+    "description": "Row in the trip details that sets a reminder."
+  },
+  "reminderSheetTitle": "Wann erinnern?",
+  "@reminderSheetTitle": {
+    "description": "Title of the sheet with the reminder times."
+  },
+  "reminderLeadOption": "{minutes} Min. vor dem Losgehen",
+  "@reminderLeadOption": {
+    "description": "How long before leaving a reminder comes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "reminderSetFor": "Erinnerung um {time}",
+  "@reminderSetFor": {
+    "description": "When a reminder that is set will come.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "19:53"
+      }
+    }
+  },
+  "reminderRemove": "Erinnerung entfernen",
+  "@reminderRemove": {
+    "description": "Tooltip of the button that removes a reminder."
+  },
+  "reminderAdded": "Erinnerung gesetzt. Kurz vorher prüft die App, ob die Fahrt verspätet ist.",
+  "@reminderAdded": {
+    "description": "Snack bar after setting a reminder."
+  },
+  "reminderInexact": "Erinnerung gesetzt, sie kann aber einige Minuten später kommen.",
+  "@reminderInexact": {
+    "description": "Snack bar when Android does not allow exact alarms; the action opens that setting."
+  },
+  "reminderAllowExact": "Pünktlich",
+  "@reminderAllowExact": {
+    "description": "Snack bar action that opens the \"Alarms & reminders\" setting."
+  },
+  "reminderDenied": "Für Erinnerungen muss die App Benachrichtigungen senden dürfen.",
+  "@reminderDenied": {
+    "description": "Snack bar after the notification permission was refused."
+  },
+  "reminderTooLate": "Für eine Erinnerung ist es zu spät.",
+  "@reminderTooLate": {
+    "description": "Snack bar when the time has passed."
+  },
+  "reminderFailed": "Die Erinnerung konnte nicht gesetzt werden.",
+  "@reminderFailed": {
+    "description": "Snack bar after an error."
+  },
+  "reminderNotifyIn": "In {minutes} Min. losgehen",
+  "@reminderNotifyIn": {
+    "description": "Title of the reminder notification.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "reminderNotifyNow": "Jetzt losgehen",
+  "@reminderNotifyNow": {
+    "description": "Title of the reminder notification when it is time."
+  },
+  "reminderNotifyBody": "{line} ab {stop} um {time}",
+  "@reminderNotifyBody": {
+    "description": "The ride in a reminder.",
+    "placeholders": {
+      "line": {
+        "type": "String",
+        "example": "RE6"
+      },
+      "stop": {
+        "type": "String",
+        "example": "Bochum Hbf"
+      },
+      "time": {
+        "type": "String",
+        "example": "20:03"
+      }
+    }
+  },
+  "reminderChannel": "Abfahrtserinnerungen",
+  "@reminderChannel": {
+    "description": "Name of the notification channel in the Android settings."
+  },
+  "reminderChannelDescription": "Erinnert ans Losgehen, die Sie bei einer Verbindung gesetzt haben.",
+  "@reminderChannelDescription": {
+    "description": "Description of the notification channel."
+  },
+  "remindersTitle": "Erinnerungen",
+  "@remindersTitle": {
+    "description": "Settings row and title of the reminder list."
+  },
+  "remindersEmpty": "Keine Erinnerungen gesetzt. Sie können sie in den Details einer Verbindung setzen.",
+  "@remindersEmpty": {
+    "description": "Reminder list without reminders."
   }
 }

@@ -27,6 +27,8 @@ VRR's own privacy policy applies to its processing: https://www.vrr.de/de/datens
 
 The legal basis is Art. 6(1)(b) GDPR (providing the information you request); for location additionally your consent through the Android permission, which you can withdraw at any time in the system settings.
 
+**Reminders:** If you have set a reminder, the app asks VRR about the ride's delay when the reminder is due, sending the line, trip and stop. This also happens while the app is closed.
+
 **Maps:** When you open a map (a trip on the map, stops near me as a map), the app loads the map images for the area shown from basemap.de at the German Federal Agency for Cartography and Geodesy (BKG, sgx.geodatenzentrum.de). BKG receives your IP address and which area is loaded – for "Stops near me" roughly where you are. BKG's privacy policy applies: https://www.bkg.bund.de/datenschutz
 
 ## Data on your device
@@ -35,6 +37,7 @@ Stored on your device only:
 
 - Your favourites: stops and saved journeys, with the labels you give them. The start and destination of a saved journey can be addresses.
 - Your search history: the stops, addresses and places you last chose for "From" and "To", at most 10. You can delete it, entirely or one by one, in the stop picker.
+- Your reminders: the ride, stop and time, until the ride has left.
 - The last fetched departures of up to 10 stops, so they stay visible without an internet connection, and the data of the home-screen widget.
 - Your settings: language, appearance and, if you enter one, your display name.
 

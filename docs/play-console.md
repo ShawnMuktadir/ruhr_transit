@@ -88,5 +88,13 @@ ask the operator; the privacy text links to brightsky.dev until then.
   Requested only after a tap ("Use my location", the location button in
   From, or the weather chip); no background location.
 - `INTERNET`: timetable and weather queries.
+- `POST_NOTIFICATIONS`: departure reminders the user sets on a trip; asked
+  for when setting the first one.
+- `SCHEDULE_EXACT_ALARM`: optional, so reminders come on time; without it
+  they may be some minutes late. Android 14+ denies it by default and the
+  user can allow it from the app. Check Play's current exact-alarm policy
+  before submitting.
+- `RECEIVE_BOOT_COMPLETED`, `WAKE_LOCK`: keep reminders across a reboot and
+  check the delay while the app is closed.
 - `ACCESS_NETWORK_STATE`: show "no internet connection" and retry when the
   connection returns (normal permission, granted at install).
