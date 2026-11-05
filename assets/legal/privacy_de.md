@@ -37,6 +37,7 @@ Nur auf Ihrem Gerät gespeichert werden:
 
 - Ihre Favoriten: Haltestellen und gemerkte Verbindungen, mit den Bezeichnungen, die Sie vergeben. Start und Ziel einer gemerkten Verbindung können Adressen sein.
 - Ihr Suchverlauf: die zuletzt bei „Von“ und „Nach“ gewählten Haltestellen, Adressen und Orte, höchstens 10. Sie können ihn in der Haltestellenauswahl ganz oder einzeln löschen.
+- Kartenbilder, die Sie angesehen haben: zwischengespeichert, höchstens 100 MB, damit Karten schneller laden. Sie verraten, welche Gegenden Sie angesehen haben, und lassen sich in den Android-Einstellungen der App über „Cache leeren“ löschen.
 - Ihre Erinnerungen: Fahrt, Haltestelle und Zeitpunkt, bis die Fahrt abgefahren ist.
 - Die zuletzt abgerufenen Abfahrten von bis zu 10 Haltestellen, damit sie ohne Internetverbindung sichtbar bleiben, und die Daten des Startbildschirm-Widgets.
 - Ihre Einstellungen: Sprache, Darstellung und, falls Sie einen eingeben, Ihr Anzeigename.

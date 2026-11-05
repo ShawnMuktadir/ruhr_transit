@@ -37,6 +37,7 @@ Stored on your device only:
 
 - Your favourites: stops and saved journeys, with the labels you give them. The start and destination of a saved journey can be addresses.
 - Your search history: the stops, addresses and places you last chose for "From" and "To", at most 10. You can delete it, entirely or one by one, in the stop picker.
+- Map images you have viewed: cached, at most 100 MB, so maps load faster. They show which areas you looked at; "Clear cache" in the app's Android settings deletes them.
 - Your reminders: the ride, stop and time, until the ride has left.
 - The last fetched departures of up to 10 stops, so they stay visible without an internet connection, and the data of the home-screen widget.
 - Your settings: language, appearance and, if you enter one, your display name.

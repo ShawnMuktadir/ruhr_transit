@@ -31,6 +31,13 @@ class _NearbyMapState extends State<NearbyMap> {
   NearbyStop? _selected;
 
   @override
+  void didUpdateWidget(NearbyMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A filter may have hidden the chosen stop.
+    if (!widget.stops.contains(_selected)) _selected = null;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;

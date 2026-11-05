@@ -5,10 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/domain/geo_point.dart';
+import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
+import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
+import 'package:ruhr_transit/features/favourites/presentation/favourite_stop_button.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stop.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repository.dart';
@@ -165,6 +168,7 @@ class _StopList extends StatelessWidget {
           StopTile(
             nearby.stop,
             detail: l10n.nearbyDistance(nearby.distanceMeters),
+            action: FavouriteStopButton(nearby.stop),
           ),
       ],
     );
@@ -233,42 +237,101 @@ class _NearbyResults extends StatefulWidget {
 
 class _NearbyResultsState extends State<_NearbyResults> {
   var _onMap = false;
+  final _chosen = <_ModeFilter>{};
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final here = widget.here;
-    final list = _StopList(widget.stops, isApproximate: widget.isApproximate);
-    if (here == null) return list;
+    final available = [
+      for (final filter in _ModeFilter.values)
+        if (widget.stops.any(filter.matches)) filter,
+    ];
+    // A refresh may have removed a mode: then it no longer filters.
+    final active = _chosen.intersection(available.toSet());
+    final stops = active.isEmpty
+        ? widget.stops
+        : [
+            for (final stop in widget.stops)
+              if (active.any((filter) => filter.matches(stop))) stop,
+          ];
+    final list = _StopList(stops, isApproximate: widget.isApproximate);
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-          child: SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<bool>(
-              segments: [
-                ButtonSegment(
-                  value: false,
-                  icon: const Icon(Icons.list),
-                  label: Text(l10n.nearbyViewList),
-                ),
-                ButtonSegment(
-                  value: true,
-                  icon: const Icon(Icons.map_outlined),
-                  label: Text(l10n.nearbyViewMap),
-                ),
-              ],
-              selected: {_onMap},
-              onSelectionChanged: (choice) =>
-                  setState(() => _onMap = choice.single),
+        if (here != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment(
+                    value: false,
+                    icon: const Icon(Icons.list),
+                    label: Text(l10n.nearbyViewList),
+                  ),
+                  ButtonSegment(
+                    value: true,
+                    icon: const Icon(Icons.map_outlined),
+                    label: Text(l10n.nearbyViewMap),
+                  ),
+                ],
+                selected: {_onMap},
+                onSelectionChanged: (choice) =>
+                    setState(() => _onMap = choice.single),
+              ),
             ),
           ),
-        ),
+        // One mode alone has nothing to choose between.
+        if (available.length > 1)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: SizedBox(
+              width: double.infinity,
+              // Wraps at large text instead of overflowing.
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  for (final filter in available)
+                    FilterChip(
+                      label: Text(transportModeLabel(l10n, filter.mode)),
+                      selected: active.contains(filter),
+                      onSelected: (selected) => setState(
+                        () => selected
+                            ? _chosen.add(filter)
+                            : _chosen.remove(filter),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
         Expanded(
-          child: _onMap ? NearbyMap(stops: widget.stops, here: here) : list,
+          child: _onMap && here != null
+              ? NearbyMap(stops: stops, here: here)
+              : list,
         ),
       ],
     );
   }
+}
+
+/// What the chips filter by. To passengers an S-Bahn is a train, so "Train"
+/// covers both.
+enum _ModeFilter {
+  bus(TransportMode.bus, {TransportMode.bus}),
+  tram(TransportMode.tram, {TransportMode.tram}),
+  subway(TransportMode.subway, {TransportMode.subway}),
+  train(TransportMode.train, {
+    TransportMode.train,
+    TransportMode.suburbanTrain,
+  });
+
+  const _ModeFilter(this.mode, this.modes);
+
+  /// Names the chip.
+  final TransportMode mode;
+  final Set<TransportMode> modes;
+
+  bool matches(NearbyStop nearby) => nearby.stop.modes.any(modes.contains);
 }

@@ -21,30 +21,70 @@ abstract final class BaseMap {
   static String attribution(DateTime now) =>
       '© GeoBasis-DE / BKG ${now.year} CC BY 4.0';
 
+  /// The most map images kept on disk, so maps open faster and BKG gets
+  /// fewer requests. flutter_map's default of 1 GB is far too much here.
+  static const maxCacheBytes = 100 * 1000 * 1000;
+
+  /// Makes the provider of the map images; tests replace it, as the disk
+  /// cache needs a plugin that does not run there.
+  @visibleForTesting
+  static TileProvider Function() tileProvider = _cachedTiles;
+
+  static TileProvider _cachedTiles() => NetworkTileProvider(
+    cachingProvider: BuiltInMapCachingProvider.getOrCreateInstance(
+      maxCacheSize: maxCacheBytes,
+    ),
+  );
+
   /// The colour map, or in dark mode the grey one inverted: basemap.de
   /// has no dark style, and a bright map in a dark app glares.
-  static Widget tiles(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return TileLayer(
-      urlTemplate: _tiles,
-      additionalOptions: {'style': dark ? 'grau' : 'farbe'},
-      userAgentPackageName: 'de.muktadir.ruhrtransit',
-      maxNativeZoom: maxZoom.toInt(),
-      tileBuilder: dark ? darkModeTileBuilder : null,
+  static Widget tiles(BuildContext context) => const _Tiles();
+
+  /// The licence credit in the map's corner. Not flutter_map's attribution
+  /// widget: that one cannot wrap, so narrow screens and large text cut off
+  /// the credit the licence asks for.
+  static Widget credit(BuildContext context, DateTime now) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: ColoredBox(
+        // Readable on the light and the dark map alike.
+        color: colors.surface.withValues(alpha: 0.85),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          child: Text(
+            attribution(now),
+            style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurface),
+          ),
+        ),
+      ),
     );
   }
+}
 
-  /// The licence credit in the map's corner. The widget puts the "©" in
-  /// front itself.
-  static Widget credit(BuildContext context, DateTime now) {
-    final colors = Theme.of(context).colorScheme;
-    return SimpleAttributionWidget(
-      source: Text(
-        attribution(now).replaceFirst('© ', ''),
-        style: TextStyle(color: colors.onSurface),
-      ),
-      // Readable on the light and the dark map alike.
-      backgroundColor: colors.surface.withValues(alpha: 0.85),
+/// Holds one provider per map: a new one on every build would reload the
+/// images.
+class _Tiles extends StatefulWidget {
+  const _Tiles();
+
+  @override
+  State<_Tiles> createState() => _TilesState();
+}
+
+class _TilesState extends State<_Tiles> {
+  late final _provider = BaseMap.tileProvider();
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return TileLayer(
+      urlTemplate: BaseMap._tiles,
+      additionalOptions: {'style': dark ? 'grau' : 'farbe'},
+      userAgentPackageName: 'de.muktadir.ruhrtransit',
+      maxNativeZoom: BaseMap.maxZoom.toInt(),
+      tileBuilder: dark ? darkModeTileBuilder : null,
+      tileProvider: _provider,
     );
   }
 }

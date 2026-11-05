@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/map/base_map.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
+import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_map.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_cubit.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
@@ -16,14 +18,28 @@ import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_map_page.dart';
 
 import '../../../helpers/fake_favourite_journeys_repository.dart';
+import '../../../helpers/fake_favourites_repository.dart';
 import '../../../helpers/fake_nearby_stops.dart';
 import '../../../helpers/fake_trip_repository.dart';
 import '../../../helpers/fake_vehicle_run_repository.dart';
 import '../../../helpers/fixtures.dart';
 
 void main() {
-  Widget app(Widget home) => BlocProvider(
-    create: (_) => FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
+  // The disk cache needs a plugin that does not run in tests.
+  setUpAll(
+    () => BaseMap.tileProvider = () => NetworkTileProvider(
+      cachingProvider: const DisabledMapCachingProvider(),
+    ),
+  );
+
+  Widget app(Widget home) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) =>
+            FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
+      ),
+      BlocProvider(create: (_) => FavouritesCubit(FakeFavouritesRepository())),
+    ],
     child: MaterialApp(
       locale: const Locale('en'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
