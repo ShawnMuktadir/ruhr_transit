@@ -1262,18 +1262,6 @@
   "@remindersEmpty": {
     "description": "Reminder list without reminders."
   },
-  "stopFromHere": "Von hier",
-  "@stopFromHere": {
-    "description": "Button on a stop: use it as the start of a trip."
-  },
-  "stopToHere": "Hierhin",
-  "@stopToHere": {
-    "description": "Button on a stop: use it as the destination of a trip."
-  },
-  "stopWalkThere": "Weg dorthin",
-  "@stopWalkThere": {
-    "description": "Button on a stop: the way on foot from the user's location."
-  },
   "stopWalkNotFound": "Zu Fuß wurde kein Weg dorthin gefunden.",
   "@stopWalkNotFound": {
     "description": "Snack bar when there is no walk to the stop, or it is too long."
@@ -1323,5 +1311,13 @@
   "tripWayFromHere": "Von Ihrem aktuellen Standort",
   "@tripWayFromHere": {
     "description": "Below the row with the way to the first stop."
+  },
+  "stopPlanFromHere": "Verbindung von hier",
+  "stopDepartures": "Abfahrten",
+  "@stopPlanFromHere": {
+    "description": "Main button on a stop: fills the start of a trip and opens the planner."
+  },
+  "@stopDepartures": {
+    "description": "Opens the departures of the chosen stop."
   }
 }

@@ -191,97 +191,34 @@ void main() {
     });
   });
 
-  group('StopActions', () {
-    late List<Stop> from;
-    late List<Stop> to;
-    late FakeLocationSource location;
-    late FakeTripRepository trips;
+  group('PlanFromStopButton', () {
+    Widget app({ValueChanged<Stop>? planFrom}) => MaterialApp(
+      locale: const Locale('en'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      builder: planFrom == null
+          ? null
+          : (context, child) => TripActions(
+              planFrom: planFrom,
+              walkToStop: () => throw StateError('Not used'),
+              child: child!,
+            ),
+      home: const Scaffold(body: PlanFromStopButton(bochumHbf)),
+    );
 
-    setUp(() {
-      from = [];
-      to = [];
-      location = FakeLocationSource();
-      trips = FakeTripRepository();
-    });
+    testWidgets('plans from the stop', (tester) async {
+      final from = <Stop>[];
+      await tester.pumpWidget(app(planFrom: from.add));
 
-    Widget app({bool withActions = true}) {
-      const page = Scaffold(body: StopActions(bochumHbf));
-      return BlocProvider(
-        create: (_) =>
-            FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
-        child: MaterialApp(
-          locale: const Locale('en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          builder: withActions
-              ? (context, child) => TripActions(
-                  planFrom: from.add,
-                  planTo: to.add,
-                  walkToStop: () => WalkToStop(
-                    CurrentLocationFinder(location, FakeStopRepository()),
-                    trips,
-                  ),
-                  child: child!,
-                )
-              : null,
-          home: page,
-        ),
-      );
-    }
-
-    testWidgets('fill the planner with the stop', (tester) async {
-      await tester.pumpWidget(app());
-
-      await tester.tap(find.text('From here'));
-      await tester.tap(find.text('To here'));
+      await tester.tap(find.text('Plan trip from here'));
 
       expect(from, [bochumHbf]);
-      expect(to, [bochumHbf]);
     });
 
-    testWidgets('show nothing without the home shell', (tester) async {
-      await tester.pumpWidget(app(withActions: false));
-
-      expect(find.byType(FilledButton), findsNothing);
-    });
-
-    testWidgets('a walk opens with its directions showing', (tester) async {
-      trips.walkReply = Ok(_walk);
+    testWidgets('shows nothing without the home shell', (tester) async {
       await tester.pumpWidget(app());
 
-      await tester.tap(find.text('Walk there'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(JourneyDetailsPage), findsOneWidget);
-      expect(find.textContaining('On foot'), findsOneWidget);
-      expect(find.text('Walk 6 min (374 m)'), findsOneWidget);
-      expect(find.text('Südring'), findsOneWidget);
-      expect(find.text('Hide directions'), findsOneWidget);
-    });
-
-    testWidgets('location off offers the settings', (tester) async {
-      location.result = const LocationOff();
-      await tester.pumpWidget(app());
-
-      await tester.tap(find.text('Walk there'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Location services are turned off.'), findsOneWidget);
-      await tester.tap(find.text('Turn on'));
-      expect(location.locationSettingsOpened, 1);
-    });
-
-    testWidgets('no route and failures say so', (tester) async {
-      await tester.pumpWidget(app());
-
-      await tester.tap(find.text('Walk there'));
-      await tester.pumpAndSettle();
-      expect(find.text('No walking route found.'), findsOneWidget);
-
-      trips.walkReply = const Err(NetworkFailure());
-      await tester.tap(find.text('Walk there'));
-      await tester.pumpAndSettle();
-      expect(find.textContaining('No internet connection'), findsOneWidget);
+      expect(find.text('Plan trip from here'), findsNothing);
     });
   });
 
@@ -322,7 +259,6 @@ void main() {
         supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) => TripActions(
           planFrom: (_) {},
-          planTo: (_) {},
           walkToStop: () => WalkToStop(
             CurrentLocationFinder(location, FakeStopRepository()),
             trips,

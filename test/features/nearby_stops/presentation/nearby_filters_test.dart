@@ -169,6 +169,7 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.location_on).first);
       await tester.pump();
+      await tester.pump();
       expect(find.textContaining('80 m away'), findsOneWidget);
 
       await tester.tap(find.widgetWithText(FilterChip, 'Train'));
@@ -192,6 +193,67 @@ void main() {
 
       expect(find.byType(FilterChip), findsNothing);
       expect(find.text('A'), findsOneWidget);
+    });
+  });
+
+  group('choosing a stop', () {
+    Icon pinOf(WidgetTester tester, int index) =>
+        tester.widget<Icon>(find.byIcon(Icons.location_on).at(index));
+
+    testWidgets('a tap in the list shows it on the map, pin highlighted', (
+      tester,
+    ) async {
+      await pump(tester);
+      expect(find.byType(NearbyMap), findsNothing);
+
+      await tester.tap(find.text('Tramstop'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(NearbyMap), findsOneWidget);
+      final map = tester.widget<NearbyMap>(find.byType(NearbyMap));
+      expect(map.selected?.stop.name, 'Tramstop');
+      // Name, distance and the ring.
+      expect(find.text('Tramstop'), findsOneWidget);
+      expect(find.textContaining('60 m away'), findsOneWidget);
+      final circles = tester.widget<CircleLayer>(find.byType(CircleLayer));
+      expect(circles.circles, hasLength(2));
+      // The chosen pin is last, so on top, and larger than the others.
+      final pins = find.byIcon(Icons.location_on).evaluate().length;
+      expect(pins, 4);
+      expect(pinOf(tester, 3).size, greaterThan(pinOf(tester, 0).size!));
+    });
+
+    testWidgets('a tap on the map lets go of it', (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Tramstop'));
+      await tester.pump();
+      await tester.pump();
+
+      tester.widget<NearbyMap>(find.byType(NearbyMap)).onSelected(null);
+      await tester.pump();
+
+      expect(find.textContaining('60 m away'), findsNothing);
+      expect(
+        tester.widget<CircleLayer>(find.byType(CircleLayer)).circles,
+        hasLength(1),
+      );
+    });
+
+    testWidgets('a filter that hides the chosen stop lets go of it', (
+      tester,
+    ) async {
+      await pump(tester);
+      await tester.tap(find.text('Tramstop'));
+      await tester.pump();
+      await tester.pump();
+
+      await tester.tap(find.widgetWithText(FilterChip, 'Train'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(tester.widget<NearbyMap>(find.byType(NearbyMap)).selected, isNull);
+      expect(find.textContaining('60 m away'), findsNothing);
     });
   });
 }

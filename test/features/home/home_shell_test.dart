@@ -125,7 +125,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('a stop can fill the planner from another tab', (tester) async {
+  testWidgets('planning from a stop fills Von and asks for the destination', (
+    tester,
+  ) async {
     await pumpShell(tester);
     await tester.tap(find.text('Stops near me'));
     await tester.pumpAndSettle();
@@ -134,12 +136,35 @@ void main() {
     shell.planFrom(bochumHbf);
     await tester.pumpAndSettle();
 
+    // The destination picker is open on the planner.
+    expect(find.text('Choose destination'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
     expect(find.text('Where to today?'), findsOneWidget);
     expect(find.text('Bochum, Hbf'), findsOneWidget);
+  });
 
-    shell.planTo(dortmundHbf);
+  testWidgets('with a destination already chosen, no picker opens', (
+    tester,
+  ) async {
+    await pumpShell(tester);
+    final shell = tester.state<HomeShellState>(find.byType(HomeShell));
+    shell.planFrom(bochumHbf);
     await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    // Swapping moves it to "Nach", so a new start leaves it there.
+    await tester.tap(find.byTooltip('Swap start and destination'));
+    await tester.pump();
+    shell.planFrom(dortmundHbf);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TextField), findsNothing);
     expect(find.text('Dortmund, Hbf'), findsOneWidget);
+    expect(find.text('Bochum, Hbf'), findsOneWidget);
   });
 
   testWidgets('starts on the planner; only the selected icon is filled', (

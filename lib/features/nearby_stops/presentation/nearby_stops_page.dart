@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
@@ -11,6 +12,7 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
+import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourite_stop_button.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stop.dart';
@@ -19,6 +21,7 @@ import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_map.dart'
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_cubit.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_state.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 
 /// Composition root of the nearby stops page: creates the cubit and starts
 /// it (see [NearbyStopsCubit.start]), then hands over to [NearbyStopsView], which tests can pump with
@@ -125,10 +128,15 @@ class _Progress extends StatelessWidget {
 }
 
 class _StopList extends StatelessWidget {
-  const _StopList(this.stops, {required this.isApproximate});
+  const _StopList(
+    this.stops, {
+    required this.isApproximate,
+    required this.onChosen,
+  });
 
   final List<NearbyStop> stops;
   final bool isApproximate;
+  final ValueChanged<NearbyStop> onChosen;
 
   @override
   Widget build(BuildContext context) {
@@ -165,10 +173,26 @@ class _StopList extends StatelessWidget {
             ),
           ),
         for (final nearby in stops)
-          StopTile(
-            nearby.stop,
-            detail: l10n.nearbyDistance(nearby.distanceMeters),
-            action: FavouriteStopButton(nearby.stop),
+          // The card with these two is on the map, which TalkBack cannot
+          // use to find a stop; it offers them on the row (actions menu).
+          Semantics(
+            customSemanticsActions: {
+              if (TripActions.maybeOf(context) case final actions?)
+                CustomSemanticsAction(label: l10n.stopPlanFromHere): () =>
+                    actions.planFrom(nearby.stop),
+              CustomSemanticsAction(label: l10n.stopDepartures): () =>
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => DeparturesPage(stop: nearby.stop),
+                    ),
+                  ),
+            },
+            child: StopTile(
+              nearby.stop,
+              detail: l10n.nearbyDistance(nearby.distanceMeters),
+              action: FavouriteStopButton(nearby.stop),
+              onSelected: (_) => onChosen(nearby),
+            ),
           ),
       ],
     );
@@ -238,6 +262,22 @@ class _NearbyResults extends StatefulWidget {
 class _NearbyResultsState extends State<_NearbyResults> {
   var _onMap = false;
   final _chosen = <_ModeFilter>{};
+  NearbyStop? _selected;
+
+  /// Without a position there is no map to show it on.
+  void _openDepartures(NearbyStop nearby) => unawaited(
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => DeparturesPage(stop: nearby.stop),
+      ),
+    ),
+  );
+
+  /// A tap in the list or on a pin: shows the stop on the map.
+  void _select(NearbyStop? nearby) => setState(() {
+    _selected = nearby;
+    if (nearby != null) _onMap = true;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +295,13 @@ class _NearbyResultsState extends State<_NearbyResults> {
             for (final stop in widget.stops)
               if (active.any((filter) => filter.matches(stop))) stop,
           ];
-    final list = _StopList(stops, isApproximate: widget.isApproximate);
+    // A filter or refresh may have hidden the chosen stop.
+    final selected = stops.contains(_selected) ? _selected : null;
+    final list = _StopList(
+      stops,
+      isApproximate: widget.isApproximate,
+      onChosen: here == null ? _openDepartures : _select,
+    );
     return Column(
       children: [
         if (here != null)
@@ -308,7 +354,12 @@ class _NearbyResultsState extends State<_NearbyResults> {
           ),
         Expanded(
           child: _onMap && here != null
-              ? NearbyMap(stops: stops, here: here)
+              ? NearbyMap(
+                  stops: stops,
+                  here: here,
+                  selected: selected,
+                  onSelected: _select,
+                )
               : list,
         ),
       ],

@@ -120,7 +120,13 @@ class DeparturesView extends StatelessWidget {
       ),
       body: Column(
         children: [
-          StopActions(stop),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: PlanFromStopButton(stop),
+            ),
+          ),
           Expanded(
             child: BlocConsumer<DeparturesCubit, DeparturesState>(
               listenWhen: (_, state) =>

@@ -108,7 +108,6 @@ void main() {
 
   Widget tripWithWay() => TripActions(
     planFrom: (_) {},
-    planTo: (_) {},
     walkToStop: () => WalkToStop(
       CurrentLocationFinder(FakeLocationSource(), FakeStopRepository()),
       FakeTripRepository()
@@ -189,9 +188,8 @@ void main() {
       create: (_) => StopSearchCubit(FakeStopRepository()),
       child: const StopSearchView(),
     ),
-    'departure board with From here, To here, Walk there': () => TripActions(
+    'departure board with Plan trip from here': () => TripActions(
       planFrom: (_) {},
-      planTo: (_) {},
       walkToStop: () => throw StateError('Not tapped here'),
       child: BlocProvider(
         create: (_) => DeparturesCubit(
@@ -203,13 +201,12 @@ void main() {
         child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
       ),
     ),
-    'trip details, way to the first stop offered': () => tripWithWay(),
+    'trip details, way to the first stop offered': tripWithWay,
     'trip details, way to the first stop added': tripWithWay,
     'nearby stops, stars and filter chips': nearby,
     'nearby stops, on the map': nearby,
     'nearby stops, a pin chosen on the map': () => TripActions(
       planFrom: (_) {},
-      planTo: (_) {},
       walkToStop: () => throw StateError('Not tapped here'),
       child: nearby(),
     ),
