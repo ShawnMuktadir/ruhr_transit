@@ -12,6 +12,7 @@ import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_pag
 import 'package:ruhr_transit/features/settings/presentation/settings_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
+import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
@@ -143,16 +144,25 @@ class HomeShellState extends State<HomeShell> {
     );
   }
 
-  /// Fills "Von" with [stop] and opens the planner.
+  /// Fills "Von" with [stop], opens the planner and asks for the destination
+  /// if that is all that is missing.
   void planFrom(Stop stop) {
     _tripForm.setFrom(stop);
-    _inTab(HomeTab.plan, (_) {});
+    _inTab(HomeTab.plan, (navigator) {
+      final destination = _tripForm.state.to;
+      if (destination == null || destination == stop) {
+        unawaited(_pickDestination(navigator));
+      }
+    });
   }
 
-  /// Fills "Nach" with [stop] and opens the planner.
-  void planTo(Stop stop) {
-    _tripForm.setTo(stop);
-    _inTab(HomeTab.plan, (_) {});
+  Future<void> _pickDestination(NavigatorState navigator) async {
+    final context = navigator.context;
+    final destination = await StopPicker.pick(
+      context,
+      title: AppLocalizations.of(context).tripChooseTo,
+    );
+    if (destination != null) _tripForm.setTo(destination);
   }
 
   WalkToStop _walkToStop() => WalkToStop(
@@ -219,7 +229,6 @@ class HomeShellState extends State<HomeShell> {
       },
       child: TripActions(
         planFrom: planFrom,
-        planTo: planTo,
         walkToStop: _walkToStop,
         child: Scaffold(
           body: NotificationListener<NavigationNotification>(

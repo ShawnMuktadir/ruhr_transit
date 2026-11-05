@@ -15,8 +15,12 @@ class StopTile extends StatelessWidget {
     this.icon,
     this.detail,
     this.onSelected,
+    this.action,
     super.key,
   });
+
+  /// After the mode icons, e.g. the star on a nearby stop.
+  final Widget? action;
 
   final Stop stop;
   final bool isFavourite;
@@ -56,7 +60,13 @@ class StopTile extends StatelessWidget {
           [] => null,
           final parts => Text(parts.join(' · ')),
         },
-        trailing: _ModeIcons(stop.modes),
+        trailing: switch (action) {
+          final action? => Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [_ModeIcons(stop.modes), action],
+          ),
+          null => _ModeIcons(stop.modes),
+        },
         onTap: switch (onSelected) {
           final onSelected? => () => onSelected(stop),
           null => () => Navigator.of(context).push(

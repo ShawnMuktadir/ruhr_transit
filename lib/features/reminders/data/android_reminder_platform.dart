@@ -1,12 +1,16 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
+import 'package:ruhr_transit/features/favourites/data/stop_json.dart';
 import 'package:ruhr_transit/features/reminders/data/reminder_repository_impl.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_worker.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/data/efa_run_remote_source.dart';
 import 'package:ruhr_transit/features/trip_planner/data/vehicle_run_repository_impl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,17 +65,41 @@ class AndroidReminderNotifier implements ReminderNotifier {
   static const _icon = 'ic_notification';
 
   final _plugin = FlutterLocalNotificationsPlugin();
-  var _initialized = false;
+  final _taps = StreamController<Stop>.broadcast();
+
+  /// Once, also when several calls arrive before it has finished.
+  late final Future<void> _ready = _plugin.initialize(
+    settings: const InitializationSettings(
+      android: AndroidInitializationSettings(_icon),
+    ),
+    onDidReceiveNotificationResponse: (response) {
+      if (_readStop(response.payload) case final stop?) _taps.add(stop);
+    },
+  );
+
+  /// The notification's payload, null without a stop or when unreadable.
+  static Stop? _readStop(String? payload) {
+    if (payload == null) return null;
+    try {
+      return stopFromJson(jsonDecode(payload));
+    } on FormatException {
+      return null;
+    }
+  }
+
+  @override
+  Future<Stop?> launchedStop() async {
+    await _ready;
+    final details = await _plugin.getNotificationAppLaunchDetails();
+    if (details == null || !details.didNotificationLaunchApp) return null;
+    return _readStop(details.notificationResponse?.payload);
+  }
+
+  @override
+  Stream<Stop> get openedStops => _taps.stream;
 
   Future<AndroidFlutterLocalNotificationsPlugin?> _android() async {
-    if (!_initialized) {
-      await _plugin.initialize(
-        settings: const InitializationSettings(
-          android: AndroidInitializationSettings(_icon),
-        ),
-      );
-      _initialized = true;
-    }
+    await _ready;
     return _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
@@ -101,12 +129,17 @@ class AndroidReminderNotifier implements ReminderNotifier {
     required String body,
     required String channelName,
     required String channelDescription,
+    Stop? opens,
   }) async {
     await _android();
     await _plugin.show(
       id: id,
       title: title,
       body: body,
+      payload: switch (opens) {
+        final stop? => jsonEncode(stopToJson(stop)),
+        null => null,
+      },
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,

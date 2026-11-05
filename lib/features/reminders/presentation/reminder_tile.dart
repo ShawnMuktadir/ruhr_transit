@@ -67,28 +67,32 @@ class ReminderTile extends StatelessWidget {
     final lead = await showModalBottomSheet<Duration>(
       context: context,
       showDragHandle: true,
+      // At large text the choices need more than half the screen.
+      isScrollControlled: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  l10n.reminderSheetTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    l10n.reminderSheetTitle,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
               ),
-            ),
-            for (final lead in leads)
-              ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-                title: Text(l10n.reminderLeadOption(lead.inMinutes)),
-                onTap: () => Navigator.of(context).pop(lead),
-              ),
-          ],
+              for (final lead in leads)
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                  title: Text(l10n.reminderLeadOption(lead.inMinutes)),
+                  onTap: () => Navigator.of(context).pop(lead),
+                ),
+            ],
+          ),
         ),
       ),
     );

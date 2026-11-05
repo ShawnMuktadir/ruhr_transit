@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
@@ -72,10 +73,33 @@ void main() {
     expect(find.textContaining('approximate'), findsNothing);
     expect(find.textContaining('All information without guarantee'), findsOne);
 
+    // A tap chooses the stop on the map; its card leads to the departures.
     await tester.tap(find.text('Bochum · 40 m away'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.byType(DeparturesPage), findsNothing);
+    expect(find.textContaining('40 m away'), findsOneWidget);
+
+    await tester.tap(find.text('Departures'));
     await tester.pumpAndSettle();
 
     expect(find.byType(DeparturesPage), findsOneWidget);
+  });
+
+  testWidgets('TalkBack offers the departures on the row itself', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpPage(tester);
+
+    tester.semantics.customAction(
+      find.semantics.byLabel(RegExp('40 m away')),
+      const CustomSemanticsAction(label: 'Departures'),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DeparturesPage), findsOneWidget);
+    semantics.dispose();
   });
 
   testWidgets('explains before asking for the location', (tester) async {

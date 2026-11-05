@@ -70,6 +70,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
   /// Opens boards from widget taps, which come from outside the widget tree.
   final _shellKey = GlobalKey<HomeShellState>();
   late final StreamSubscription<Stop> _widgetTaps;
+  late final StreamSubscription<Stop> _reminderTaps;
 
   // Created here rather than in BlocProviders, because the app itself
   // reacts to them (locale changes, widget taps before onboarding).
@@ -113,6 +114,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _widgetTaps = getIt<WidgetSync>().openedStops.listen(_openBoard);
+    _reminderTaps = getIt<ReminderNotifier>().openedStops.listen(_openBoard);
     if (widget.launchedStop case final stop?) {
       // The navigator exists only after the first frame.
       WidgetsBinding.instance.addPostFrameCallback((_) => _openBoard(stop));
@@ -123,6 +125,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_widgetTaps.cancel());
+    unawaited(_reminderTaps.cancel());
     unawaited(_favourites.close());
     unawaited(_favouriteJourneys.close());
     unawaited(_recentStops.close());

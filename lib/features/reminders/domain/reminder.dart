@@ -1,6 +1,8 @@
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
 
 /// How long before leaving a reminder can come.
 const reminderLeads = [
@@ -29,6 +31,7 @@ class Reminder {
     this.runKey,
     this.originStopId,
     this.originParentId,
+    this.boardStop,
   });
 
   /// The first ride of [journey], or null when it is only a walk.
@@ -57,6 +60,7 @@ class Reminder {
           runKey: leg.runKey,
           originStopId: leg.originId?.id,
           originParentId: leg.originId?.parentId,
+          boardStop: boardingStopOf(leg),
         );
       }
     }
@@ -103,6 +107,10 @@ class Reminder {
   final String? originStopId;
   final String? originParentId;
 
+  /// Whose departures tapping the notification opens; null just opens the
+  /// app.
+  final Stop? boardStop;
+
   /// When the user has to leave.
   DateTime get leaveAt => departure.subtract(walkBefore);
 
@@ -125,5 +133,6 @@ class Reminder {
     runKey: runKey,
     originStopId: originStopId,
     originParentId: originParentId,
+    boardStop: boardStop,
   );
 }

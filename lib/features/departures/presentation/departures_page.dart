@@ -18,7 +18,7 @@ import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
-import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
+import 'package:ruhr_transit/features/favourites/presentation/favourite_stop_button.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
@@ -101,7 +101,7 @@ class DeparturesView extends StatelessWidget {
       appBar: AppBar(
         title: Text(stop.fullName),
         actions: [
-          _FavouriteButton(stop),
+          FavouriteStopButton(stop),
           // Pull-to-refresh is not discoverable or usable for everyone.
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -120,7 +120,13 @@ class DeparturesView extends StatelessWidget {
       ),
       body: Column(
         children: [
-          StopActions(stop),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: PlanFromStopButton(stop),
+            ),
+          ),
           Expanded(
             child: BlocConsumer<DeparturesCubit, DeparturesState>(
               listenWhen: (_, state) =>
@@ -226,27 +232,6 @@ class _Board extends StatelessWidget {
               itemBuilder: (context, index) =>
                   ListCard(child: _DepartureTile(departures[index])),
             ),
-    );
-  }
-}
-
-class _FavouriteButton extends StatelessWidget {
-  const _FavouriteButton(this.stop);
-
-  final Stop stop;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final isFavourite = context.select<FavouritesCubit, bool>(
-      (cubit) => cubit.isFavourite(stop),
-    );
-    return IconButton(
-      isSelected: isFavourite,
-      icon: const Icon(Icons.star_border),
-      selectedIcon: const Icon(Icons.star),
-      tooltip: isFavourite ? l10n.favouriteRemove : l10n.favouriteAdd,
-      onPressed: () => context.read<FavouritesCubit>().toggle(stop),
     );
   }
 }

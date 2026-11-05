@@ -41,7 +41,10 @@ void main() {
 
   // The real app resolves the repositories through get_it; fakes keep the
   // smoke tests off the network and the platform.
+  late FakeReminderNotifier reminderNotifier;
+
   setUp(() {
+    reminderNotifier = FakeReminderNotifier();
     widgetSync = FakeWidgetSync();
     language = FakeLanguageRepository();
     onboarding = FakeOnboardingRepository();
@@ -67,7 +70,7 @@ void main() {
       ..registerSingleton<ConnectivitySource>(FakeConnectivitySource())
       ..registerSingleton<ReminderRepository>(FakeReminderRepository())
       ..registerSingleton<ReminderAlarms>(FakeReminderAlarms())
-      ..registerSingleton<ReminderNotifier>(FakeReminderNotifier());
+      ..registerSingleton<ReminderNotifier>(reminderNotifier);
     PackageInfo.setMockInitialValues(
       appName: 'RuhrTransit',
       packageName: 'de.muktadir.ruhrtransit',
@@ -145,6 +148,20 @@ void main() {
       // The Favourites tab, on its stops segment with the search.
       expect(find.text('Favourites'), findsWidgets);
       expect(find.byType(TextField), findsOneWidget);
+    });
+
+    testWidgets('a tapped reminder notification opens the board', (
+      tester,
+    ) async {
+      await tester.pumpWidget(const RuhrTransitApp());
+      await tester.pumpAndSettle();
+      expect(find.byType(DeparturesPage), findsNothing);
+
+      reminderNotifier.taps.add(dortmundHbf);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DeparturesPage), findsOneWidget);
+      expect(find.text('Dortmund, Hbf'), findsOneWidget);
     });
 
     testWidgets('a widget tap while running opens the board', (tester) async {

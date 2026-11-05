@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/features/favourites/data/stop_json.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,6 +55,7 @@ class ReminderRepositoryImpl implements ReminderRepository {
     'use24HourFormat': r.use24HourFormat,
     'originStopId': r.originStopId,
     'originParentId': r.originParentId,
+    if (r.boardStop case final stop?) 'boardStop': stopToJson(stop),
     if (r.runKey case final key?)
       'run': {
         'lineId': key.lineId,
@@ -97,9 +100,20 @@ class ReminderRepositoryImpl implements ReminderRepository {
         originStopId: json['originStopId'] as String?,
         originParentId: json['originParentId'] as String?,
         runKey: _readRunKey(json['run']),
+        boardStop: _readStop(json['boardStop']),
       );
     }
     return null;
+  }
+
+  /// Reminders saved before this field, or with a broken one, have none.
+  static Stop? _readStop(Object? json) {
+    if (json == null) return null;
+    try {
+      return stopFromJson(json);
+    } on FormatException {
+      return null;
+    }
   }
 
   static RunKey? _readRunKey(Object? json) {

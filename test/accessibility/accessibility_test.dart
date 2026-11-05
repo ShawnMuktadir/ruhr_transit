@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/map/base_map.dart';
 import 'package:ruhr_transit/core/theme/app_theme.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
@@ -24,16 +26,24 @@ import 'package:ruhr_transit/features/onboarding/presentation/onboarding_page.da
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_page.dart';
 import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
+import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
+import 'package:ruhr_transit/features/reminders/presentation/reminders_page.dart';
 import 'package:ruhr_transit/features/settings/presentation/settings_page.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
+import 'package:ruhr_transit/features/trip_planner/data/trip_mapper.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_page.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/trip_map_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
@@ -45,17 +55,26 @@ import '../helpers/fake_favourite_journeys_repository.dart';
 import '../helpers/fake_favourites_repository.dart';
 import '../helpers/fake_nearby_stops.dart';
 import '../helpers/fake_recent_stops_repository.dart';
+import '../helpers/fake_reminders.dart';
 import '../helpers/fake_settings.dart';
 import '../helpers/fake_stop_repository.dart';
 import '../helpers/fake_trip_repository.dart';
 import '../helpers/fake_vehicle_run_repository.dart';
 import '../helpers/fake_weather_repository.dart';
 import '../helpers/fake_widget_sync.dart';
+import '../helpers/fixtures.dart';
 
 /// Every screen, in light and dark, at 100, 130 and 200 % font size, on a
 /// phone-sized screen: no layout overflow (an overflow fails the test by
 /// itself), and Android's tap target, label and contrast guidelines.
 void main() {
+  // The disk cache needs a plugin that does not run in tests.
+  setUpAll(
+    () => BaseMap.tileProvider = () => NetworkTileProvider(
+      cachingProvider: const DisabledMapCachingProvider(),
+    ),
+  );
+
   // The home screen's planner makes its weather chip through get_it.
   setUp(
     () => getIt
@@ -66,6 +85,51 @@ void main() {
       ..registerFactory<StopRepository>(FakeStopRepository.new),
   );
   tearDown(getIt.reset);
+
+  /// [page] with reminders, at a time before the sample journey leaves.
+  Widget reminders(Widget page, {List<Reminder> saved = const []}) =>
+      BlocProvider(
+        create: (_) => RemindersCubit(
+          FakeReminderRepository(saved),
+          FakeReminderAlarms(),
+          FakeReminderNotifier(),
+          now: () => DateTime.utc(2026, 11, 2, 6),
+        ),
+        child: page,
+      );
+
+  Reminder reminderForS1() => Reminder.forJourney(
+    directS1,
+    id: 1,
+    lead: const Duration(minutes: 10),
+    languageCode: 'de',
+    use24HourFormat: true,
+  )!;
+
+  Widget tripWithWay() => TripActions(
+    planFrom: (_) {},
+    walkToStop: () => WalkToStop(
+      CurrentLocationFinder(FakeLocationSource(), FakeStopRepository()),
+      FakeTripRepository()
+        ..walkReply = Ok(
+          mapTripResponse(readEfaFixtureJson('trip_walk_only')).first,
+        ),
+    ),
+    child: JourneyDetailsPage(
+      journey: mapTripResponse(
+        readEfaFixtureJson('trip_bochum_dortmund'),
+      ).first,
+      runs: null,
+    ),
+  );
+
+  Widget nearby() => BlocProvider(
+    create: (_) => NearbyStopsCubit(
+      FakeLocationSource()..permissionGranted = true,
+      FakeNearbyStopsRepository(),
+    )..load(),
+    child: const NearbyStopsView(),
+  );
 
   Widget planner(WeatherCubit weather) => BlocProvider(
     create: (_) => TripFormCubit(),
@@ -124,6 +188,42 @@ void main() {
       create: (_) => StopSearchCubit(FakeStopRepository()),
       child: const StopSearchView(),
     ),
+    'departure board with Plan trip from here': () => TripActions(
+      planFrom: (_) {},
+      walkToStop: () => throw StateError('Not tapped here'),
+      child: BlocProvider(
+        create: (_) => DeparturesCubit(
+          FakeDepartureRepository()
+            ..autoReply = Ok([delayedRe16, cancelledRe11, movedU35]),
+          bochumHbf.id,
+          now: () => boardTime,
+        )..load(),
+        child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
+      ),
+    ),
+    'trip details, way to the first stop offered': tripWithWay,
+    'trip details, way to the first stop added': tripWithWay,
+    'nearby stops, stars and filter chips': nearby,
+    'nearby stops, on the map': nearby,
+    'nearby stops, a pin chosen on the map': () => TripActions(
+      planFrom: (_) {},
+      walkToStop: () => throw StateError('Not tapped here'),
+      child: nearby(),
+    ),
+    'trip on the map': () => TripMapPage(
+      journey: mapTripResponse(readEfaFixtureJson('trip_with_walk')).first,
+    ),
+    'trip details, reminder offered': () =>
+        reminders(JourneyDetailsPage(journey: directS1, runs: null)),
+    'trip details, choosing a reminder': () =>
+        reminders(JourneyDetailsPage(journey: directS1, runs: null)),
+    'trip details, reminder set': () => reminders(
+      JourneyDetailsPage(journey: directS1, runs: null),
+      saved: [reminderForS1()],
+    ),
+    'reminders, none': () => reminders(const RemindersPage()),
+    'reminders, one set': () =>
+        reminders(const RemindersPage(), saved: [reminderForS1()]),
     'departure board': () => BlocProvider(
       create: (_) => DeparturesCubit(
         FakeDepartureRepository()
@@ -235,6 +335,26 @@ void main() {
 
   /// Steps to reach a screen that has no page of its own.
   final reach = <String, Future<void> Function(WidgetTester)>{
+    'trip details, way to the first stop added': (tester) async {
+      await tester.tap(find.textContaining('Weg zu'));
+      await tester.pumpAndSettle();
+    },
+    'nearby stops, on the map': (tester) async {
+      await tester.tap(find.text('Karte'));
+      await tester.pump();
+      await tester.pump();
+    },
+    'nearby stops, a pin chosen on the map': (tester) async {
+      await tester.tap(find.text('Karte'));
+      await tester.pump();
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.location_on).first);
+      await tester.pump();
+    },
+    'trip details, choosing a reminder': (tester) async {
+      await tester.tap(find.text('Ans Losgehen erinnern'));
+      await tester.pumpAndSettle();
+    },
     'language choice': (tester) async {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();

@@ -192,6 +192,10 @@ class _VehicleMarkerState extends State<_VehicleMarker> {
     final theme = Theme.of(context);
     final state = context.watch<VehicleRunCubit>().state;
     final point = switch (state) {
+      // Paused without a connection, like in the trip details.
+      VehicleRunLoaded(:final run, isPaused: true, :final now) => run.pointAt(
+        now,
+      ),
       VehicleRunLoaded(:final run) => run.pointAt(widget.now()),
       _ => null,
     };

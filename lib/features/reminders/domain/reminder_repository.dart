@@ -1,4 +1,5 @@
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 
 /// The reminders that are set, on the device. Read by the app and by the
 /// alarm while the app is closed.
@@ -32,7 +33,15 @@ abstract interface class ReminderNotifier {
     required String body,
     required String channelName,
     required String channelDescription,
+    Stop? opens,
   });
+
+  /// The stop whose reminder notification started the app, if it was
+  /// started that way.
+  Future<Stop?> launchedStop();
+
+  /// Stops whose reminder notification was tapped while the app was running.
+  Stream<Stop> get openedStops;
 
   Future<void> cancel(int id);
 }

@@ -18,7 +18,7 @@ For every query the app connects to the VRR timetable service (openservice.vrr.d
 
 - **Search terms** for stops and, under "From" and "To", also for **addresses and places**: what you type there, such as the street and house number of your home, is sent to VRR.
 - **IDs** of the chosen stops, addresses and places for departures and trips, and the **chosen time** of a trip search.
-- **Location**, only when you tap "Use my location" under "Stops near me" and allow location access: the coordinates are read once and sent to VRR to find stops within 1 km. Likewise when you tap "Use current location as start" next to "From" or "Walk there" on a stop: the coordinates, rounded to about 10 m, are sent to VRR, which returns the address there as the start. This start is not saved in the search history. For the weather, see below. The app never reads the location in the background and does not store it.
+- **Location**, only when you tap "Use my location" under "Stops near me" and allow location access: the coordinates are read once and sent to VRR to find stops within 1 km. Likewise when you tap "Use current location as start" next to "From" or "Walk to …" on a trip: the coordinates, rounded to about 10 m, are sent to VRR, which returns the address there as the start. This start is not saved in the search history. For the weather, see below. The app never reads the location in the background and does not store it.
 - As with any internet request, VRR's server receives your **IP address**.
 
 VRR's own privacy policy applies to its processing: https://www.vrr.de/de/datenschutz/.
@@ -37,6 +37,7 @@ Stored on your device only:
 
 - Your favourites: stops and saved journeys, with the labels you give them. The start and destination of a saved journey can be addresses.
 - Your search history: the stops, addresses and places you last chose for "From" and "To", at most 10. You can delete it, entirely or one by one, in the stop picker.
+- Map images you have viewed: cached, at most 100 MB, so maps load faster. They show which areas you looked at; "Clear cache" in the app's Android settings deletes them.
 - Your reminders: the ride, stop and time, until the ride has left.
 - The last fetched departures of up to 10 stops, so they stay visible without an internet connection, and the data of the home-screen widget.
 - Your settings: language, appearance and, if you enter one, your display name.

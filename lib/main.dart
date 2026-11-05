@@ -7,6 +7,7 @@ import 'package:ruhr_transit/features/favourites/domain/favourites_repository.da
 import 'package:ruhr_transit/features/language/domain/language_repository.dart';
 import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
@@ -22,7 +23,10 @@ Future<void> main() async {
   final favourites = await getIt<FavouritesRepository>().load();
   // Also loaded up front, for the same reason as favourites.
   final recentStops = await getIt<RecentStopsRepository>().load();
-  final launchedStop = await getIt<WidgetSync>().launchedStop();
+  // Started from the home-screen widget or a reminder notification.
+  final launchedStop =
+      await getIt<WidgetSync>().launchedStop() ??
+      await getIt<ReminderNotifier>().launchedStop();
   // Also read up front, so the first frame is already in the right language,
   // theme and screen.
   final language = AppLanguages.byCode(
