@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
@@ -11,6 +14,7 @@ import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_worker.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_page.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_page.dart';
@@ -39,6 +43,7 @@ Journey _journey({String line = 'RE6'}) => Journey([
       name: 'Bochum Hbf',
       plannedTime: _utc(8, 30),
       platform: '3',
+      position: const GeoPoint(51.4794, 7.2233),
     ),
     destination: TripStop(name: 'Essen Hbf', plannedTime: _utc(8, 45)),
     runKey: RunKey(
@@ -86,6 +91,15 @@ void main() {
       expect(reminder.notifyAt, _utc(8, 10));
     });
 
+    test('knows the station whose board its notification opens', () {
+      final stop = _reminder().boardStop!;
+
+      expect(stop.id, 'de:05911:5194');
+      expect(stop.name, 'Bochum Hbf');
+      expect(stop.latitude, 51.4794);
+      expect(stop.kind, LocationKind.stop);
+    });
+
     test('a walk alone has no ride to remind of', () {
       final walk = Journey([
         WalkLeg(
@@ -131,6 +145,28 @@ void main() {
       expect(read.runKey?.lineId, 'ddb:90RE6: :H:j26');
       expect(read.runKey?.plannedDeparture, _utc(8, 30));
       expect(read.originParentId, 'de:05911:5194');
+      expect(read.boardStop?.id, 'de:05911:5194');
+    });
+
+    test('reminders saved before the board stop existed still load', () async {
+      final preferences = SharedPreferencesAsync();
+      final repository = ReminderRepositoryImpl(preferences);
+      await repository.save([_reminder()]);
+      final saved = await preferences.getString(
+        ReminderRepositoryImpl.storageKey,
+      );
+      final old =
+          (jsonDecode(saved!) as List<Object?>).cast<Map<String, Object?>>()
+            ..single.remove('boardStop');
+      await preferences.setString(
+        ReminderRepositoryImpl.storageKey,
+        jsonEncode(old),
+      );
+
+      final read = (await repository.load()).single;
+
+      expect(read.id, 7);
+      expect(read.boardStop, isNull);
     });
 
     test(
@@ -186,6 +222,7 @@ void main() {
       final shown = notifier.shown.single;
       expect(shown.id, 7);
       expect(shown.title, 'In 10 Min. losgehen');
+      expect(notifier.openedBy.single?.id, 'de:05911:5194');
       expect(shown.body, contains('RE6 ab Bochum Hbf um'));
       expect(shown.body, contains('Gleis 3'));
       expect(shown.body, contains('10 Min. Fußweg'));
@@ -226,6 +263,18 @@ void main() {
       expect(notifier.shown.single.title, 'In 10 Min. losgehen');
       expect(reminders.saved, isEmpty);
     });
+
+    test(
+      'fired a moment after its time, it still says the full minutes',
+      () async {
+        runs.reply = Ok(_run(estimated: _utc(8, 30)));
+        now = _utc(8, 10).add(const Duration(seconds: 3));
+
+        await worker().fire(7);
+
+        expect(notifier.shown.single.title, 'In 10 Min. losgehen');
+      },
+    );
 
     test('an alarm that comes late says how much time is left', () async {
       runs.reply = Ok(_run(estimated: _utc(8, 30)));

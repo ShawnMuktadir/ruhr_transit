@@ -1,4 +1,5 @@
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
@@ -29,6 +30,7 @@ class Reminder {
     this.runKey,
     this.originStopId,
     this.originParentId,
+    this.boardStop,
   });
 
   /// The first ride of [journey], or null when it is only a walk.
@@ -57,10 +59,25 @@ class Reminder {
           runKey: leg.runKey,
           originStopId: leg.originId?.id,
           originParentId: leg.originId?.parentId,
+          boardStop: _boardStop(leg),
         );
       }
     }
     return null;
+  }
+
+  /// The stop as a departure board needs it; null without its id or point.
+  static Stop? _boardStop(TransitLeg leg) {
+    final id = leg.originId?.parentId ?? leg.originId?.id;
+    final position = leg.origin.position;
+    if (id == null || position == null) return null;
+    return Stop(
+      id: id,
+      name: leg.origin.name,
+      fullName: leg.origin.name,
+      latitude: position.latitude,
+      longitude: position.longitude,
+    );
   }
 
   /// Tells whether a journey already has a reminder; null without a ride.
@@ -103,6 +120,10 @@ class Reminder {
   final String? originStopId;
   final String? originParentId;
 
+  /// Whose departures tapping the notification opens; null just opens the
+  /// app.
+  final Stop? boardStop;
+
   /// When the user has to leave.
   DateTime get leaveAt => departure.subtract(walkBefore);
 
@@ -125,5 +146,6 @@ class Reminder {
     runKey: runKey,
     originStopId: originStopId,
     originParentId: originParentId,
+    boardStop: boardStop,
   );
 }

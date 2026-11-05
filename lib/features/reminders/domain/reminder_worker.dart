@@ -65,6 +65,7 @@ class ReminderWorker {
       body: body,
       channelName: l10n.reminderChannel,
       channelDescription: l10n.reminderChannelDescription,
+      opens: reminder.boardStop,
     );
     await _reminders.save(others);
   }
@@ -95,7 +96,9 @@ class ReminderWorker {
   Reminder reminder, {
   required DateTime now,
 }) {
-  final minutes = reminder.leaveAt.difference(now).inMinutes;
+  // Rounded up: an alarm fires a moment after its time, and a 10-minute
+  // reminder should not say 9.
+  final minutes = (reminder.leaveAt.difference(now).inSeconds + 59) ~/ 60;
   final delay = reminder.departure
       .difference(reminder.plannedDeparture)
       .inMinutes;
