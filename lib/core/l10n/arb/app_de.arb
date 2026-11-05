@@ -1309,5 +1309,19 @@
   "runPausedNoData": "Keine Verbindung: Position gerade nicht verfügbar",
   "@runPausedNoData": {
     "description": "On a ride whose position could not be loaded because the phone is offline."
+  },
+  "tripWayToStop": "Weg zu {stop}",
+  "@tripWayToStop": {
+    "description": "Row in the trip details of a trip that starts with a ride.",
+    "placeholders": {
+      "stop": {
+        "type": "String",
+        "example": "Bochum Hbf"
+      }
+    }
+  },
+  "tripWayFromHere": "Von Ihrem aktuellen Standort",
+  "@tripWayFromHere": {
+    "description": "Below the row with the way to the first stop."
   }
 }

@@ -2,12 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ruhr_transit/core/domain/geo_point.dart';
+import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/data/efa_trip_remote_source.dart';
 import 'package:ruhr_transit/features/trip_planner/data/trip_repository_impl.dart';
@@ -279,6 +282,138 @@ void main() {
       await tester.tap(find.text('Walk there'));
       await tester.pumpAndSettle();
       expect(find.textContaining('No internet connection'), findsOneWidget);
+    });
+  });
+
+  group('walk to the first stop of a trip', () {
+    late FakeLocationSource location;
+    late FakeTripRepository trips;
+
+    /// The U35 from Bochum Ruhr-Universität at 18:30, 2 minutes late.
+    final u35 = Journey([
+      TransitLeg(
+        line: 'U35',
+        mode: TransportMode.subway,
+        direction: 'Herne',
+        origin: TripStop(
+          name: 'Bochum Ruhr-Universität',
+          plannedTime: _utc(18, 30),
+          estimatedTime: _utc(18, 32),
+          position: const GeoPoint(51.44, 7.26),
+        ),
+        destination: TripStop(name: 'Bochum Hbf', plannedTime: _utc(18, 45)),
+        originId: const StopRef(
+          'de:05911:5554:3:08',
+          parentId: 'de:05911:5554',
+        ),
+      ),
+    ]);
+
+    setUp(() {
+      location = FakeLocationSource();
+      trips = FakeTripRepository();
+    });
+
+    Widget app(Journey journey) => BlocProvider(
+      create: (_) => FavouriteJourneysCubit(FakeFavouriteJourneysRepository()),
+      child: MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        builder: (context, child) => TripActions(
+          planFrom: (_) {},
+          planTo: (_) {},
+          walkToStop: () => WalkToStop(
+            CurrentLocationFinder(location, FakeStopRepository()),
+            trips,
+          ),
+          child: child!,
+        ),
+        home: JourneyDetailsPage(journey: journey, runs: null),
+      ),
+    );
+
+    testWidgets('is offered, and asks for nothing until tapped', (
+      tester,
+    ) async {
+      await tester.pumpWidget(app(u35));
+      await tester.pump();
+
+      expect(find.text('Walk to Bochum Ruhr-Universität'), findsOneWidget);
+      expect(find.text('From your current location'), findsOneWidget);
+      expect(location.calls, 0);
+      expect(trips.walks, isEmpty);
+    });
+
+    testWidgets('a tap adds the walk: times, directions, leave time', (
+      tester,
+    ) async {
+      trips.walkReply = Ok(_walk);
+      await tester.pumpWidget(app(u35));
+      await tester.pump();
+
+      await tester.tap(find.text('Walk to Bochum Ruhr-Universität'));
+      await tester.pumpAndSettle();
+
+      expect(trips.walks.single.$2.id, 'de:05911:5554');
+      expect(find.text('Walk to Bochum Ruhr-Universität'), findsNothing);
+      expect(find.text('Walk 6 min (374 m)'), findsOneWidget);
+      expect(find.text('Südring'), findsOneWidget);
+      expect(find.text('Hide directions'), findsOneWidget);
+      // Leaving 18:26, arriving 18:45.
+      expect(find.textContaining('19 min'), findsOneWidget);
+    });
+
+    testWidgets('without a location or a route it says so, and stays offered', (
+      tester,
+    ) async {
+      location.result = const LocationOff();
+      await tester.pumpWidget(app(u35));
+      await tester.pump();
+
+      await tester.tap(find.text('Walk to Bochum Ruhr-Universität'));
+      await tester.pumpAndSettle();
+      expect(find.text('Location services are turned off.'), findsOneWidget);
+      expect(find.text('Walk to Bochum Ruhr-Universität'), findsOneWidget);
+
+      location.result = bochumHbfLocation;
+      await tester.tap(find.text('Walk to Bochum Ruhr-Universität'));
+      await tester.pumpAndSettle();
+      expect(find.text('No walking route found.'), findsOneWidget);
+    });
+
+    testWidgets('a trip that already starts with a walk is not offered it', (
+      tester,
+    ) async {
+      await tester.pumpWidget(app(_walk));
+      await tester.pump();
+
+      expect(find.textContaining('Walk to '), findsNothing);
+    });
+
+    test('the walk arrives when the ride leaves, also with a delay', () {
+      final combined = withWalkToFirstRide(u35, _walk.legs.single as WalkLeg);
+
+      expect(combined.legs, hasLength(2));
+      expect(combined.departure.time, _utc(18, 26));
+      expect(combined.legs.first.destination.time, _utc(18, 32));
+      expect(combined.legs.first.destination.name, 'Bochum Ruhr-Universität');
+      expect(combined.transfers, 0);
+    });
+
+    test('a reminder for the trip then counts the walk', () {
+      final combined = withWalkToFirstRide(u35, _walk.legs.single as WalkLeg);
+
+      final reminder = Reminder.forJourney(
+        combined,
+        id: 1,
+        lead: const Duration(minutes: 10),
+        languageCode: 'en',
+        use24HourFormat: true,
+      )!;
+
+      expect(reminder.walkBefore, const Duration(minutes: 6));
+      expect(reminder.notifyAt, _utc(18, 16));
     });
   });
 }

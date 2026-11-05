@@ -5,6 +5,51 @@ import 'package:ruhr_transit/features/trip_planner/domain/current_location_finde
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 
+/// The station where a ride starts, as a stop to walk to or show departures
+/// of; null without its id or point. The station, not the platform: VRR
+/// routes a walk only as far as the station anyway (checked live).
+Stop? boardingStopOf(TransitLeg ride) {
+  final id = ride.originId?.parentId ?? ride.originId?.id;
+  final position = ride.origin.position;
+  if (id == null || position == null) return null;
+  return Stop(
+    id: id,
+    name: ride.origin.name,
+    fullName: ride.origin.name,
+    latitude: position.latitude,
+    longitude: position.longitude,
+  );
+}
+
+/// [journey] with the walk [route] to its first ride put in front, timed to
+/// arrive when the ride leaves: its leave time, reminder and map then count
+/// the walk. Unchanged when it does not start with a ride.
+Journey withWalkToFirstRide(Journey journey, WalkLeg route) {
+  final first = journey.legs.first;
+  if (first is! TransitLeg) return journey;
+  final arrive = first.origin.time;
+  return Journey([
+    WalkLeg(
+      duration: route.duration,
+      distanceMeters: route.distanceMeters,
+      origin: TripStop(
+        name: route.origin.name,
+        plannedTime: arrive.subtract(route.duration),
+        position: route.origin.position,
+      ),
+      destination: TripStop(
+        name: first.origin.name,
+        plannedTime: arrive,
+        position: first.origin.position,
+      ),
+      steps: route.steps,
+      stationPaths: route.stationPaths,
+      path: route.path,
+    ),
+    ...journey.legs,
+  ]);
+}
+
 /// How finding the way to a stop on foot ended. Sealed, so the UI handles
 /// every case.
 sealed class WalkToResult {

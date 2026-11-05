@@ -1,15 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
+import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminder_tile.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/ride_stops.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_map_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_notices.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
@@ -20,7 +26,7 @@ import 'package:ruhr_transit/features/trip_planner/presentation/walk_directions.
 const shortConnection = Duration(minutes: 3);
 
 /// Every leg of one journey, with the time to change between rides.
-class JourneyDetailsPage extends StatelessWidget {
+class JourneyDetailsPage extends StatefulWidget {
   const JourneyDetailsPage({
     required this.journey,
     this.query,
@@ -45,7 +51,83 @@ class JourneyDetailsPage extends StatelessWidget {
   static VehicleRunRepository _runRepository() => getIt<VehicleRunRepository>();
 
   @override
+  State<JourneyDetailsPage> createState() => _JourneyDetailsPageState();
+}
+
+class _JourneyDetailsPageState extends State<JourneyDetailsPage> {
+  /// The trip with the walk to its first ride, once the user asked for it.
+  Journey? _withWalk;
+  WalkLeg? _walk;
+  var _finding = false;
+
+  /// Only on the user's tap: it sends the location to VRR, and may ask for
+  /// the permission.
+  Future<void> _findWay(TripActions actions, Stop stop) async {
+    final walk = actions.walkToStop();
+    setState(() => _finding = true);
+    final result = await walk.find(stop);
+    if (!mounted) return;
+    setState(() => _finding = false);
+
+    final l10n = AppLocalizations.of(context);
+    void say(String message) => ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+    switch (result) {
+      case WalkFound(:final journey):
+        final route = journey.legs.whereType<WalkLeg>().firstOrNull;
+        if (route == null) {
+          say(l10n.stopWalkNotFound);
+          return;
+        }
+        final withWalk = withWalkToFirstRide(widget.journey, route);
+        setState(() {
+          _withWalk = withWalk;
+          _walk = withWalk.legs.first as WalkLeg;
+        });
+      case WalkNoLocation(:final problem):
+        showHereProblem(context, problem, walk.finder);
+      case WalkNotFound():
+        say(l10n.stopWalkNotFound);
+      case WalkFailed(:final failure):
+        say(failureMessage(l10n, failure));
+    }
+  }
+
+  /// The row offering the way to the first stop: only for a trip that
+  /// starts with a ride, in the app (not in a test of the page alone).
+  Widget? _wayToFirstStop(BuildContext context) {
+    final actions = TripActions.maybeOf(context);
+    final first = widget.journey.legs.first;
+    if (actions == null || first is! TransitLeg || _withWalk != null) {
+      return null;
+    }
+    final stop = boardingStopOf(first);
+    if (stop == null) return null;
+    final l10n = AppLocalizations.of(context);
+    return ListCard(
+      child: ListTile(
+        leading: const Icon(Icons.directions_walk),
+        title: Text(l10n.tripWayToStop(first.origin.name)),
+        subtitle: Text(l10n.tripWayFromHere),
+        trailing: _finding
+            ? const SizedBox.square(
+                dimension: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.chevron_right),
+        onTap: _finding ? null : () => unawaited(_findWay(actions, stop)),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final journey = _withWalk ?? widget.journey;
+    final query = widget.query;
+    final runs = widget.runs;
+    final now = widget.now;
+    final wayToFirstStop = _wayToFirstStop(context);
     final l10n = AppLocalizations.of(context);
     final notices = journey.notices;
     return Scaffold(
@@ -93,7 +175,8 @@ class JourneyDetailsPage extends StatelessWidget {
           ReminderTile(journey),
           if (notices.isNotEmpty) ListCard(child: TripNoticesSection(notices)),
           const SizedBox(height: 4),
-          ..._legsWithChanges(journey.legs, runs, now),
+          ?wayToFirstStop,
+          ..._legsWithChanges(journey.legs, runs, now, opened: _walk),
         ],
       ),
       bottomNavigationBar: const DataAttribution(),
@@ -105,8 +188,9 @@ class JourneyDetailsPage extends StatelessWidget {
   static List<Widget> _legsWithChanges(
     List<Leg> legs,
     VehicleRunRepository Function()? runs,
-    DateTime Function() now,
-  ) {
+    DateTime Function() now, {
+    WalkLeg? opened,
+  }) {
     final widgets = <Widget>[];
     TransitLeg? previousRide;
     var walking = Duration.zero;
@@ -115,7 +199,13 @@ class JourneyDetailsPage extends StatelessWidget {
         case WalkLeg():
           walking += leg.duration;
           widgets.add(
-            ListCard(child: _WalkTile(leg, showDirections: legs.length == 1)),
+            ListCard(
+              child: _WalkTile(
+                leg,
+                // The whole journey, or the way the user just asked for.
+                showDirections: legs.length == 1 || identical(leg, opened),
+              ),
+            ),
           );
         case TransitLeg():
           if (previousRide != null) {
@@ -131,6 +221,8 @@ class JourneyDetailsPage extends StatelessWidget {
           }
           widgets.add(
             AccentCard(
+              // Keeps its run and open rows when the walk appears above it.
+              key: ObjectKey(leg),
               mode: leg.mode,
               child: _RideTile(leg, runs: runs, now: now),
             ),

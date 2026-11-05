@@ -36,7 +36,9 @@ import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/trip_planner/data/trip_mapper.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
@@ -103,6 +105,24 @@ void main() {
     languageCode: 'de',
     use24HourFormat: true,
   )!;
+
+  Widget tripWithWay() => TripActions(
+    planFrom: (_) {},
+    planTo: (_) {},
+    walkToStop: () => WalkToStop(
+      CurrentLocationFinder(FakeLocationSource(), FakeStopRepository()),
+      FakeTripRepository()
+        ..walkReply = Ok(
+          mapTripResponse(readEfaFixtureJson('trip_walk_only')).first,
+        ),
+    ),
+    child: JourneyDetailsPage(
+      journey: mapTripResponse(
+        readEfaFixtureJson('trip_bochum_dortmund'),
+      ).first,
+      runs: null,
+    ),
+  );
 
   Widget nearby() => BlocProvider(
     create: (_) => NearbyStopsCubit(
@@ -183,6 +203,8 @@ void main() {
         child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
       ),
     ),
+    'trip details, way to the first stop offered': () => tripWithWay(),
+    'trip details, way to the first stop added': tripWithWay,
     'nearby stops, stars and filter chips': nearby,
     'nearby stops, on the map': nearby,
     'nearby stops, a pin chosen on the map': () => TripActions(
@@ -316,6 +338,10 @@ void main() {
 
   /// Steps to reach a screen that has no page of its own.
   final reach = <String, Future<void> Function(WidgetTester)>{
+    'trip details, way to the first stop added': (tester) async {
+      await tester.tap(find.textContaining('Weg zu'));
+      await tester.pumpAndSettle();
+    },
     'nearby stops, on the map': (tester) async {
       await tester.tap(find.text('Karte'));
       await tester.pump();
