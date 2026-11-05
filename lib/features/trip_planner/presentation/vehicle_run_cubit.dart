@@ -16,10 +16,14 @@ final class VehicleRunLoading extends VehicleRunState {
 
 /// [now] is when the state was made; the position is calculated for it.
 final class VehicleRunLoaded extends VehicleRunState {
-  const VehicleRunLoaded(this.run, {required this.now});
+  const VehicleRunLoaded(this.run, {required this.now, this.isPaused = false});
 
   final VehicleRun run;
   final DateTime now;
+
+  /// No connection: [now] stays the time of the last answer, as moving the
+  /// vehicle on from old data would be a guess that looks like a fact.
+  final bool isPaused;
 
   RunPosition get position => run.positionAt(now);
 }
@@ -65,10 +69,19 @@ class VehicleRunCubit extends Cubit<VehicleRunState> {
       case Err(failure: CancelledFailure()):
         return;
       case Err(:final failure):
-        // A failed refresh keeps the run shown so far, with the position
-        // moved on to now; only a first failure shows as such.
-        emit(switch (state) {
-          VehicleRunLoaded(:final run) => VehicleRunLoaded(run, now: _now()),
+        // A failed refresh keeps the run shown so far; only a first failure
+        // shows as such. Without a connection the position pauses, after a
+        // server hiccup the times still hold and it moves on.
+        emit(switch ((state, failure)) {
+          (
+            VehicleRunLoaded(:final run, :final now),
+            NetworkFailure() || TimeoutFailure(),
+          ) =>
+            VehicleRunLoaded(run, now: now, isPaused: true),
+          (VehicleRunLoaded(:final run), _) => VehicleRunLoaded(
+            run,
+            now: _now(),
+          ),
           _ => VehicleRunFailed(failure),
         });
     }

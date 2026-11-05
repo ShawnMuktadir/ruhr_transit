@@ -5,6 +5,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
+import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
@@ -173,6 +174,9 @@ class _StopSearchBodyState extends State<StopSearchBody> {
               StopSearchEmpty(:final query) => CenteredMessage(
                 l10n.stopSearchEmpty(query),
               ),
+              // Saved stops still work without internet.
+              StopSearchFailed(:final query, failure: NetworkFailure()) =>
+                _OfflineResults(query, onPicked: widget.onPicked),
               StopSearchFailed(:final failure) => CenteredMessage(
                 failureMessage(l10n, failure),
                 action: FilledButton.tonal(
@@ -374,6 +378,68 @@ class _StopList extends StatelessWidget {
       itemCount: stops.length,
       itemBuilder: (context, index) =>
           StopTile(stops[index], onSelected: onPicked),
+    );
+  }
+}
+
+/// Searching without internet: says so and finds [query] among the stops on
+/// the phone, the favourites and, in the From/To picker, the history.
+class _OfflineResults extends StatelessWidget {
+  const _OfflineResults(this.query, {this.onPicked});
+
+  final String query;
+  final ValueChanged<Stop>? onPicked;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final onPicked = this.onPicked;
+    final wanted = query.toLowerCase();
+    bool matches(Stop stop) => stop.fullName.toLowerCase().contains(wanted);
+
+    final favourites = context.watch<FavouritesCubit>().state;
+    final recent = onPicked == null
+        ? const <Stop>[]
+        : context.watch<RecentStopsCubit>().state;
+    final savedFavourites = favourites.where(matches).toList();
+    final savedRecent = [
+      for (final stop in recent)
+        if (matches(stop) && !favourites.contains(stop)) stop,
+    ];
+    final retry = FilledButton.tonal(
+      onPressed: context.read<StopSearchCubit>().retry,
+      child: Text(l10n.retry),
+    );
+    if (savedFavourites.isEmpty && savedRecent.isEmpty) {
+      return CenteredMessage(
+        l10n.stopSearchOfflineNone(query),
+        icon: Icons.cloud_off_outlined,
+        action: retry,
+      );
+    }
+    return ListView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.cloud_off_outlined,
+                size: 20,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l10n.stopSearchOffline)),
+            ],
+          ),
+        ),
+        for (final stop in savedFavourites)
+          StopTile(stop, isFavourite: true, onSelected: onPicked),
+        for (final stop in savedRecent)
+          StopTile(stop, icon: Icons.history, onSelected: onPicked),
+      ],
     );
   }
 }

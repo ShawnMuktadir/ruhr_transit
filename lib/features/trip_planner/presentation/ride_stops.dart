@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
@@ -34,32 +39,82 @@ class RideStops extends StatelessWidget {
     return BlocProvider(
       create: (_) => VehicleRunCubit(runs(), key, now: now)..start(),
       child: BlocBuilder<VehicleRunCubit, VehicleRunState>(
-        builder: (context, state) {
-          if (state is! VehicleRunLoaded) return plain;
-          final run = state.run;
-          final board = run.indexOf(
-            leg.originId?.id ?? key.stopId,
-            parentId: leg.originId?.parentId,
-          );
-          final alight = switch (leg.destinationId) {
-            final ref? => run.indexOf(ref.id, parentId: ref.parentId),
-            null => null,
-          };
-          // A run that does not contain the ride as expected is not shown
-          // rather than shown wrong.
-          if (board == null || alight == null || board >= alight) {
-            return plain;
-          }
-          return RunTimeline(
-            run: run,
-            board: board,
-            alight: alight,
-            position: state.position,
-            now: state.now,
-            mode: leg.mode,
-          );
-        },
+        builder: (context, state) => OnReconnect(
+          // Back online: not waiting for the next refresh.
+          onReconnect: () => unawaited(context.read<VehicleRunCubit>().load()),
+          child: _ride(context, state, plain, key),
+        ),
       ),
+    );
+  }
+
+  Widget _ride(
+    BuildContext context,
+    VehicleRunState state,
+    Widget plain,
+    RunKey key,
+  ) {
+    if (state case VehicleRunFailed(
+      failure: NetworkFailure() || TimeoutFailure(),
+    )) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _OfflineNote(AppLocalizations.of(context).runPausedNoData),
+          ),
+          plain,
+        ],
+      );
+    }
+    if (state is! VehicleRunLoaded) return plain;
+    final run = state.run;
+    final board = run.indexOf(
+      leg.originId?.id ?? key.stopId,
+      parentId: leg.originId?.parentId,
+    );
+    final alight = switch (leg.destinationId) {
+      final ref? => run.indexOf(ref.id, parentId: ref.parentId),
+      null => null,
+    };
+    // A run that does not contain the ride as expected is not shown
+    // rather than shown wrong.
+    if (board == null || alight == null || board >= alight) {
+      return plain;
+    }
+    return RunTimeline(
+      run: run,
+      board: board,
+      alight: alight,
+      position: state.position,
+      now: state.now,
+      mode: leg.mode,
+      isPaused: state.isPaused,
+    );
+  }
+}
+
+/// Says that the vehicle's position cannot be updated right now.
+class _OfflineNote extends StatelessWidget {
+  const _OfflineNote(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          Icons.cloud_off_outlined,
+          size: 20,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 8),
+        Expanded(child: Text(text, style: theme.textTheme.bodySmall)),
+      ],
     );
   }
 }
@@ -175,8 +230,12 @@ class RunTimeline extends StatelessWidget {
     required this.position,
     required this.now,
     this.mode,
+    this.isPaused = false,
     super.key,
   });
+
+  /// No connection: the position is from the time of [now].
+  final bool isPaused;
 
   final VehicleRun run;
 
@@ -238,7 +297,7 @@ class RunTimeline extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _RunStatus(run: run, position: position, now: now),
+        _RunStatus(run: run, position: position, now: now, isPaused: isPaused),
         if (beforeCount > 0)
           _ExpandToggle(
             label: l10n.runStopsBefore(beforeCount),
@@ -280,7 +339,10 @@ class _RunStatus extends StatelessWidget {
     required this.run,
     required this.position,
     required this.now,
+    required this.isPaused,
   });
+
+  final bool isPaused;
 
   final VehicleRun run;
   final RunPosition position;
@@ -311,7 +373,11 @@ class _RunStatus extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
-            run.isRealtime ? Icons.sensors : Icons.schedule,
+            isPaused
+                ? Icons.cloud_off_outlined
+                : run.isRealtime
+                ? Icons.sensors
+                : Icons.schedule,
             size: 20,
             color: theme.colorScheme.primary,
           ),
@@ -328,6 +394,11 @@ class _RunStatus extends StatelessWidget {
                 ),
                 if (!run.isRealtime)
                   Text(l10n.runByTimetable, style: theme.textTheme.bodySmall),
+                if (isPaused)
+                  Text(
+                    l10n.runPaused(formatClockTime(context, now)),
+                    style: theme.textTheme.bodySmall,
+                  ),
               ],
             ),
           ),

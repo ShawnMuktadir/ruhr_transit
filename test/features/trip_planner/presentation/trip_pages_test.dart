@@ -499,6 +499,55 @@ void main() {
       expect(marker, lessThan(board));
     });
 
+    testWidgets('says so when the position pauses without a connection', (
+      tester,
+    ) async {
+      final runs = FakeVehicleRunRepository();
+      tallScreen(tester);
+      await tester.pumpWidget(
+        app(
+          JourneyDetailsPage(
+            journey: withWalk,
+            runs: () => runs,
+            now: () => DateTime.utc(2026, 11, 2, 7, 20),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.textContaining('No connection'), findsNothing);
+
+      runs.reply = const Err(NetworkFailure());
+      await tester.pump(const Duration(seconds: 31));
+      await tester.pump();
+
+      expect(find.textContaining('No connection: position from'), findsWidgets);
+      expect(find.byIcon(Icons.cloud_off_outlined), findsWidgets);
+    });
+
+    testWidgets(
+      'offline from the start, the ride says why it has no position',
+      (tester) async {
+        tallScreen(tester);
+        await tester.pumpWidget(
+          app(
+            JourneyDetailsPage(
+              journey: withWalk,
+              runs: () => FakeVehicleRunRepository(const Err(NetworkFailure())),
+              now: () => DateTime.utc(2026, 11, 2, 7, 20),
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump();
+
+        expect(
+          find.text('No connection: position not available right now'),
+          findsOneWidget,
+        );
+        expect(find.text('Bochum Ruhr-Universität'), findsOneWidget);
+      },
+    );
+
     testWidgets('says when the position is only the timetable', (tester) async {
       await pumpAt(
         tester,

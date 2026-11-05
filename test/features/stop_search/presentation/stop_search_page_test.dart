@@ -178,6 +178,49 @@ void main() {
     expect(find.text('No stops found for “xqzzqxv”.'), findsOneWidget);
   });
 
+  group('offline', () {
+    testWidgets('finds saved stops, says so, and retries', (tester) async {
+      favourites.saved = [bochumHbf, dortmundHbf];
+      repository.autoReply = const Err(NetworkFailure());
+      await pumpPage(tester);
+
+      await search(tester, 'dortmund');
+
+      expect(find.text('Offline: saved stops only'), findsOneWidget);
+      expect(find.byType(StopTile), findsOneWidget);
+      expect(find.text('Dortmund'), findsOneWidget);
+      expect(find.byIcon(Icons.star), findsOneWidget);
+    });
+
+    testWidgets('in the picker also the history, and a tap picks', (
+      tester,
+    ) async {
+      final picked = <Stop>[];
+      recent.saved = [dortmundHbf];
+      repository.autoReply = const Err(NetworkFailure());
+      await pumpPage(tester, onPicked: picked.add);
+
+      await search(tester, 'Dortmund');
+      expect(find.byIcon(Icons.history), findsOneWidget);
+
+      await tester.tap(find.byType(StopTile));
+      await tester.pumpAndSettle();
+      expect(picked, [dortmundHbf]);
+    });
+
+    testWidgets('nothing saved matches: says that, with a retry', (
+      tester,
+    ) async {
+      repository.autoReply = const Err(NetworkFailure());
+      await pumpPage(tester);
+
+      await search(tester, 'Bochum');
+
+      expect(find.textContaining('none of your saved stops match'), findsOne);
+      expect(find.text('Try again'), findsOneWidget);
+    });
+  });
+
   testWidgets('shows the error and retries', (tester) async {
     repository.autoReply = const Err(TimeoutFailure());
     await pumpPage(tester);

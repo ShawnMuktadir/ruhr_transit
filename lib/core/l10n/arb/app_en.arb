@@ -231,5 +231,9 @@
   "stopToHere": "To here",
   "stopWalkThere": "Walk there",
   "stopWalkNotFound": "No walking route found.",
-  "tripWalkOnly": "On foot"
+  "tripWalkOnly": "On foot",
+  "stopSearchOffline": "Offline: saved stops only",
+  "stopSearchOfflineNone": "Offline: none of your saved stops match “{query}”.",
+  "runPaused": "No connection: position from {time}",
+  "runPausedNoData": "No connection: position not available right now"
 }

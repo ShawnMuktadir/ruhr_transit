@@ -56,19 +56,54 @@ void main() {
     await cubit.close();
   });
 
-  test('a failed refresh keeps the run and moves the position on', () async {
-    final repository = FakeVehicleRunRepository();
-    var now = DateTime.utc(2026, 11, 2, 7, 20);
-    final cubit = VehicleRunCubit(repository, key, now: () => now);
-    await cubit.load();
+  test(
+    'after a server error the run stays and the position moves on',
+    () async {
+      final repository = FakeVehicleRunRepository();
+      var now = DateTime.utc(2026, 11, 2, 7, 20);
+      final cubit = VehicleRunCubit(repository, key, now: () => now);
+      await cubit.load();
 
-    repository.reply = const Err(NetworkFailure());
-    now = DateTime.utc(2026, 11, 2, 7, 40);
-    await cubit.load();
+      repository.reply = const Err(ServerFailure(code: 500));
+      now = DateTime.utc(2026, 11, 2, 7, 40);
+      await cubit.load();
 
-    final state = cubit.state as VehicleRunLoaded;
-    expect(state.run, u35Run);
-    expect(state.position, isA<RunEnded>());
-    await cubit.close();
+      final state = cubit.state as VehicleRunLoaded;
+      expect(state.run, u35Run);
+      expect(state.isPaused, isFalse);
+      expect(state.position, isA<RunEnded>());
+      await cubit.close();
+    },
+  );
+
+  test('without a connection the position pauses, then carries on', () async {
+    for (final failure in const [NetworkFailure(), TimeoutFailure()]) {
+      final repository = FakeVehicleRunRepository();
+      var now = DateTime.utc(2026, 11, 2, 7, 20);
+      final cubit = VehicleRunCubit(repository, key, now: () => now);
+      await cubit.load();
+      final before = (cubit.state as VehicleRunLoaded).position;
+
+      repository.reply = Err(failure);
+      now = DateTime.utc(2026, 11, 2, 7, 40);
+      await cubit.load();
+
+      var state = cubit.state as VehicleRunLoaded;
+      expect(state.isPaused, isTrue);
+      expect(state.now, DateTime.utc(2026, 11, 2, 7, 20));
+      expect(state.position.runtimeType, before.runtimeType);
+
+      // Still offline: the time of the last answer does not creep on.
+      now = DateTime.utc(2026, 11, 2, 7, 50);
+      await cubit.load();
+      expect((cubit.state as VehicleRunLoaded).now, state.now);
+
+      repository.reply = Ok(u35Run);
+      await cubit.load();
+      state = cubit.state as VehicleRunLoaded;
+      expect(state.isPaused, isFalse);
+      expect(state.now, now);
+      await cubit.close();
+    }
   });
 }

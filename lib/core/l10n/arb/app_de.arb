@@ -1281,5 +1281,33 @@
   "tripWalkOnly": "Nur zu Fuß",
   "@tripWalkOnly": {
     "description": "Trip details of a journey that is only a walk."
+  },
+  "stopSearchOffline": "Offline: nur gespeicherte Haltestellen",
+  "@stopSearchOffline": {
+    "description": "Above the saved stops that match, when searching without internet."
+  },
+  "stopSearchOfflineNone": "Offline: Unter Ihren gespeicherten Haltestellen gibt es nichts zu „{query}“.",
+  "@stopSearchOfflineNone": {
+    "description": "Searching without internet, when no saved stop matches.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "Bochum"
+      }
+    }
+  },
+  "runPaused": "Keine Verbindung: Position von {time}",
+  "@runPaused": {
+    "description": "Below the vehicle position while it cannot be updated.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "19:42"
+      }
+    }
+  },
+  "runPausedNoData": "Keine Verbindung: Position gerade nicht verfügbar",
+  "@runPausedNoData": {
+    "description": "On a ride whose position could not be loaded because the phone is offline."
   }
 }
