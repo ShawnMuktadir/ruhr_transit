@@ -7,6 +7,7 @@ import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
@@ -217,13 +218,13 @@ void main() {
         await tester.tap(find.byTooltip('Use current location as start'));
         await tester.pump();
 
-        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        expect(find.byType(AppLoader), findsOneWidget);
         expect(find.byTooltip('Use current location as start'), findsNothing);
 
         location.pending!.complete(bochumHbfLocation);
         await tester.pump();
         await tester.pump();
-        expect(find.byType(CircularProgressIndicator), findsNothing);
+        expect(find.byType(AppLoader), findsNothing);
       });
 
       testWidgets('no finder, no button', (tester) async {

@@ -8,6 +8,7 @@ import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/dismiss_background.dart';
@@ -164,9 +165,7 @@ class _StopSearchBodyState extends State<StopSearchBody> {
           child: BlocBuilder<StopSearchCubit, StopSearchState>(
             builder: (context, state) => switch (state) {
               StopSearchIdle() => _StartContent(onPicked: widget.onPicked),
-              StopSearchLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              StopSearchLoading() => const AppLoader(),
               StopSearchLoaded(:final stops) => _StopList(
                 stops,
                 onPicked: widget.onPicked,

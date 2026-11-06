@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
@@ -459,12 +460,9 @@ class _HereButtonState extends State<_HereButton> {
       return Semantics(
         label: l10n.tripLocating,
         liveRegion: true,
-        child: const SizedBox.square(
-          dimension: 48,
-          child: Padding(
-            padding: EdgeInsets.all(14),
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+        child: const Padding(
+          padding: EdgeInsets.all(12),
+          child: AppLoader.small(),
         ),
       );
     }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
@@ -111,10 +112,7 @@ class _JourneyDetailsPageState extends State<JourneyDetailsPage> {
         title: Text(l10n.tripWayToStop(first.origin.name)),
         subtitle: Text(l10n.tripWayFromHere),
         trailing: _finding
-            ? const SizedBox.square(
-                dimension: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
+            ? const AppLoader.small()
             : const Icon(Icons.chevron_right),
         onTap: _finding ? null : () => unawaited(_findWay(actions, stop)),
       ),
