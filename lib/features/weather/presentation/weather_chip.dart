@@ -11,23 +11,29 @@ import 'package:ruhr_transit/features/weather/domain/weather.dart';
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 import 'package:ruhr_transit/features/weather/presentation/weather_cubit.dart';
 
-/// The weather chip with its own cubit, for the planner.
-class WeatherSection extends StatelessWidget {
-  const WeatherSection({super.key});
+/// Provides the weather to the planner: the chip shows it, the header's
+/// background follows it.
+class WeatherScope extends StatelessWidget {
+  const WeatherScope({required this.child, super.key});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) => BlocProvider(
     create: (_) =>
         WeatherCubit(getIt<WeatherRepository>(), getIt<LocationSource>())
           ..load(),
-    child: const WeatherChip(),
+    child: child,
   );
 }
 
 /// The weather where the user is, or what is needed to show it. Tapping
 /// refreshes, asks for the location or opens the right settings.
 class WeatherChip extends StatefulWidget {
-  const WeatherChip({super.key});
+  const WeatherChip({this.footnoteColor, super.key});
+
+  /// The credit below the chip, which lies on the page or the sky.
+  final Color? footnoteColor;
 
   @override
   State<WeatherChip> createState() => _WeatherChipState();
@@ -120,7 +126,11 @@ class _WeatherChipState extends State<WeatherChip> {
 
     final chip = Material(
       color: colors.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(20),
+      // The hairline keeps its edge on a sky of a similar colour.
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colors.outlineVariant),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: state is WeatherLoading
@@ -168,12 +178,16 @@ class _WeatherChipState extends State<WeatherChip> {
           child: chip,
         ),
         if (state is WeatherShown)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
-            child: Text(
-              l10n.weatherAttribution,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
+          // Read after the chip, on its own.
+          Semantics(
+            container: true,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+              child: Text(
+                l10n.weatherAttribution,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: widget.footnoteColor ?? colors.onSurfaceVariant,
+                ),
               ),
             ),
           ),

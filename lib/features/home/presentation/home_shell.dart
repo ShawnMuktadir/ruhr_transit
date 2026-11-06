@@ -243,11 +243,13 @@ class HomeShellState extends State<HomeShell> {
   Widget _root(HomeTab tab) => switch (tab) {
     HomeTab.plan => BlocProvider.value(
       value: _tripForm,
-      child: TripFormView(
-        weather: const WeatherSection(),
-        here: CurrentLocationFinder(
-          getIt<LocationSource>(),
-          getIt<StopRepository>(),
+      child: WeatherScope(
+        child: TripFormView(
+          showWeather: true,
+          here: CurrentLocationFinder(
+            getIt<LocationSource>(),
+            getIt<StopRepository>(),
+          ),
         ),
       ),
     ),
