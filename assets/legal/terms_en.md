@@ -1,12 +1,12 @@
-> **Draft – review before publishing.** This text is a draft, not legal advice. Replace the details in square brackets and have the text checked.
+> **Draft – review before publishing.** This text is a draft, not legal advice. Add the postal address and have the text checked.
 
 # Terms and conditions
 
-Last updated: [DATE]
+Last updated: November 10, 2026
 
 ## Provider
 
-RuhrTransit is provided by [NAME], [ADDRESS], email: [EMAIL].
+RuhrTransit is provided by Md Muktadir, email: mmuktadir778@gmail.com.
 
 ## Service
 

@@ -1,12 +1,12 @@
-> **Entwurf – vor der Veröffentlichung prüfen.** Dieser Text ist ein Entwurf und keine Rechtsberatung. Die Angaben in eckigen Klammern ersetzen und den Text rechtlich prüfen lassen.
+> **Entwurf – vor der Veröffentlichung prüfen.** Dieser Text ist ein Entwurf und keine Rechtsberatung. Die Anschrift ergänzen und den Text rechtlich prüfen lassen.
 
 # Datenschutzerklärung
 
-Stand: [DATUM]
+Stand: 10. November 2026
 
 ## Verantwortlicher
 
-[NAME], [ANSCHRIFT], E-Mail: [E-MAIL]
+Md Muktadir, E-Mail: mmuktadir778@gmail.com
 
 ## Überblick
 

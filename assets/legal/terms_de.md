@@ -1,12 +1,12 @@
-> **Entwurf – vor der Veröffentlichung prüfen.** Dieser Text ist ein Entwurf und keine Rechtsberatung. Die Angaben in eckigen Klammern ersetzen und den Text rechtlich prüfen lassen.
+> **Entwurf – vor der Veröffentlichung prüfen.** Dieser Text ist ein Entwurf und keine Rechtsberatung. Die Anschrift ergänzen und den Text rechtlich prüfen lassen.
 
 # Nutzungsbedingungen
 
-Stand: [DATUM]
+Stand: 10. November 2026
 
 ## Anbieter
 
-RuhrTransit wird angeboten von [NAME], [ANSCHRIFT], E-Mail: [E-MAIL].
+RuhrTransit wird angeboten von Md Muktadir, E-Mail: mmuktadir778@gmail.com.
 
 ## Leistung
 
