@@ -236,5 +236,10 @@
   "tripWayToStop": "Walk to {stop}",
   "tripWayFromHere": "From your current location",
   "stopPlanFromHere": "Plan trip from here",
-  "stopDepartures": "Departures"
+  "stopDepartures": "Departures",
+  "nearbyNextIn": "{line} in {minutes} min",
+  "nearbyNextNow": "{line} now",
+  "reminderBeforeDeparture": "{minutes} min before it leaves",
+  "reminderOnDeparture": "Remind me of this departure",
+  "reminderOnDepartureSet": "Reminder set"
 }

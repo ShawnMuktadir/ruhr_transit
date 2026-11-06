@@ -8,10 +8,13 @@ import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
+import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
+import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
+import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourite_stop_button.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
@@ -20,6 +23,7 @@ import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repositor
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_map.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_cubit.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_state.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 
@@ -36,13 +40,17 @@ class NearbyStopsPage extends StatelessWidget {
         getIt<LocationSource>(),
         getIt<NearbyStopsRepository>(),
       )..start(),
-      child: const NearbyStopsView(),
+      child: NearbyStopsView(departures: getIt.call<DepartureRepository>),
     );
   }
 }
 
 class NearbyStopsView extends StatelessWidget {
-  const NearbyStopsView({super.key});
+  const NearbyStopsView({this.departures, super.key});
+
+  /// Makes one repository per stop for its next departures; without it the
+  /// rows show none.
+  final DepartureRepository Function()? departures;
 
   /// Retries what failed when the phone is back online.
   @override
@@ -89,7 +97,12 @@ class NearbyStopsView extends StatelessWidget {
             l10n.nearbyEmpty,
           ),
           NearbyLoaded(:final stops, :final isApproximate, :final here) =>
-            _NearbyResults(stops, isApproximate: isApproximate, here: here),
+            _NearbyResults(
+              stops,
+              isApproximate: isApproximate,
+              here: here,
+              departures: departures,
+            ),
           NearbyLocationProblem(:final problem) => _LocationProblem(problem),
           NearbyFailed(:final failure) => CenteredMessage(
             failureMessage(l10n, failure),
@@ -132,7 +145,13 @@ class _StopList extends StatelessWidget {
     this.stops, {
     required this.isApproximate,
     required this.onChosen,
+    this.departures,
   });
+
+  /// One request per stop, so only for the closest few.
+  static const stopsWithDepartures = 3;
+
+  final DepartureRepository Function()? departures;
 
   final List<NearbyStop> stops;
   final bool isApproximate;
@@ -172,7 +191,7 @@ class _StopList extends StatelessWidget {
               ),
             ),
           ),
-        for (final nearby in stops)
+        for (final (index, nearby) in stops.indexed)
           // The card with these two is on the map, which TalkBack cannot
           // use to find a stop; it offers them on the row (actions menu).
           Semantics(
@@ -192,6 +211,16 @@ class _StopList extends StatelessWidget {
               detail: l10n.nearbyDistance(nearby.distanceMeters),
               action: FavouriteStopButton(nearby.stop),
               onSelected: (_) => onChosen(nearby),
+              below: switch (departures) {
+                final departures? when index < stopsWithDepartures =>
+                  _NextDepartures(
+                    nearby.stop,
+                    // A new stop in this place loads its own.
+                    key: ValueKey(nearby.stop.id),
+                    departures: departures,
+                  ),
+                _ => null,
+              },
             ),
           ),
       ],
@@ -249,7 +278,10 @@ class _NearbyResults extends StatefulWidget {
     this.stops, {
     required this.isApproximate,
     required this.here,
+    this.departures,
   });
+
+  final DepartureRepository Function()? departures;
 
   final List<NearbyStop> stops;
   final bool isApproximate;
@@ -301,6 +333,7 @@ class _NearbyResultsState extends State<_NearbyResults> {
       stops,
       isApproximate: widget.isApproximate,
       onChosen: here == null ? _openDepartures : _select,
+      departures: widget.departures,
     );
     return Column(
       children: [
@@ -385,4 +418,55 @@ enum _ModeFilter {
   final Set<TransportMode> modes;
 
   bool matches(NearbyStop nearby) => nearby.stop.modes.any(modes.contains);
+}
+
+/// The next two departures of a stop, e.g. "365 in 4 min · 355 in 14 min".
+/// Nothing while loading or when it fails: the row is complete without.
+class _NextDepartures extends StatefulWidget {
+  const _NextDepartures(this.stop, {required this.departures, super.key});
+
+  final Stop stop;
+  final DepartureRepository Function() departures;
+
+  @override
+  State<_NextDepartures> createState() => _NextDeparturesState();
+}
+
+class _NextDeparturesState extends State<_NextDepartures> {
+  /// When the list is rebuilt the answer stays; a reload makes a new row.
+  late final Future<Result<DepartureBoard>> _board = widget
+      .departures()
+      .departuresAt(widget.stop.id);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return FutureBuilder(
+      future: _board,
+      builder: (context, snapshot) {
+        if (snapshot.data case Ok(value: final board)) {
+          final now = DateTime.now();
+          final next = board.departures
+              .where((d) => !d.isCancelled && !d.time.isBefore(now))
+              .take(2);
+          if (next.isNotEmpty) {
+            return Text(
+              [
+                for (final departure in next)
+                  switch (departure.time.difference(now).inMinutes) {
+                    < 1 => l10n.nearbyNextNow(departure.line),
+                    final minutes => l10n.nearbyNextIn(departure.line, minutes),
+                  },
+              ].join(' · '),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            );
+          }
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
 }

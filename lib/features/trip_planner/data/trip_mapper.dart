@@ -98,7 +98,7 @@ Leg _mapLeg(Object? json) {
     destination: destination,
     notes: readEfaRealtimeNotes(json['hints']),
     intermediateStops: _mapIntermediateStops(json['stopSequence']),
-    runKey: _mapRunKey(transportation, json['origin'], origin.plannedTime),
+    runKey: mapEfaRunKey(transportation, json['origin'], origin.plannedTime),
     originId: _mapStopRef(json['origin']),
     destinationId: _mapStopRef(json['destination']),
     isRealtime: switch (json['realtimeStatus']) {
@@ -150,7 +150,7 @@ TripStop? _mapIntermediateStop(Map<String, Object?> json) {
 
 /// Null without line id, trip code or stop id: the run cannot be
 /// requested then.
-RunKey? _mapRunKey(
+RunKey? mapEfaRunKey(
   Map<String, Object?> transportation,
   Object? origin,
   DateTime plannedDeparture,

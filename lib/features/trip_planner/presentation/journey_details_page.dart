@@ -172,7 +172,7 @@ class _JourneyDetailsPageState extends State<JourneyDetailsPage> {
               ),
             ),
           ),
-          ReminderTile(journey),
+          ReminderTile(journey, query: query),
           if (notices.isNotEmpty) ListCard(child: TripNoticesSection(notices)),
           const SizedBox(height: 4),
           ?wayToFirstStop,

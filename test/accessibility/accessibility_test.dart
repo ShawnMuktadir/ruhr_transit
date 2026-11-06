@@ -8,6 +8,7 @@ import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/map/base_map.dart';
 import 'package:ruhr_transit/core/theme/app_theme.dart';
+import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
@@ -87,16 +88,19 @@ void main() {
   tearDown(getIt.reset);
 
   /// [page] with reminders, at a time before the sample journey leaves.
-  Widget reminders(Widget page, {List<Reminder> saved = const []}) =>
-      BlocProvider(
-        create: (_) => RemindersCubit(
-          FakeReminderRepository(saved),
-          FakeReminderAlarms(),
-          FakeReminderNotifier(),
-          now: () => DateTime.utc(2026, 11, 2, 6),
-        ),
-        child: page,
-      );
+  Widget reminders(
+    Widget page, {
+    List<Reminder> saved = const [],
+    DateTime? at,
+  }) => BlocProvider(
+    create: (_) => RemindersCubit(
+      FakeReminderRepository(saved),
+      FakeReminderAlarms(),
+      FakeReminderNotifier(),
+      now: () => at ?? DateTime.utc(2026, 11, 2, 6),
+    ),
+    child: page,
+  );
 
   Reminder reminderForS1() => Reminder.forJourney(
     directS1,
@@ -203,6 +207,35 @@ void main() {
     ),
     'trip details, way to the first stop offered': tripWithWay,
     'trip details, way to the first stop added': tripWithWay,
+    'nearby stops with their next departures': () => BlocProvider(
+      create: (_) => NearbyStopsCubit(
+        FakeLocationSource()..permissionGranted = true,
+        FakeNearbyStopsRepository(),
+      )..load(),
+      child: NearbyStopsView(
+        departures: () => FakeDepartureRepository()
+          ..autoReply = Ok([
+            Departure(
+              line: '365',
+              destination: 'Bochum Hbf',
+              plannedTime: DateTime.now().toUtc().add(
+                const Duration(minutes: 9),
+              ),
+            ),
+          ]),
+      ),
+    ),
+    'departure board, reminder options': () => reminders(
+      BlocProvider(
+        create: (_) => DeparturesCubit(
+          FakeDepartureRepository()..autoReply = Ok([delayedRe16]),
+          bochumHbf.id,
+          now: () => boardTime,
+        )..load(),
+        child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
+      ),
+      at: delayedRe16.plannedTime.subtract(const Duration(minutes: 40)),
+    ),
     'nearby stops, stars and filter chips': nearby,
     'nearby stops, on the map': nearby,
     'nearby stops, a pin chosen on the map': () => TripActions(
@@ -337,6 +370,10 @@ void main() {
   final reach = <String, Future<void> Function(WidgetTester)>{
     'trip details, way to the first stop added': (tester) async {
       await tester.tap(find.textContaining('Weg zu'));
+      await tester.pumpAndSettle();
+    },
+    'departure board, reminder options': (tester) async {
+      await tester.tap(find.text(delayedRe16.line));
       await tester.pumpAndSettle();
     },
     'nearby stops, on the map': (tester) async {

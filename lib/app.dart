@@ -24,6 +24,7 @@ import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
@@ -36,6 +37,7 @@ class RuhrTransitApp extends StatefulWidget {
     this.initialFavourites = const [],
     this.initialRecentStops = const [],
     this.launchedStop,
+    this.launchedReminder,
     this.language,
     this.showOnboarding = false,
     this.themeMode = ThemeMode.system,
@@ -51,6 +53,9 @@ class RuhrTransitApp extends StatefulWidget {
   /// The stop whose home-screen widget started the app. Its board opens
   /// above the favourite stops, so Back leads there.
   final Stop? launchedStop;
+
+  /// What the notification that started the app opens, if one did.
+  final ReminderOpening? launchedReminder;
 
   /// The chosen language, or null to follow the device.
   final AppLanguage? language;
@@ -70,7 +75,7 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
   /// Opens boards from widget taps, which come from outside the widget tree.
   final _shellKey = GlobalKey<HomeShellState>();
   late final StreamSubscription<Stop> _widgetTaps;
-  late final StreamSubscription<Stop> _reminderTaps;
+  late final StreamSubscription<ReminderOpening> _reminderTaps;
 
   // Created here rather than in BlocProviders, because the app itself
   // reacts to them (locale changes, widget taps before onboarding).
@@ -114,7 +119,12 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _widgetTaps = getIt<WidgetSync>().openedStops.listen(_openBoard);
-    _reminderTaps = getIt<ReminderNotifier>().openedStops.listen(_openBoard);
+    _reminderTaps = getIt<ReminderNotifier>().opened.listen(_openReminder);
+    if (widget.launchedReminder case final opening?) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _openReminder(opening),
+      );
+    }
     if (widget.launchedStop case final stop?) {
       // The navigator exists only after the first frame.
       WidgetsBinding.instance.addPostFrameCallback((_) => _openBoard(stop));
@@ -151,6 +161,12 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
   /// Shows [stop]'s board directly above the favourite stops, so repeated
   /// widget taps do not stack boards and Back always leads to the stops.
   /// Before the first-launch flow is done, the widget only opens the app.
+  void _openReminder(ReminderOpening opening) {
+    if (_onboarding.state) {
+      unawaited(_shellKey.currentState?.openReminder(opening));
+    }
+  }
+
   void _openBoard(Stop stop) {
     if (_onboarding.state) _shellKey.currentState?.openBoard(stop);
   }

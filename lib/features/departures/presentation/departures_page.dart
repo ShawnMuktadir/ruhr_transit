@@ -19,6 +19,8 @@ import 'package:ruhr_transit/features/departures/domain/departure_repository.dar
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourite_stop_button.dart';
+import 'package:ruhr_transit/features/reminders/presentation/reminder_tile.dart';
+import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
@@ -155,7 +157,11 @@ class DeparturesView extends StatelessWidget {
                   children: [
                     _UpdatedAt(state),
                     Expanded(
-                      child: _Board(departures, onRefresh: cubit.refresh),
+                      child: _Board(
+                        departures,
+                        stop: stop,
+                        onRefresh: cubit.refresh,
+                      ),
                     ),
                   ],
                 ),
@@ -212,7 +218,9 @@ class _UpdatedAt extends StatelessWidget {
 }
 
 class _Board extends StatelessWidget {
-  const _Board(this.departures, {required this.onRefresh});
+  const _Board(this.departures, {required this.stop, required this.onRefresh});
+
+  final Stop stop;
 
   final List<Departure> departures;
   final Future<void> Function() onRefresh;
@@ -230,21 +238,59 @@ class _Board extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: departures.length,
               itemBuilder: (context, index) =>
-                  ListCard(child: _DepartureTile(departures[index])),
+                  ListCard(child: _DepartureTile(departures[index], stop)),
             ),
     );
   }
 }
 
 class _DepartureTile extends StatelessWidget {
-  const _DepartureTile(this.departure);
+  const _DepartureTile(this.departure, this.stop);
 
   final Departure departure;
+  final Stop stop;
+
+  /// Sets or removes a reminder; null when there is nothing to offer: no
+  /// reminders here (tests of a single page), cancelled, or too late.
+  VoidCallback? _onTap(
+    BuildContext context,
+    RemindersCubit? cubit,
+    bool isSet,
+  ) {
+    if (cubit == null || departure.isCancelled) return null;
+    final leads = cubit.leadsBefore(departure.time);
+    if (leads.isEmpty && !isSet) return null;
+    final l10n = AppLocalizations.of(context);
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final use24HourFormat = MediaQuery.alwaysUse24HourFormatOf(context);
+    return () => unawaited(
+      chooseReminder(
+        context,
+        cubit: cubit,
+        leads: leads,
+        label: (lead) => l10n.reminderBeforeDeparture(lead.inMinutes),
+        set: (lead) => cubit.addForDeparture(
+          departure,
+          stop,
+          lead: lead,
+          languageCode: languageCode,
+          use24HourFormat: use24HourFormat,
+        ),
+        remove: switch (cubit.reminderForDeparture(departure, stop)) {
+          final reminder? => () => unawaited(cubit.remove(reminder)),
+          null => null,
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
+    final reminders = RemindersCubit.maybeWatch(context);
+    final isSet = reminders?.reminderForDeparture(departure, stop) != null;
+    final onTap = _onTap(context, reminders, isSet);
     final notes = [
       if (departure.isCancelled) l10n.departureCancelled,
       ...departure.notes,
@@ -286,44 +332,70 @@ class _DepartureTile extends StatelessWidget {
     // layout is shown.
     return Semantics(
       container: true,
-      label: _departureSummary(context, departure),
+      button: onTap != null,
+      label: [
+        _departureSummary(context, departure),
+        if (isSet) l10n.reminderOnDepartureSet,
+      ].join(', '),
+      onTap: onTap,
+      onTapHint: onTap == null ? null : l10n.reminderOnDeparture,
       excludeSemantics: true,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 64),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: stacked
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        LineBadge(departure.line, mode: departure.mode),
-                        const SizedBox(width: 16),
-                        Expanded(child: _TimeAndPlatform(departure)),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    destination,
-                  ],
-                )
-              : Row(
-                  children: [
-                    LineBadge(departure.line, mode: departure.mode),
-                    const SizedBox(width: 16),
-                    Expanded(child: destination),
-                    const SizedBox(width: 16),
-                    // Bounded, so the delay can move under the time instead
-                    // of pushing the row off screen.
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.sizeOf(context).width * 0.3,
-                      ),
-                      child: _TimeAndPlatform(departure),
-                    ),
-                  ],
+      child: InkWell(
+        onTap: onTap,
+        child: Stack(
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 64),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
+                child: stacked
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              LineBadge(departure.line, mode: departure.mode),
+                              const SizedBox(width: 16),
+                              Expanded(child: _TimeAndPlatform(departure)),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          destination,
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          LineBadge(departure.line, mode: departure.mode),
+                          const SizedBox(width: 16),
+                          Expanded(child: destination),
+                          const SizedBox(width: 16),
+                          // Bounded, so the delay can move under the time instead
+                          // of pushing the row off screen.
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.sizeOf(context).width * 0.3,
+                            ),
+                            child: _TimeAndPlatform(departure),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+            if (isSet)
+              PositionedDirectional(
+                top: 4,
+                end: 6,
+                child: Icon(
+                  Icons.notifications_active,
+                  size: 16,
+                  color: colors.primary,
+                ),
+              ),
+          ],
         ),
       ),
     );

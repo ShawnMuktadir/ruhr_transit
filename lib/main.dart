@@ -23,10 +23,8 @@ Future<void> main() async {
   final favourites = await getIt<FavouritesRepository>().load();
   // Also loaded up front, for the same reason as favourites.
   final recentStops = await getIt<RecentStopsRepository>().load();
-  // Started from the home-screen widget or a reminder notification.
-  final launchedStop =
-      await getIt<WidgetSync>().launchedStop() ??
-      await getIt<ReminderNotifier>().launchedStop();
+  final launchedStop = await getIt<WidgetSync>().launchedStop();
+  final launchedReminder = await getIt<ReminderNotifier>().launched();
   // Also read up front, so the first frame is already in the right language,
   // theme and screen.
   final language = AppLanguages.byCode(
@@ -39,6 +37,7 @@ Future<void> main() async {
       initialFavourites: favourites,
       initialRecentStops: recentStops,
       launchedStop: launchedStop,
+      launchedReminder: launchedReminder,
       language: language,
       showOnboarding: !onboarded,
       themeMode: themeMode,

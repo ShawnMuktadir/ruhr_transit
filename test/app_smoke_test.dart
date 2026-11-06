@@ -16,6 +16,7 @@ import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.da
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
@@ -157,7 +158,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(DeparturesPage), findsNothing);
 
-      reminderNotifier.taps.add(dortmundHbf);
+      reminderNotifier.taps.add(
+        ReminderOpening(
+          key: 'a departure',
+          searchFrom: DateTime.utc(2026, 11, 6, 8),
+          stop: dortmundHbf,
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(DeparturesPage), findsOneWidget);

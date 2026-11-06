@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
-import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 
 class FakeReminderRepository implements ReminderRepository {
   FakeReminderRepository([List<Reminder> initial = const []])
@@ -59,24 +58,24 @@ class FakeReminderNotifier implements ReminderNotifier {
     required String body,
     required String channelName,
     required String channelDescription,
-    Stop? opens,
+    ReminderOpening? opens,
   }) async {
     shown.add((id: id, title: title, body: body));
     openedBy.add(opens);
   }
 
-  /// The stop each shown notification opens.
-  final List<Stop?> openedBy = [];
+  /// What each shown notification opens.
+  final List<ReminderOpening?> openedBy = [];
 
-  Stop? launched;
+  ReminderOpening? launchedOpening;
   // ignore: close_sinks
-  final taps = StreamController<Stop>.broadcast();
+  final taps = StreamController<ReminderOpening>.broadcast();
 
   @override
-  Future<Stop?> launchedStop() async => launched;
+  Future<ReminderOpening?> launched() async => launchedOpening;
 
   @override
-  Stream<Stop> get openedStops => taps.stream;
+  Stream<ReminderOpening> get opened => taps.stream;
 
   @override
   Future<void> cancel(int id) async => cancelled.add(id);

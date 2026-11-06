@@ -222,7 +222,7 @@ void main() {
       final shown = notifier.shown.single;
       expect(shown.id, 7);
       expect(shown.title, 'In 10 Min. losgehen');
-      expect(notifier.openedBy.single?.id, 'de:05911:5194');
+      expect(notifier.openedBy.single?.stop?.id, 'de:05911:5194');
       expect(shown.body, contains('RE6 ab Bochum Hbf um'));
       expect(shown.body, contains('Gleis 3'));
       expect(shown.body, contains('10 Min. Fußweg'));

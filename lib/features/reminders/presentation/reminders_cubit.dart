@@ -1,10 +1,13 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 
 /// How setting a reminder ended.
 enum ReminderOutcome {
@@ -64,6 +67,16 @@ class RemindersCubit extends Cubit<List<Reminder>> {
     _emit(current);
   }
 
+  /// The cubit, rebuilding on changes; null where none is provided (tests of
+  /// a single page).
+  static RemindersCubit? maybeWatch(BuildContext context) {
+    try {
+      return context.watch<RemindersCubit>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
   /// The set reminder for [journey], if any.
   Reminder? reminderFor(Journey journey) {
     final key = Reminder.keyOf(journey);
@@ -80,22 +93,60 @@ class RemindersCubit extends Cubit<List<Reminder>> {
     ];
   }
 
+  /// The set reminder for [departure] at [stop], if any.
+  Reminder? reminderForDeparture(Departure departure, Stop stop) {
+    final key = Reminder.keyOfDeparture(departure, stop);
+    return state.where((reminder) => reminder.key == key).firstOrNull;
+  }
+
+  /// Which reminders still lie ahead of a departure at [time].
+  List<Duration> leadsBefore(DateTime time) {
+    final now = _now();
+    return [
+      for (final lead in reminderLeads)
+        if (time.subtract(lead).isAfter(now)) lead,
+    ];
+  }
+
   Future<ReminderOutcome> add(
     Journey journey, {
     required Duration lead,
     required String languageCode,
     required bool use24HourFormat,
-  }) async {
-    if (!await _notifier.ensurePermission()) return ReminderOutcome.denied;
-    final now = _now();
-    final reminder = Reminder.forJourney(
+    TripQuery? query,
+  }) => _add(
+    (id) => Reminder.forJourney(
       journey,
-      // Fits Android's 32-bit alarm and notification ids.
-      id: now.millisecondsSinceEpoch ~/ 1000 % 0x7FFFFFFF,
+      id: id,
       lead: lead,
       languageCode: languageCode,
       use24HourFormat: use24HourFormat,
-    );
+      query: query,
+    ),
+  );
+
+  Future<ReminderOutcome> addForDeparture(
+    Departure departure,
+    Stop stop, {
+    required Duration lead,
+    required String languageCode,
+    required bool use24HourFormat,
+  }) => _add(
+    (id) => Reminder.forDeparture(
+      departure,
+      stop,
+      id: id,
+      lead: lead,
+      languageCode: languageCode,
+      use24HourFormat: use24HourFormat,
+    ),
+  );
+
+  Future<ReminderOutcome> _add(Reminder? Function(int id) make) async {
+    if (!await _notifier.ensurePermission()) return ReminderOutcome.denied;
+    final now = _now();
+    // Fits Android's 32-bit alarm and notification ids.
+    final reminder = make(now.millisecondsSinceEpoch ~/ 1000 % 0x7FFFFFFF);
     if (reminder == null || !reminder.notifyAt.isAfter(now)) {
       return ReminderOutcome.tooLate;
     }

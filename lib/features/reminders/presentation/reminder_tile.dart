@@ -8,14 +8,18 @@ import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 
 /// In the trip details: sets a reminder to leave for [journey], or shows
 /// the one that is set. Nothing for a walk alone or when it is too late;
 /// nothing where no [RemindersCubit] is provided (tests of a single page).
 class ReminderTile extends StatelessWidget {
-  const ReminderTile(this.journey, {super.key});
+  const ReminderTile(this.journey, {this.query, super.key});
 
   final Journey journey;
+
+  /// What was searched: lets the notification open this trip again.
+  final TripQuery? query;
 
   @override
   Widget build(BuildContext context) {
@@ -59,72 +63,103 @@ class ReminderTile extends StatelessWidget {
   }
 
   Future<void> _choose(BuildContext context, List<Duration> leads) async {
-    final l10n = AppLocalizations.of(context);
     final cubit = context.read<RemindersCubit>();
     final languageCode = Localizations.localeOf(context).languageCode;
     final use24HourFormat = MediaQuery.alwaysUse24HourFormatOf(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final lead = await showModalBottomSheet<Duration>(
-      context: context,
-      showDragHandle: true,
-      // At large text the choices need more than half the screen.
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    l10n.reminderSheetTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+    final l10n = AppLocalizations.of(context);
+    await chooseReminder(
+      context,
+      cubit: cubit,
+      leads: leads,
+      label: (lead) => l10n.reminderLeadOption(lead.inMinutes),
+      set: (lead) => cubit.add(
+        journey,
+        lead: lead,
+        languageCode: languageCode,
+        use24HourFormat: use24HourFormat,
+        query: query,
+      ),
+    );
+  }
+}
+
+/// Asks when the reminder should come, sets it with [set], and says how
+/// that went. With [remove], also offers to take a set reminder away.
+Future<void> chooseReminder(
+  BuildContext context, {
+  required RemindersCubit cubit,
+  required List<Duration> leads,
+  required String Function(Duration lead) label,
+  required Future<ReminderOutcome> Function(Duration lead) set,
+  VoidCallback? remove,
+}) async {
+  final l10n = AppLocalizations.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  final lead = await showModalBottomSheet<Duration>(
+    context: context,
+    showDragHandle: true,
+    // At large text the choices need more than half the screen.
+    isScrollControlled: true,
+    builder: (context) => SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Semantics(
+                header: true,
+                child: Text(
+                  l10n.reminderSheetTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              for (final lead in leads)
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-                  title: Text(l10n.reminderLeadOption(lead.inMinutes)),
-                  onTap: () => Navigator.of(context).pop(lead),
-                ),
-            ],
-          ),
+            ),
+            for (final lead in leads)
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                title: Text(label(lead)),
+                onTap: () => Navigator.of(context).pop(lead),
+              ),
+            if (remove != null)
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                leading: const Icon(Icons.notifications_off_outlined),
+                title: Text(l10n.reminderRemove),
+                onTap: () {
+                  remove();
+                  Navigator.of(context).pop();
+                },
+              ),
+          ],
         ),
       ),
-    );
-    if (lead == null) return;
+    ),
+  );
+  if (lead == null) return;
 
-    final outcome = await cubit.add(
-      journey,
-      lead: lead,
-      languageCode: languageCode,
-      use24HourFormat: use24HourFormat,
-    );
-    final (String message, SnackBarAction? action) = switch (outcome) {
-      ReminderOutcome.set => (l10n.reminderAdded, null),
-      ReminderOutcome.setInexact => (
-        l10n.reminderInexact,
-        SnackBarAction(
-          label: l10n.reminderAllowExact,
-          onPressed: () => unawaited(cubit.allowExact()),
-        ),
+  final outcome = await set(lead);
+  final (String message, SnackBarAction? action) = switch (outcome) {
+    ReminderOutcome.set => (l10n.reminderAdded, null),
+    ReminderOutcome.setInexact => (
+      l10n.reminderInexact,
+      SnackBarAction(
+        label: l10n.reminderAllowExact,
+        onPressed: () => unawaited(cubit.allowExact()),
       ),
-      ReminderOutcome.denied => (
-        l10n.reminderDenied,
-        SnackBarAction(
-          label: l10n.actionSettings,
-          onPressed: () => unawaited(cubit.openAppSettings()),
-        ),
+    ),
+    ReminderOutcome.denied => (
+      l10n.reminderDenied,
+      SnackBarAction(
+        label: l10n.actionSettings,
+        onPressed: () => unawaited(cubit.openAppSettings()),
       ),
-      ReminderOutcome.tooLate => (l10n.reminderTooLate, null),
-      ReminderOutcome.failed => (l10n.reminderFailed, null),
-    };
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message), action: action));
-  }
+    ),
+    ReminderOutcome.tooLate => (l10n.reminderTooLate, null),
+    ReminderOutcome.failed => (l10n.reminderFailed, null),
+  };
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message), action: action));
 }
