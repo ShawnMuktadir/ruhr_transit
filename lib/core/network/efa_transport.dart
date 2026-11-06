@@ -5,10 +5,18 @@ import 'package:ruhr_transit/core/network/efa_product.dart';
 /// both show lines, times and notes the same way.
 
 /// Most lines have `disassembledName` (`RE16`); long-distance trains don't,
-/// so `number` (`945`) and then `name` are the fallbacks.
+/// so `number` (`945`) and then `name` are the fallbacks. Some long-distance
+/// trains have none of these (seen live: a DB high-speed train to Stuttgart),
+/// and only the product name (`Zug`) is left. `tripCode` is no substitute: it
+/// is not the train number.
 String readEfaLine(Map<String, Object?> transportation) {
   for (final key in ['disassembledName', 'number', 'name']) {
     if (readNonEmptyString(transportation[key]) case final line?) return line;
+  }
+  if (transportation['product'] case {
+    'name': final String product,
+  } when product.isNotEmpty) {
+    return product;
   }
   throw const FormatException('Transportation without line name');
 }

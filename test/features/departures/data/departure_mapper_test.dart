@@ -168,6 +168,33 @@ void main() {
       expect(departures, hasLength(1));
     });
 
+    test('a train without any line name shows its product', () {
+      final nameless = _event();
+      nameless['transportation'] = <String, Object?>{
+        'product': {'class': 16, 'name': 'Zug'},
+        'destination': {'name': 'Stuttgart Hauptbahnhof'},
+        'properties': {'tripCode': 235},
+      };
+
+      final departures = mapDepartureMonitorResponse({
+        'stopEvents': [nameless],
+      });
+
+      expect(departures.single.line, 'Zug');
+    });
+
+    test('an unreadable departure leaves the others in place', () {
+      final departures = mapDepartureMonitorResponse({
+        'stopEvents': [
+          'nope',
+          _event()..remove('departureTimePlanned'),
+          _event(),
+        ],
+      });
+
+      expect(departures, hasLength(1));
+    });
+
     test('throws FormatException for malformed responses', () {
       final withoutTime = _event()..remove('departureTimePlanned');
       final withoutDestination = _event();
