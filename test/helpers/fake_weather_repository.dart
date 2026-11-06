@@ -24,6 +24,15 @@ class FakeWeatherRepository implements WeatherRepository {
   }
 }
 
+extension WeatherWithSky on Weather {
+  Weather withSky(WeatherSky sky) => Weather(
+    sky: sky,
+    temperature: temperature,
+    observedAt: observedAt,
+    precipitation: precipitation,
+  );
+}
+
 /// 9 °C and cloudy at 19:00 UTC, rain from 21:00 UTC.
 final cloudyWithRain = Weather(
   sky: WeatherSky.cloudy,

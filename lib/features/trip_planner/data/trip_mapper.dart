@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/network/efa_json.dart';
 import 'package:ruhr_transit/core/network/efa_text.dart';
@@ -18,7 +19,8 @@ const _tooCloseCode = -4007;
 ///
 /// A successful response carries a warning (-10015, "itp"), so messages only
 /// matter without journeys. Throws [EfaServerException] for an error without
-/// journeys, and [FormatException] when the shape is wrong.
+/// journeys, and [FormatException] when no journey can be read: one odd
+/// journey is left out rather than costing all the others.
 List<Journey> mapTripResponse(Map<String, Object?> json) {
   final journeys = switch (json['journeys']) {
     null => const <Object?>[],
@@ -34,15 +36,17 @@ List<Journey> mapTripResponse(Map<String, Object?> json) {
     throw EfaServerException(errors.first.code, errors.first.text);
   }
 
-  final mapped = [
-    for (final journey in journeys)
-      switch (journey) {
-        {'legs': final List<Object?> legs} when legs.isNotEmpty => Journey([
-          for (final leg in legs) _mapLeg(leg),
-        ]),
-        _ => throw const FormatException('Journey without legs'),
-      },
-  ];
+  final mapped = <Journey>[];
+  FormatException? problem;
+  for (final journey in journeys) {
+    try {
+      mapped.add(_mapJourney(journey));
+    } on FormatException catch (e) {
+      debugPrint('Left out a journey: ${e.message}');
+      problem ??= e;
+    }
+  }
+  if (mapped.isEmpty) throw problem!;
   // List.sort is not stable, so ties keep EFA's order through the index.
   final indexed = mapped.indexed.toList()
     ..sort((a, b) {
@@ -51,6 +55,13 @@ List<Journey> mapTripResponse(Map<String, Object?> json) {
     });
   return [for (final (_, journey) in indexed) journey];
 }
+
+Journey _mapJourney(Object? json) => switch (json) {
+  {'legs': final List<Object?> legs} when legs.isNotEmpty => Journey([
+    for (final leg in legs) _mapLeg(leg),
+  ]),
+  _ => throw const FormatException('Journey without legs'),
+};
 
 Leg _mapLeg(Object? json) {
   if (json is! Map<String, Object?>) {

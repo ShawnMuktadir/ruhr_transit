@@ -68,6 +68,11 @@ class WeatherCubit extends Cubit<WeatherState> {
   final LocationSource _location;
   final DateTime Function() _now;
 
+  /// The sky to show behind the planner's header. Stays during a refresh,
+  /// so the background does not blink; gone once there is no weather.
+  WeatherSky? get sky => _sky;
+  WeatherSky? _sky;
+
   /// Older weather is fetched again when the app comes back.
   static const maxAge = Duration(minutes: 30);
 
@@ -142,6 +147,12 @@ class WeatherCubit extends Cubit<WeatherState> {
   }
 
   void _emit(WeatherState state) {
-    if (!isClosed) emit(state);
+    if (isClosed) return;
+    _sky = switch (state) {
+      WeatherShown(:final weather) => weather.sky,
+      WeatherLoading() => _sky,
+      _ => null,
+    };
+    emit(state);
   }
 }

@@ -41,7 +41,17 @@ enum GreetingTime {
 /// planner. Switches to the next greeting when the period changes while
 /// the page is open.
 class GreetingHeader extends StatefulWidget {
-  const GreetingHeader({this.displayName, this.now = DateTime.now, super.key});
+  const GreetingHeader({
+    this.displayName,
+    this.now = DateTime.now,
+    this.color,
+    this.secondaryColor,
+    super.key,
+  });
+
+  /// Over the weather background; otherwise the theme's colours.
+  final Color? color;
+  final Color? secondaryColor;
 
   /// The name from the profile; without one the greeting has no name.
   final String? displayName;
@@ -91,27 +101,34 @@ class _GreetingHeaderState extends State<GreetingHeader> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final greeting = l10n.homeGreeting(_period.name);
+    // Along with the background as it fades in.
+    final fade = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 400);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Semantics(
           header: true,
-          child: Text(
-            switch (widget.displayName) {
+          child: AnimatedDefaultTextStyle(
+            duration: fade,
+            style: theme.textTheme.headlineMedium!.copyWith(
+              fontWeight: FontWeight.w600,
+              color: widget.color ?? theme.colorScheme.onSurface,
+            ),
+            child: Text(switch (widget.displayName) {
               final name? => l10n.homeGreetingWithName(greeting, name),
               null => greeting,
-            },
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            }),
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          l10n.homeGreetingQuestion,
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+        AnimatedDefaultTextStyle(
+          duration: fade,
+          style: theme.textTheme.titleMedium!.copyWith(
+            color: widget.secondaryColor ?? theme.colorScheme.onSurfaceVariant,
           ),
+          child: Text(l10n.homeGreetingQuestion),
         ),
       ],
     );

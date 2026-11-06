@@ -302,6 +302,62 @@ void main() {
     expect(mapTripResponse(json), isNotEmpty);
   });
 
+  group('a long-distance train without any line name', () {
+    // As seen live, Bochum Hbf to Essen Hbf, reduced to what matters.
+    Map<String, Object?> journey(Map<String, Object?> transportation) => {
+      'legs': [
+        {
+          'origin': {
+            'name': 'Bochum Hbf',
+            'departureTimePlanned': '2026-11-06T19:48:00Z',
+          },
+          'destination': {
+            'name': 'Essen Hauptbahnhof',
+            'arrivalTimePlanned': '2026-11-06T20:00:00Z',
+          },
+          'transportation': transportation,
+        },
+      ],
+    };
+    const nameless = <String, Object?>{
+      'id': 'ddb:98042: :R:j26',
+      'product': {'id': 0, 'class': 16, 'name': 'Zug', 'iconId': 6},
+      'destination': {'name': 'Stuttgart Hauptbahnhof'},
+      'properties': {'tripCode': 235},
+    };
+
+    test('is shown by its product, not by its trip code', () {
+      final journeys = mapTripResponse({
+        'journeys': [journey(nameless)],
+      });
+      final leg = journeys.single.legs.single as TransitLeg;
+      expect(leg.line, 'Zug');
+      expect(leg.direction, 'Stuttgart Hauptbahnhof');
+    });
+
+    test('an unreadable journey leaves the others in place', () {
+      final journeys = mapTripResponse({
+        'journeys': [
+          journey(const {'id': 'no name and no product'}),
+          journey(nameless),
+          const {'legs': <Object?>[]},
+        ],
+      });
+      expect(journeys, hasLength(1));
+    });
+
+    test('with no readable journey at all it is still an error', () {
+      expect(
+        () => mapTripResponse({
+          'journeys': [
+            journey(const {'id': 'no name and no product'}),
+          ],
+        }),
+        throwsFormatException,
+      );
+    });
+  });
+
   test('broken shapes are FormatExceptions', () {
     for (final json in <Map<String, Object?>>[
       {'journeys': 'nope'},

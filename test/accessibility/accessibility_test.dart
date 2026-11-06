@@ -47,8 +47,8 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.d
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_map_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
+import 'package:ruhr_transit/features/weather/domain/weather.dart';
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
-import 'package:ruhr_transit/features/weather/presentation/weather_chip.dart';
 import 'package:ruhr_transit/features/weather/presentation/weather_cubit.dart';
 
 import '../helpers/fake_departure_repository.dart';
@@ -137,11 +137,9 @@ void main() {
 
   Widget planner(WeatherCubit weather) => BlocProvider(
     create: (_) => TripFormCubit(),
-    child: TripFormView(
-      weather: BlocProvider(
-        create: (_) => weather..load(),
-        child: const WeatherChip(),
-      ),
+    child: BlocProvider(
+      create: (_) => weather..load(),
+      child: const TripFormView(showWeather: true),
     ),
   );
 
@@ -178,6 +176,14 @@ void main() {
   );
 
   final screens = <String, Widget Function()>{
+    // The text on the sky, for every kind of weather.
+    for (final sky in WeatherSky.values)
+      'trip form, ${sky.name}': () => planner(
+        WeatherCubit(
+          FakeWeatherRepository(Ok(cloudyWithRain.withSky(sky))),
+          FakeLocationSource()..permissionGranted = true,
+        ),
+      ),
     'welcome': onboarding,
     'language choice': onboarding,
     'start screen without favourites': () => BlocProvider(
@@ -508,9 +514,11 @@ void main() {
                     ? ThemeMode.dark
                     : ThemeMode.light,
                 builder: (context, child) => MediaQuery(
-                  data: MediaQuery.of(
-                    context,
-                  ).copyWith(textScaler: TextScaler.linear(textScale)),
+                  data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear(textScale),
+                    // A still picture, as the sky's movement never settles.
+                    disableAnimations: true,
+                  ),
                   child: child!,
                 ),
                 home: build(),

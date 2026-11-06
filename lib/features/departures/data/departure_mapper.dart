@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:ruhr_transit/core/network/efa_json.dart';
 import 'package:ruhr_transit/core/network/efa_transport.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
@@ -8,7 +9,8 @@ import 'package:ruhr_transit/features/trip_planner/data/trip_mapper.dart';
 /// responses put a heavily delayed departure first.
 ///
 /// Throws [EfaServerException] when EFA reports an error without
-/// departures, and [FormatException] when the shape is wrong.
+/// departures, and [FormatException] when no departure can be read: one odd
+/// departure is left out rather than costing the whole board.
 List<Departure> mapDepartureMonitorResponse(Map<String, Object?> json) {
   final events = switch (json['stopEvents']) {
     null => const <Object?>[],
@@ -25,13 +27,21 @@ List<Departure> mapDepartureMonitorResponse(Map<String, Object?> json) {
     return const [];
   }
 
-  return [
-    for (final event in events)
-      if (event is Map<String, Object?>)
-        _mapDeparture(event)
-      else
-        throw const FormatException('Stop event is not an object'),
-  ];
+  final departures = <Departure>[];
+  FormatException? problem;
+  for (final event in events) {
+    try {
+      if (event is! Map<String, Object?>) {
+        throw const FormatException('Stop event is not an object');
+      }
+      departures.add(_mapDeparture(event));
+    } on FormatException catch (e) {
+      debugPrint('Left out a departure: ${e.message}');
+      problem ??= e;
+    }
+  }
+  if (departures.isEmpty) throw problem!;
+  return departures;
 }
 
 Departure _mapDeparture(Map<String, Object?> json) {
