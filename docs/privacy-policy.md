@@ -11,8 +11,9 @@ app and the store never say different things.
 
 **Before publishing:**
 
-1. Replace the placeholders in square brackets (name, address, email, date,
-   link to VRR's privacy policy).
+1. Add the postal address, which is still missing from all four texts, and
+   set the real date: the "last updated" date (November 10, 2026) is
+   provisional.
 2. Have both texts checked. They are drafts that describe what the app
    does, not legal advice.
 3. Remove the draft notice (the `>` block at the top of each file) and

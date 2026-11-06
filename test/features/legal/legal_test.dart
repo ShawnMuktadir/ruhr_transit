@@ -69,6 +69,23 @@ Last.
       }
     });
 
+    test('name who is responsible, with no placeholders left', () {
+      for (final document in LegalDocument.values) {
+        for (final language in AppLanguages.all) {
+          final text = File(document.assetFor(language)).readAsStringSync();
+          final reason = document.assetFor(language);
+          expect(text, contains('Md Muktadir'), reason: reason);
+          expect(text, contains('mmuktadir778@gmail.com'), reason: reason);
+          expect(text, contains('2026'), reason: reason);
+          expect(
+            RegExp(r'\[[A-ZÄÖÜ -]+\]').hasMatch(text),
+            isFalse,
+            reason: reason,
+          );
+        }
+      }
+    });
+
     test('say only what the app does', () {
       for (final language in AppLanguages.all) {
         final privacy = File(
