@@ -1,4 +1,5 @@
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 
 /// One departure from a stop, as shown on the departure board.
 class Departure {
@@ -12,7 +13,14 @@ class Departure {
     this.plannedPlatform,
     this.isCancelled = false,
     this.notes = const [],
+    this.runKey,
   });
+
+  /// For asking VRR about delays; not saved with a stored board.
+  final RunKey? runKey;
+
+  /// The best known departure.
+  DateTime get time => estimatedTime ?? plannedTime;
 
   /// Line as passengers know it, e.g. `RE16`, `U35`, `349`.
   final String line;

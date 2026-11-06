@@ -1,6 +1,7 @@
 import 'package:ruhr_transit/core/network/efa_json.dart';
 import 'package:ruhr_transit/core/network/efa_transport.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
+import 'package:ruhr_transit/features/trip_planner/data/trip_mapper.dart';
 
 /// Maps an `XML_DM_REQUEST` response (`depType=stopEvents`) to departures,
 /// in the order EFA sends them. That is not strictly by planned time: live
@@ -63,5 +64,6 @@ Departure _mapDeparture(Map<String, Object?> json) {
     // the reliable one.
     isCancelled: json['isCancelled'] == true,
     notes: readEfaRealtimeNotes(json['hints']),
+    runKey: mapEfaRunKey(transportation, json['location'], plannedTime),
   );
 }

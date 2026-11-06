@@ -65,7 +65,7 @@ class ReminderWorker {
       body: body,
       channelName: l10n.reminderChannel,
       channelDescription: l10n.reminderChannelDescription,
-      opens: reminder.boardStop,
+      opens: reminder.opening,
     );
     await _reminders.save(others);
   }

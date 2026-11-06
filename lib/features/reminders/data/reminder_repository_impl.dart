@@ -56,6 +56,8 @@ class ReminderRepositoryImpl implements ReminderRepository {
     'originStopId': r.originStopId,
     'originParentId': r.originParentId,
     if (r.boardStop case final stop?) 'boardStop': stopToJson(stop),
+    if (r.tripFrom case final stop?) 'tripFrom': stopToJson(stop),
+    if (r.tripTo case final stop?) 'tripTo': stopToJson(stop),
     if (r.runKey case final key?)
       'run': {
         'lineId': key.lineId,
@@ -101,6 +103,8 @@ class ReminderRepositoryImpl implements ReminderRepository {
         originParentId: json['originParentId'] as String?,
         runKey: _readRunKey(json['run']),
         boardStop: _readStop(json['boardStop']),
+        tripFrom: _readStop(json['tripFrom']),
+        tripTo: _readStop(json['tripTo']),
       );
     }
     return null;

@@ -3,19 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
+import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journey.dart';
 import 'package:ruhr_transit/features/home/presentation/favourites_tab.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/nearby_stops/presentation/nearby_stops_page.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/settings/presentation/settings_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/current_location_finder.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_page.dart';
@@ -122,6 +126,42 @@ class HomeShellState extends State<HomeShell> {
         ),
       ),
     );
+  }
+
+  /// Opens the trip a reminder was for when it can be found again; else the
+  /// stop's departures, e.g. offline or for a single departure.
+  Future<void> openReminder(ReminderOpening opening) async {
+    final (from, to) = (opening.from, opening.to);
+    if (from != null && to != null) {
+      final query = TripQuery(
+        from: from,
+        to: to,
+        // EFA reads the time as it is shown on the phone.
+        time: DepartAt(opening.searchFrom.toLocal()),
+      );
+      final result = await getIt<TripRepository>().trips(query);
+      if (!mounted) return;
+      if (result case Ok(value: final journeys)) {
+        final journey = journeys
+            .where((journey) => Reminder.keyOf(journey) == opening.key)
+            .firstOrNull;
+        if (journey != null) {
+          _inTab(
+            HomeTab.plan,
+            (navigator) => unawaited(
+              navigator.push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      JourneyDetailsPage(journey: journey, query: query),
+                ),
+              ),
+            ),
+          );
+          return;
+        }
+      }
+    }
+    if (opening.stop case final stop?) openBoard(stop);
   }
 
   /// Fills the planner with [journey] and searches from now.

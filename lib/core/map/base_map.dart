@@ -78,14 +78,16 @@ class _TilesState extends State<_Tiles> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return TileLayer(
+    final tiles = TileLayer(
       urlTemplate: BaseMap._tiles,
       additionalOptions: {'style': dark ? 'grau' : 'farbe'},
       userAgentPackageName: 'de.muktadir.ruhrtransit',
       maxNativeZoom: BaseMap.maxZoom.toInt(),
-      tileBuilder: dark ? darkModeTileBuilder : null,
       tileProvider: _provider,
     );
+    // Inverted as a whole: a filter on each tile leaves faint lines between
+    // them.
+    return dark ? darkModeTilesContainerBuilder(context, tiles) : tiles;
   }
 }
 

@@ -1,6 +1,8 @@
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
 
@@ -32,7 +34,40 @@ class Reminder {
     this.originStopId,
     this.originParentId,
     this.boardStop,
+    this.tripFrom,
+    this.tripTo,
   });
+
+  /// A reminder for one departure at [stop]: nothing to walk.
+  static Reminder forDeparture(
+    Departure departure,
+    Stop stop, {
+    required int id,
+    required Duration lead,
+    required String languageCode,
+    required bool use24HourFormat,
+  }) => Reminder(
+    id: id,
+    key: keyOfDeparture(departure, stop),
+    line: departure.line,
+    mode: departure.mode,
+    stopName: stop.fullName,
+    platform: departure.platform,
+    plannedDeparture: departure.plannedTime,
+    departure: departure.time,
+    walkBefore: Duration.zero,
+    lead: lead,
+    languageCode: languageCode,
+    use24HourFormat: use24HourFormat,
+    runKey: departure.runKey,
+    originStopId: departure.runKey?.stopId,
+    boardStop: stop,
+  );
+
+  /// Tells whether a departure already has a reminder.
+  static String keyOfDeparture(Departure departure, Stop stop) =>
+      '${departure.line}|${stop.id}|'
+      '${departure.plannedTime.toIso8601String()}';
 
   /// The first ride of [journey], or null when it is only a walk.
   static Reminder? forJourney(
@@ -41,6 +76,7 @@ class Reminder {
     required Duration lead,
     required String languageCode,
     required bool use24HourFormat,
+    TripQuery? query,
   }) {
     for (final leg in journey.legs) {
       if (leg is TransitLeg) {
@@ -61,6 +97,8 @@ class Reminder {
           originStopId: leg.originId?.id,
           originParentId: leg.originId?.parentId,
           boardStop: boardingStopOf(leg),
+          tripFrom: query?.from,
+          tripTo: query?.to,
         );
       }
     }
@@ -111,6 +149,24 @@ class Reminder {
   /// app.
   final Stop? boardStop;
 
+  /// What was searched, to find the trip again when the notification is
+  /// tapped; null for a departure.
+  final Stop? tripFrom;
+  final Stop? tripTo;
+
+  /// What tapping the notification opens.
+  ReminderOpening get opening => ReminderOpening(
+    key: key,
+    stop: boardStop,
+    from: tripFrom,
+    to: tripTo,
+    // A little before the ride's timetabled start, so the search finds it
+    // also when it is late.
+    searchFrom: plannedDeparture.subtract(
+      walkBefore + const Duration(minutes: 2),
+    ),
+  );
+
   /// When the user has to leave.
   DateTime get leaveAt => departure.subtract(walkBefore);
 
@@ -134,5 +190,28 @@ class Reminder {
     originStopId: originStopId,
     originParentId: originParentId,
     boardStop: boardStop,
+    tripFrom: tripFrom,
+    tripTo: tripTo,
   );
+}
+
+/// What a tapped notification opens: the trip when it can be found again,
+/// else the stop's departures, else just the app.
+class ReminderOpening {
+  const ReminderOpening({
+    required this.key,
+    required this.searchFrom,
+    this.stop,
+    this.from,
+    this.to,
+  });
+
+  /// [Reminder.key], to recognise the trip among the results.
+  final String key;
+
+  /// In UTC.
+  final DateTime searchFrom;
+  final Stop? stop;
+  final Stop? from;
+  final Stop? to;
 }

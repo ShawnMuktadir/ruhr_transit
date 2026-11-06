@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
 import 'package:ruhr_transit/features/favourites/data/stop_json.dart';
 import 'package:ruhr_transit/features/reminders/data/reminder_repository_impl.dart';
+import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_worker.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -65,7 +66,7 @@ class AndroidReminderNotifier implements ReminderNotifier {
   static const _icon = 'ic_notification';
 
   final _plugin = FlutterLocalNotificationsPlugin();
-  final _taps = StreamController<Stop>.broadcast();
+  final _taps = StreamController<ReminderOpening>.broadcast();
 
   /// Once, also when several calls arrive before it has finished.
   late final Future<void> _ready = _plugin.initialize(
@@ -73,30 +74,54 @@ class AndroidReminderNotifier implements ReminderNotifier {
       android: AndroidInitializationSettings(_icon),
     ),
     onDidReceiveNotificationResponse: (response) {
-      if (_readStop(response.payload) case final stop?) _taps.add(stop);
+      if (_read(response.payload) case final opening?) _taps.add(opening);
     },
   );
 
-  /// The notification's payload, null without a stop or when unreadable.
-  static Stop? _readStop(String? payload) {
+  static String _write(ReminderOpening opening) => jsonEncode({
+    'key': opening.key,
+    'searchFrom': opening.searchFrom.toUtc().toIso8601String(),
+    if (opening.stop case final stop?) 'stop': stopToJson(stop),
+    if (opening.from case final stop?) 'from': stopToJson(stop),
+    if (opening.to case final stop?) 'to': stopToJson(stop),
+  });
+
+  /// The notification's payload; null when there is none or it is unreadable.
+  static ReminderOpening? _read(String? payload) {
     if (payload == null) return null;
     try {
-      return stopFromJson(jsonDecode(payload));
-    } on FormatException {
-      return null;
+      if (jsonDecode(payload)
+          case {
+                'key': final String key,
+                'searchFrom': final String searchFrom,
+              } &&
+              final Map<String, Object?> json) {
+        Stop? stop(String name) =>
+            json[name] == null ? null : stopFromJson(json[name]);
+        return ReminderOpening(
+          key: key,
+          searchFrom: DateTime.parse(searchFrom),
+          stop: stop('stop'),
+          from: stop('from'),
+          to: stop('to'),
+        );
+      }
+    } on FormatException catch (e) {
+      debugPrint('Unreadable reminder notification: $e');
     }
+    return null;
   }
 
   @override
-  Future<Stop?> launchedStop() async {
+  Future<ReminderOpening?> launched() async {
     await _ready;
     final details = await _plugin.getNotificationAppLaunchDetails();
     if (details == null || !details.didNotificationLaunchApp) return null;
-    return _readStop(details.notificationResponse?.payload);
+    return _read(details.notificationResponse?.payload);
   }
 
   @override
-  Stream<Stop> get openedStops => _taps.stream;
+  Stream<ReminderOpening> get opened => _taps.stream;
 
   Future<AndroidFlutterLocalNotificationsPlugin?> _android() async {
     await _ready;
@@ -129,7 +154,7 @@ class AndroidReminderNotifier implements ReminderNotifier {
     required String body,
     required String channelName,
     required String channelDescription,
-    Stop? opens,
+    ReminderOpening? opens,
   }) async {
     await _android();
     await _plugin.show(
@@ -137,7 +162,7 @@ class AndroidReminderNotifier implements ReminderNotifier {
       title: title,
       body: body,
       payload: switch (opens) {
-        final stop? => jsonEncode(stopToJson(stop)),
+        final opening? => _write(opening),
         null => null,
       },
       notificationDetails: NotificationDetails(

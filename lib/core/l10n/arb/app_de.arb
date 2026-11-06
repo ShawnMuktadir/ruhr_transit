@@ -1319,5 +1319,47 @@
   },
   "@stopDepartures": {
     "description": "Opens the departures of the chosen stop."
+  },
+  "nearbyNextIn": "{line} in {minutes} Min.",
+  "@nearbyNextIn": {
+    "description": "Next departure on a nearby stop.",
+    "placeholders": {
+      "line": {
+        "type": "String",
+        "example": "365"
+      },
+      "minutes": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "nearbyNextNow": "{line} jetzt",
+  "@nearbyNextNow": {
+    "description": "Next departure on a nearby stop, leaving now.",
+    "placeholders": {
+      "line": {
+        "type": "String",
+        "example": "365"
+      }
+    }
+  },
+  "reminderBeforeDeparture": "{minutes} Min. vor Abfahrt",
+  "@reminderBeforeDeparture": {
+    "description": "How long before a departure a reminder comes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "reminderOnDeparture": "An diese Abfahrt erinnern",
+  "@reminderOnDeparture": {
+    "description": "TalkBack: what tapping a departure does."
+  },
+  "reminderOnDepartureSet": "Erinnerung gesetzt",
+  "@reminderOnDepartureSet": {
+    "description": "TalkBack: this departure has a reminder."
   }
 }

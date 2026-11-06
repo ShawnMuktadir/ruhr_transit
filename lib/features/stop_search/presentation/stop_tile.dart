@@ -16,8 +16,12 @@ class StopTile extends StatelessWidget {
     this.detail,
     this.onSelected,
     this.action,
+    this.below,
     super.key,
   });
+
+  /// Under the town, e.g. a nearby stop's next departures.
+  final Widget? below;
 
   /// After the mode icons, e.g. the star on a nearby stop.
   final Widget? action;
@@ -56,9 +60,13 @@ class StopTile extends StatelessWidget {
         title: Text(stop.name),
         // "Adresse · Bochum": the kind first, so a street is not taken for a
         // stop of the same name.
-        subtitle: switch ([?kind, ?stop.locality, ?detail]) {
-          [] => null,
-          final parts => Text(parts.join(' · ')),
+        subtitle: switch (([?kind, ?stop.locality, ?detail], below)) {
+          ([], null) => null,
+          (final parts, null) => Text(parts.join(' · ')),
+          (final parts, final below?) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [if (parts.isNotEmpty) Text(parts.join(' · ')), below],
+          ),
         },
         trailing: switch (action) {
           final action? => Row(
