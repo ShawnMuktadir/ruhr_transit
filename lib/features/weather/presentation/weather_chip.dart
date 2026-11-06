@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/weather/domain/weather.dart';
@@ -78,14 +79,7 @@ class _WeatherChipState extends State<WeatherChip> {
     final state = context.watch<WeatherCubit>().state;
 
     final (Widget icon, String text, String? detail) = switch (state) {
-      WeatherLoading() => (
-        const SizedBox.square(
-          dimension: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-        l10n.weatherLoading,
-        null,
-      ),
+      WeatherLoading() => (const AppLoader.small(), l10n.weatherLoading, null),
       WeatherShown(:final weather) => (
         Icon(_skyIcon(weather.sky), color: colors.primary),
         [

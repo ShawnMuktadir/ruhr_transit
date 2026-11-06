@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/dismiss_background.dart';
@@ -20,9 +21,7 @@ class FavouriteJourneysList extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return BlocBuilder<FavouriteJourneysCubit, FavouriteJourneysState>(
       builder: (context, state) => switch (state) {
-        FavouriteJourneysLoading() => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        FavouriteJourneysLoading() => const AppLoader(),
         FavouriteJourneysFailed() => CenteredMessage(
           l10n.journeysLoadFailed,
           action: FilledButton.tonal(

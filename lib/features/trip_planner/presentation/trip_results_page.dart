@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
@@ -78,9 +79,7 @@ class TripResultsView extends StatelessWidget {
             );
         },
         builder: (context, state) => switch (state) {
-          TripResultsLoading() => const Center(
-            child: CircularProgressIndicator(),
-          ),
+          TripResultsLoading() => const AppLoader(),
           TripResultsFailed(:final failure) => CenteredMessage(
             failureMessage(l10n, failure),
             action: FilledButton.tonal(
@@ -99,7 +98,7 @@ class TripResultsView extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Center(
                   child: isLoadingLater
-                      ? const CircularProgressIndicator()
+                      ? const AppLoader()
                       : OutlinedButton.icon(
                           icon: const Icon(Icons.expand_more),
                           label: Text(l10n.tripLater),

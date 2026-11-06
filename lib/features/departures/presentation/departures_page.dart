@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
@@ -142,9 +143,7 @@ class DeparturesView extends StatelessWidget {
                   );
               },
               builder: (context, state) => switch (state) {
-                DeparturesLoading() => const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                DeparturesLoading() => const AppLoader(),
                 DeparturesFailed(:final failure) => CenteredMessage(
                   failureMessage(l10n, failure),
                   action: FilledButton.tonal(

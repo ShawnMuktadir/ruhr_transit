@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/features/legal/presentation/markdown_view.dart';
 
@@ -67,7 +68,7 @@ class _LegalPageState extends State<LegalPage> {
               child: Text(l10n.retry),
             ),
           ),
-          _ => const Center(child: CircularProgressIndicator()),
+          _ => const AppLoader(),
         },
       ),
     );

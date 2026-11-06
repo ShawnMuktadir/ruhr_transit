@@ -10,6 +10,7 @@ import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/failure_message.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
@@ -129,7 +130,7 @@ class _Progress extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(),
+          const AppLoader(),
           if (text case final text?) ...[
             const SizedBox(height: 16),
             Text(text),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
@@ -16,9 +17,8 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsProfile)),
       body: BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, state) => state.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _ProfileForm(state),
+        builder: (context, state) =>
+            state.isLoading ? const AppLoader() : _ProfileForm(state),
       ),
     );
   }
