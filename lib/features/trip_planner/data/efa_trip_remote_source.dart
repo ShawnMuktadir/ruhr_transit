@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:ruhr_transit/core/config/app_config.dart';
 import 'package:ruhr_transit/core/network/efa_json.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 
@@ -33,6 +34,9 @@ class EfaTripRemoteSource {
           ArriveBy(:final time) => _timeParameters(time, 'arr'),
         },
       },
+      options: query.isOutsideNrw
+          ? Options(receiveTimeout: AppConfig.outsideNrwTimeout)
+          : null,
       cancelToken: cancelToken,
     );
     return decodeEfaJson(response.data);

@@ -9,6 +9,8 @@
   "errorNetwork": "No internet connection. Please check your connection.",
   "errorTimeout": "The timetable service is not responding. Please try again.",
   "errorServer": "The timetable service is currently unavailable.",
+  "errorOutsideNrw": "This route is outside NRW, and the timetable service could not answer in time.",
+  "tripOutsideNrwWait": "Searching beyond the VRR area. This may take a little longer.",
   "errorParse": "The timetable service sent a response that could not be read.",
   "retry": "Try again",
   "modeTrain": "Train",

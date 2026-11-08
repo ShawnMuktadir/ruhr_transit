@@ -21,7 +21,8 @@ RuhrTransit zeigt, wann Bus und Bahn im Ruhrgebiet wirklich fahren – schnell,
 • Abfahrtstafel in Echtzeit: Verspätungen, Ausfälle und Gleiswechsel auf
   einen Blick
 • Verbindungssuche in ganz Deutschland: von und zu Haltestellen, Adressen
-  und Orten – jetzt, ab einer Uhrzeit oder mit Ankunftszeit
+  und Orten – jetzt, ab einer Uhrzeit oder mit Ankunftszeit. Verbindungen
+  ganz außerhalb von NRW können bis zu 2 Minuten dauern
 • Fußwege mit Wegbeschreibung, Aufzügen und Treppen; Umstiegszeit und
   knappe Anschlüsse auf einen Blick
 • Wo ist mein Zug? Die aktuelle Position im Verlauf der Fahrt
@@ -59,7 +60,8 @@ clear and without ads.
 • Live departure board: delays, cancellations and platform changes at a
   glance
 • Trip planner across Germany: from and to stops, addresses and places –
-  leave now, depart at or arrive by a time
+  leave now, depart at or arrive by a time. Routes entirely outside NRW can
+  take up to 2 minutes
 • Walks with directions, lifts and stairs; time to change and tight
   connections at a glance
 • Where is my train? Its current position along the run

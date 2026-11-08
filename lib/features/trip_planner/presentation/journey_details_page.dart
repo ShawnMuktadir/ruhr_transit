@@ -16,6 +16,7 @@ import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/ride_stops.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/route_title.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_map_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_notices.dart';
@@ -130,7 +131,11 @@ class _JourneyDetailsPageState extends State<JourneyDetailsPage> {
     final notices = journey.notices;
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.tripDetailsTitle),
+        toolbarHeight: RouteTitle.toolbarHeight(context),
+        title: RouteTitle(
+          from: query?.from.fullName ?? journey.legs.first.origin.name,
+          to: query?.to.fullName ?? journey.legs.last.destination.name,
+        ),
         actions: [
           if (hasMap(journey))
             IconButton(

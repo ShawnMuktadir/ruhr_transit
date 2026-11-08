@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 /// bottom, then fades, over and over. It shows that something is loading, not
 /// how far along it is. A full, still tram when animations are removed.
 class AppLoader extends StatefulWidget {
-  /// Centered in the space it gets, for a page or section that is loading.
-  const AppLoader({super.key}) : _size = 56;
+  /// Centered in the space it gets, for a page or section that is loading,
+  /// with [message] below it.
+  const AppLoader({this.message, super.key}) : _size = 56;
 
   /// Icon-sized, for a row or a button.
-  const AppLoader.small({super.key}) : _size = 24;
+  const AppLoader.small({super.key}) : _size = 24, message = null;
 
   final double _size;
+  final String? message;
 
   @override
   State<AppLoader> createState() => _AppLoaderState();
@@ -52,7 +54,23 @@ class _AppLoaderState extends State<AppLoader>
         ),
       ),
     );
-    return widget._size == 24 ? tram : Center(child: tram);
+    if (widget._size == 24) return tram;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          tram,
+          if (widget.message case final message?)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(message, textAlign: TextAlign.center),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

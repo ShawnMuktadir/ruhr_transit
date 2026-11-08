@@ -37,6 +37,23 @@ void main() {
     expect(tester.getSize(find.byType(AppLoader)), const Size.square(24));
   });
 
+  testWidgets('shows a message below the tram, for TalkBack too', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pump(tester, const AppLoader(message: 'Patience'));
+    expect(find.text('Patience'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Patience')).dy,
+      greaterThan(tester.getBottomLeft(paint(AppLoader)).dy),
+    );
+    expect(
+      tester.getSemantics(find.text('Patience')),
+      isSemantics(label: 'Patience', isLiveRegion: true),
+    );
+    semantics.dispose();
+  });
+
   testWidgets('keeps moving while it is shown', (tester) async {
     await pump(tester, const AppLoader());
     await tester.pump(const Duration(seconds: 5));

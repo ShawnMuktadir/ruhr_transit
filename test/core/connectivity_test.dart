@@ -126,7 +126,7 @@ void main() {
     await goOnline(tester);
 
     expect(departures.stopIds, hasLength(2));
-    expect(find.text('RE16'), findsOneWidget);
+    expect(find.textContaining('RE16', findRichText: true), findsOneWidget);
     expect(find.text('No internet connection'), findsNothing);
   });
 
@@ -155,7 +155,7 @@ void main() {
     await goOnline(tester);
     final searches = trips.queries.length;
     expect(searches, greaterThan(1));
-    expect(find.text('S1'), findsOneWidget);
+    expect(find.textContaining('S1', findRichText: true), findsOneWidget);
 
     // Loaded: another drop-out and return change nothing.
     await goOffline(tester);

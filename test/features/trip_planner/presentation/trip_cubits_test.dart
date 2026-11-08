@@ -283,6 +283,36 @@ void main() {
       expect((cubit.state as TripResultsLoaded).journeys, hasLength(4));
     });
 
+    group('outside NRW', () {
+      late TripResultsCubit outside;
+
+      setUp(() {
+        repository.replies = [
+          Ok([directS1]),
+          Ok([withWalk]),
+        ];
+        outside = TripResultsCubit(
+          repository,
+          const TripQuery(from: berlinHbf, to: passauHbf, time: LeaveNow()),
+          now: () => now,
+        );
+      });
+      tearDown(() => outside.close());
+
+      test('asks only once, as each request can take minutes', () async {
+        await outside.load();
+        expect(repository.queries, hasLength(1));
+        expect((outside.state as TripResultsLoaded).journeys, [directS1]);
+      });
+
+      test('later trips can still be asked for', () async {
+        await outside.load();
+        await outside.loadLater();
+        expect(repository.queries, hasLength(2));
+        expect((outside.state as TripResultsLoaded).journeys, hasLength(2));
+      });
+    });
+
     test('a failure while filling up keeps the list quietly', () async {
       repository.replies = [
         Ok([directS1]),

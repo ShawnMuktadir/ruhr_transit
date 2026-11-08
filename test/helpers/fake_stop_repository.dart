@@ -48,6 +48,24 @@ class FakeStopRepository implements StopRepository {
       _pending[index].complete(result);
 }
 
+const berlinHbf = Stop(
+  id: 'de:11000:900003201',
+  name: 'S+U Hauptbahnhof',
+  fullName: 'Berlin, S+U Hauptbahnhof',
+  locality: 'Berlin',
+  latitude: 52.525593,
+  longitude: 13.369546,
+);
+
+const passauHbf = Stop(
+  id: 'de:09262:156',
+  name: 'Hauptbahnhof',
+  fullName: 'Passau, Hauptbahnhof',
+  locality: 'Passau',
+  latitude: 48.574334,
+  longitude: 13.454158,
+);
+
 const bochumHbf = Stop(
   id: 'de:05911:5194',
   name: 'Hbf',

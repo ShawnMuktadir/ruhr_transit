@@ -8,6 +8,9 @@ class TripQuery {
   final Stop to;
   final TripTime time;
 
+  /// Neither end is in NRW, so VRR's service may take minutes or not answer.
+  bool get isOutsideNrw => !from.isInNrw && !to.isInNrw;
+
   TripQuery withTime(TripTime time) =>
       TripQuery(from: from, to: to, time: time);
 }

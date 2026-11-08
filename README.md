@@ -137,6 +137,11 @@ They are still drafts, see [docs/privacy-policy.md](docs/privacy-policy.md).
 
 ## Known limits
 
+- Trips with neither end in NRW are sometimes very slow. On one evening Berlin
+  to Passau took 111 s and Hamburg to Freiburg got no answer in 150 s, while
+  trips with an NRW end stayed fast; later the same kind of trips took 4 to
+  20 s. The app waits up to 2 minutes for these instead of 15 seconds, and says
+  so.
 - Trip times are sent as picked on the phone and read by the timetable service
   as German local time. On a phone set to another time zone, chosen times are off
   by the difference.

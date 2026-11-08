@@ -321,9 +321,9 @@ class _DepartureTile extends StatelessWidget {
           ),
       ],
     );
-    // From 1.5x text the three columns leave the destination too narrow
+    // From 1.3x text the three columns leave the destination too narrow
     // (words break mid-word), so it moves below line and time.
-    final stacked = MediaQuery.textScalerOf(context).scale(10) >= 15;
+    final stacked = MediaQuery.textScalerOf(context).scale(10) >= 13;
 
     // A plain layout rather than a ListTile: ListTile fixes the height of
     // its trailing widget, which cuts off time and platform at large font

@@ -297,20 +297,71 @@ void main() {
       await tester.pump();
     }
 
+    group('outside NRW', () {
+      const outside = TripQuery(
+        from: berlinHbf,
+        to: passauHbf,
+        time: LeaveNow(),
+      );
+
+      Future<void> pumpOutside(WidgetTester tester, TripQuery query) async {
+        await tester.pumpWidget(
+          app(
+            BlocProvider(
+              create: (_) => TripResultsCubit(repository, query)..load(),
+              child: TripResultsView(query: query),
+            ),
+          ),
+        );
+        await tester.pump();
+      }
+
+      testWidgets('says that it can take long', (tester) async {
+        repository.pending = Completer();
+        await pumpOutside(tester, outside);
+        expect(find.byType(AppLoader), findsOneWidget);
+        expect(find.textContaining('VRR area'), findsOneWidget);
+      });
+
+      testWidgets('says nothing of the kind with one end in NRW', (
+        tester,
+      ) async {
+        repository.pending = Completer();
+        await pumpOutside(
+          tester,
+          const TripQuery(from: bochumHbf, to: passauHbf, time: LeaveNow()),
+        );
+        expect(find.byType(AppLoader), findsOneWidget);
+        expect(find.textContaining('VRR area'), findsNothing);
+      });
+
+      testWidgets('says why when there is no answer, and offers a retry', (
+        tester,
+      ) async {
+        repository.replies = [const Err(OutsideNrwFailure())];
+        await pumpOutside(tester, outside);
+        await tester.pump();
+        expect(find.textContaining('outside NRW'), findsOneWidget);
+        expect(find.text('Try again'), findsOneWidget);
+      });
+    });
+
     testWidgets('cards show times, delays, lines and transfers', (
       tester,
     ) async {
       await pumpResults(tester);
 
-      expect(find.text('Hbf → Hbf'), findsOneWidget);
+      // The whole route, with towns.
+      expect(find.text('Bochum, Hbf'), findsOneWidget);
+      expect(find.text('→ Dortmund, Hbf'), findsOneWidget);
       expect(find.text(localTime(directS1.departure.plannedTime)), findsOne);
       expect(find.text('+3'), findsOneWidget);
       expect(find.text('+2'), findsOneWidget);
       // 07:17 to 07:39 as expected, not 07:14 to 07:37 as planned.
       expect(find.text('22 min'), findsOneWidget);
       expect(find.text('Direct'), findsOneWidget);
-      expect(find.text('S1'), findsOneWidget);
-      expect(find.text('U35'), findsOneWidget);
+      expect(find.textContaining('S1', findRichText: true), findsOneWidget);
+      expect(find.textContaining('U35', findRichText: true), findsOneWidget);
       expect(find.byIcon(Icons.directions_walk), findsOneWidget);
       expect(find.text('1 change'), findsOneWidget);
       // Only the trip with notices says so; S1 has none.
@@ -355,8 +406,8 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      expect(find.text('S1'), findsOneWidget);
-      expect(find.text('RE11'), findsOneWidget);
+      expect(find.textContaining('S1', findRichText: true), findsOneWidget);
+      expect(find.textContaining('RE11', findRichText: true), findsOneWidget);
       // RE11 has no live data; S1 has.
       expect(find.text('Timetable only'), findsOneWidget);
     });
@@ -396,13 +447,13 @@ void main() {
       await tester.tap(find.text('Try again'));
       await tester.pump();
 
-      expect(find.text('S1'), findsOneWidget);
+      expect(find.textContaining('S1', findRichText: true), findsOneWidget);
     });
 
     testWidgets('a card opens the journey details', (tester) async {
       await pumpResults(tester);
 
-      await tester.tap(find.text('U35'));
+      await tester.tap(find.textContaining('U35', findRichText: true));
       await tester.pumpAndSettle();
 
       expect(find.byType(JourneyDetailsPage), findsOneWidget);
@@ -545,7 +596,13 @@ void main() {
           find.text('No connection: position not available right now'),
           findsOneWidget,
         );
-        expect(find.text('Bochum Ruhr-Universität'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(ListView),
+            matching: find.text('Bochum Ruhr-Universität'),
+          ),
+          findsOneWidget,
+        );
       },
     );
 
@@ -671,7 +728,13 @@ void main() {
       );
 
       expect(find.text('towards Herne Schloß Strünkede'), findsOneWidget);
-      expect(find.text('Bochum Ruhr-Universität'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ListView),
+          matching: find.text('Bochum Ruhr-Universität'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Gleis 3 (U)'), findsOneWidget);
       expect(find.text('Walk 4 min (183 m)'), findsOneWidget);
       // 4 minutes between the rides, all of them walking.

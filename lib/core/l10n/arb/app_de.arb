@@ -42,6 +42,14 @@
   "@errorServer": {
     "description": "The server answered with an error."
   },
+  "errorOutsideNrw": "Diese Verbindung liegt außerhalb von NRW, und die Fahrplanauskunft konnte sie nicht rechtzeitig berechnen.",
+  "@errorOutsideNrw": {
+    "description": "A trip with neither end in NRW got no answer in time."
+  },
+  "tripOutsideNrwWait": "Suche außerhalb des VRR-Gebiets. Das kann etwas länger dauern.",
+  "@tripOutsideNrwWait": {
+    "description": "Below the loading indicator while searching a trip with neither end in NRW."
+  },
   "errorParse": "Die Antwort der Fahrplanauskunft konnte nicht gelesen werden.",
   "@errorParse": {
     "description": "The server response had an unexpected format."

@@ -31,7 +31,7 @@ void main() {
       expect(journeys.first.transfers, 0);
       expect(journeys.first.duration, const Duration(minutes: 22));
       // Long-distance trains have no disassembledName.
-      expect((journeys.last.legs.single as TransitLeg).line, '945');
+      expect((journeys.last.legs.single as TransitLeg).line, 'ICE 945');
       expect(journeys.last.legs.single.origin.platform, '5');
     });
 

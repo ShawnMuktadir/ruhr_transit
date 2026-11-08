@@ -9,10 +9,23 @@ import 'package:ruhr_transit/core/network/efa_product.dart';
 /// trains have none of these (seen live: a DB high-speed train to Stuttgart),
 /// and only the product name (`Zug`) is left. `tripCode` is no substitute: it
 /// is not the train number.
+///
+/// Long-distance trains send only their number (`905`); their type
+/// (`properties.trainType`, e.g. `ICE`, `FLX`, `EN`) goes in front of it.
 String readEfaLine(Map<String, Object?> transportation) {
-  for (final key in ['disassembledName', 'number', 'name']) {
-    if (readNonEmptyString(transportation[key]) case final line?) return line;
+  if (readNonEmptyString(transportation['disassembledName']) case final line?) {
+    return line;
   }
+  if (readNonEmptyString(transportation['number']) case final number?) {
+    final type = switch (transportation['properties']) {
+      {'trainType': final String type} when type.isNotEmpty => type,
+      _ => null,
+    };
+    return type != null && RegExp(r'^\d+$').hasMatch(number)
+        ? '$type $number'
+        : number;
+  }
+  if (readNonEmptyString(transportation['name']) case final line?) return line;
   if (transportation['product'] case {
     'name': final String product,
   } when product.isNotEmpty) {

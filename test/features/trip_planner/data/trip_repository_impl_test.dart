@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ruhr_transit/core/config/app_config.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
@@ -44,6 +45,63 @@ void main() {
     'calcNumberOfTrips': '5',
     'coordOutputFormat': 'WGS84[dd.ddddd]',
   };
+
+  group('outside NRW', () {
+    const outside = TripQuery(from: berlinHbf, to: passauHbf, time: LeaveNow());
+    Future<ResponseBody> timesOut(RequestOptions options) async =>
+        throw DioException.receiveTimeout(
+          timeout: const Duration(seconds: 1),
+          requestOptions: options,
+        );
+
+    test('waits up to two minutes', () async {
+      Duration? timeout;
+      final repository = repositoryAnswering((options) async {
+        timeout = options.receiveTimeout;
+        return textResponse(readEfaFixture('trip_bochum_dortmund'));
+      });
+      await repository.trips(outside);
+      expect(timeout, const Duration(minutes: 2));
+    });
+
+    test('with one end in NRW, the usual wait', () async {
+      Duration? timeout;
+      final repository = repositoryAnswering((options) async {
+        timeout = options.receiveTimeout;
+        return textResponse(readEfaFixture('trip_bochum_dortmund'));
+      });
+      await repository.trips(
+        const TripQuery(from: bochumHbf, to: passauHbf, time: LeaveNow()),
+      );
+      expect(timeout, AppConfig.receiveTimeout);
+    });
+
+    test('no answer in time says why', () async {
+      final repository = repositoryAnswering(timesOut);
+      expect(
+        failureOf(await repository.trips(outside)),
+        isA<OutsideNrwFailure>(),
+      );
+    });
+
+    test('no answer in time in NRW stays a timeout', () async {
+      final repository = repositoryAnswering(timesOut);
+      expect(
+        failureOf(await repository.trips(query(const LeaveNow()))),
+        isA<TimeoutFailure>(),
+      );
+    });
+
+    test('other failures stay what they are', () async {
+      final repository = repositoryAnswering(
+        (options) async => throw DioException.connectionError(
+          requestOptions: options,
+          reason: 'offline',
+        ),
+      );
+      expect(failureOf(await repository.trips(outside)), isA<NetworkFailure>());
+    });
+  });
 
   test('leaving now sends stop IDs and no time', () async {
     final repository = repositoryAnswering(

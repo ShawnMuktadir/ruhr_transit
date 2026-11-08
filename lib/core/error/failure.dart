@@ -18,6 +18,11 @@ final class TimeoutFailure extends Failure {
   const TimeoutFailure();
 }
 
+/// A trip with neither end in NRW got no answer, even with the longer wait.
+final class OutsideNrwFailure extends Failure {
+  const OutsideNrwFailure();
+}
+
 /// The server answered, but with an error. EFA reports most errors with
 /// HTTP 200 and a `systemMessages` entry, so [code] can be either an HTTP
 /// status or an EFA message code.

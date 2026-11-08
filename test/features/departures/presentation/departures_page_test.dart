@@ -69,7 +69,7 @@ void main() {
 
     expect(repository.stopIds, [bochumHbf.id]);
     expect(find.text('Bochum, Hbf'), findsOneWidget);
-    expect(find.text('RE16'), findsOneWidget);
+    expect(find.textContaining('RE16', findRichText: true), findsOneWidget);
     expect(find.text('Essen Hauptbahnhof'), findsOneWidget);
     expect(find.text(localTime(delayedRe16.plannedTime)), findsOneWidget);
     expect(find.text('+12'), findsOneWidget);
@@ -146,7 +146,7 @@ void main() {
     await tester.pump();
 
     expect(repository.stopIds, hasLength(2));
-    expect(find.text('RE16'), findsOneWidget);
+    expect(find.textContaining('RE16', findRichText: true), findsOneWidget);
   });
 
   testWidgets('pull to refresh updates the board', (tester) async {
@@ -154,11 +154,15 @@ void main() {
     await pumpPage(tester);
 
     repository.autoReply = Ok([delayedRe16, movedU35]);
-    await tester.fling(find.text('RE16'), const Offset(0, 400), 1000);
+    await tester.fling(
+      find.textContaining('RE16', findRichText: true),
+      const Offset(0, 400),
+      1000,
+    );
     await tester.pumpAndSettle();
 
     expect(repository.stopIds, hasLength(2));
-    expect(find.text('U35'), findsOneWidget);
+    expect(find.textContaining('U35', findRichText: true), findsOneWidget);
   });
 
   testWidgets('a failed refresh keeps the board and shows a snack bar', (
@@ -171,7 +175,7 @@ void main() {
     await tester.tap(find.byTooltip('Refresh'));
     await tester.pump();
 
-    expect(find.text('RE16'), findsOneWidget);
+    expect(find.textContaining('RE16', findRichText: true), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(SnackBar),
@@ -211,7 +215,7 @@ void main() {
       ..savedBoard = DepartureBoard([movedU35], fetchedAt: savedAt);
     await pumpPage(tester);
 
-    expect(find.text('U35'), findsOneWidget);
+    expect(find.textContaining('U35', findRichText: true), findsOneWidget);
     expect(
       find.text('Not updated – departures as of ${localTime(savedAt)}'),
       findsOneWidget,
@@ -235,7 +239,7 @@ void main() {
     await tester.tap(find.byTooltip('Refresh'));
     await tester.pump();
 
-    expect(find.text('RE16'), findsOneWidget);
+    expect(find.textContaining('RE16', findRichText: true), findsOneWidget);
     expect(find.text('Updated ${localTime(boardTime)}'), findsOneWidget);
     expect(find.byIcon(Icons.cloud_off), findsNothing);
     semantics.dispose();
