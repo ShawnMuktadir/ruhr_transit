@@ -224,30 +224,63 @@ void main() {
 
     Result<Weather> sky(WeatherSky sky) => Ok(cloudyWithRain.withSky(sky));
 
-    testWidgets('rain keeps moving', (tester) async {
+    /// How far the sky moves in one second.
+    Future<double> movedInASecond(WidgetTester tester) async {
+      final backdrop = tester.state<WeatherBackdropState>(
+        find.byType(WeatherBackdrop),
+      );
+      final before = backdrop.seconds;
+      await tester.pump(const Duration(seconds: 1));
+      return backdrop.seconds - before;
+    }
+
+    testWidgets('rain keeps moving, 20 steps a second', (tester) async {
       await pumpPlanner(tester, sky(WeatherSky.rain));
-      expect(find.byType(WeatherBackdrop), findsOneWidget);
-      expect(tester.binding.hasScheduledFrame, isTrue);
+      // 20 steps of 50 ms; one may still be due.
+      expect(await movedInASecond(tester), closeTo(1, 0.051));
+      expect(WeatherScene.rain.step, const Duration(milliseconds: 50));
+    });
+
+    testWidgets('clouds drift on, 10 steps a second', (tester) async {
+      await pumpPlanner(tester, sky(WeatherSky.cloudy));
+      expect(await movedInASecond(tester), closeTo(1, 0.101));
+      expect(WeatherScene.clouds.step, const Duration(milliseconds: 100));
+      expect(WeatherScene.stars.step, const Duration(milliseconds: 100));
     });
 
     testWidgets('rain stands still when animations are removed', (
       tester,
     ) async {
       await pumpPlanner(tester, sky(WeatherSky.rain), disableAnimations: true);
-      expect(find.byType(WeatherBackdrop), findsOneWidget);
+      expect(await movedInASecond(tester), 0);
       expect(tester.binding.hasScheduledFrame, isFalse);
     });
 
     testWidgets('rain stands still in a hidden tab', (tester) async {
       await pumpPlanner(tester, sky(WeatherSky.rain), tickers: false);
-      expect(find.byType(WeatherBackdrop), findsOneWidget);
+      expect(await movedInASecond(tester), 0);
       expect(tester.binding.hasScheduledFrame, isFalse);
     });
 
+    testWidgets('rain stands still while the app is in the background', (
+      tester,
+    ) async {
+      await pumpPlanner(tester, sky(WeatherSky.rain));
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      expect(await movedInASecond(tester), 0);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      expect(await movedInASecond(tester), greaterThan(0.9));
+    });
+
     for (final still in [WeatherSky.clearDay, WeatherSky.fog]) {
-      testWidgets('${still.name} needs no frames', (tester) async {
+      testWidgets('${still.name} stays still', (tester) async {
         await pumpPlanner(tester, sky(still));
-        expect(find.byType(WeatherBackdrop), findsOneWidget);
+        expect(await movedInASecond(tester), 0);
         expect(tester.binding.hasScheduledFrame, isFalse);
       });
     }
