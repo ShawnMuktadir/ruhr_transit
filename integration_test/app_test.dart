@@ -1,5 +1,7 @@
 // Starts the real app on a device or simulator and walks through the first
-// screens, with screenshots. CI runs it on the iOS simulator:
+// screens, with screenshots into build/screenshots. Run it locally (CI
+// takes its iOS screenshots with simctl instead, as flutter drive hung on
+// GitHub's simulator):
 //
 //   flutter drive --driver=test_driver/integration_test.dart \
 //     --target=integration_test/app_test.dart -d <device>

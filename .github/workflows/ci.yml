@@ -30,11 +30,14 @@ jobs:
         run: flutter test
 
   ios:
-    # Builds the iPhone app, then runs it on the simulator through
-    # integration_test/app_test.dart. The screenshots are attached to the
-    # run as "ios-screenshots".
+    # Builds the iPhone app, then starts it on the simulator and takes
+    # screenshots with Apple's simctl. They are attached to the run as
+    # "ios-screenshots". (flutter drive hung on the runner's simulator.)
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 45
+    env:
+      APP_ID: de.muktadir.ruhrtransit
+      SHOTS: build/screenshots
     steps:
       - uses: actions/checkout@v4
 
@@ -51,6 +54,10 @@ jobs:
       - name: Build for iPhone
         run: flutter build ios --release --no-codesign
 
+      # The simulator runs only debug builds.
+      - name: Build for the simulator
+        run: flutter build ios --simulator --debug
+
       - name: Start an iPhone simulator
         id: simulator
         run: |
@@ -62,12 +69,31 @@ jobs:
           xcrun simctl bootstatus "$udid" -b
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
 
-      - name: Run the app on the simulator
-        run: >
-          flutter drive
-          --driver=test_driver/integration_test.dart
-          --target=integration_test/app_test.dart
-          -d ${{ steps.simulator.outputs.udid }}
+      - name: Screenshots on the simulator
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          mkdir -p "$SHOTS"
+          # Starts the app, waits for it to draw (and to load the weather),
+          # takes a screenshot, and stops it again. Fails if it crashed.
+          shot() {
+            xcrun simctl launch "$UDID" "$APP_ID"
+            sleep 25
+            xcrun simctl io "$UDID" screenshot "$SHOTS/$1.png"
+            # grep -c reads everything, so no broken pipe under pipefail.
+            xcrun simctl spawn "$UDID" launchctl list | grep -c "$APP_ID" >/dev/null ||
+              { echo "The app is not running any more"; exit 1; }
+            xcrun simctl terminate "$UDID" "$APP_ID"
+          }
+          xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
+          shot 1_welcome
+          # Past onboarding, in German, as the app saves it
+          # (SharedPreferencesAsync: the app's standard UserDefaults).
+          xcrun simctl spawn "$UDID" defaults write "$APP_ID" onboarding_completed_v1 -bool true
+          xcrun simctl spawn "$UDID" defaults write "$APP_ID" app_language_v1 -string de
+          shot 2_plan_de
+          xcrun simctl ui "$UDID" appearance dark
+          shot 3_plan_de_dark
 
       - uses: actions/upload-artifact@v4
         if: always()
