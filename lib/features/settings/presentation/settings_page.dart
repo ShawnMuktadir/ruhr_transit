@@ -26,7 +26,7 @@ class SettingsPage extends StatelessWidget {
   /// Reads the app version; tests pass their own.
   final Future<PackageInfo> Function() packageInfo;
 
-  /// Opens Android's accessibility settings; tests pass their own.
+  /// Opens the phone's accessibility settings; tests pass their own.
   final Future<void> Function() openAccessibility;
 
   @override

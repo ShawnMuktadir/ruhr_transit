@@ -40,6 +40,9 @@ class FakeReminderNotifier implements ReminderNotifier {
   bool exact = true;
   int exactRequests = 0;
   final List<({int id, String title, String body})> shown = [];
+
+  /// When each shown notification is due; null for at once.
+  final List<DateTime?> shownAt = [];
   final List<int> cancelled = [];
 
   @override
@@ -59,8 +62,10 @@ class FakeReminderNotifier implements ReminderNotifier {
     required String channelName,
     required String channelDescription,
     ReminderOpening? opens,
+    DateTime? at,
   }) async {
     shown.add((id: id, title: title, body: body));
+    shownAt.add(at);
     openedBy.add(opens);
   }
 

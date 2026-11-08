@@ -299,6 +299,14 @@ void main() {
     expect(find.text('Add widget'), findsNothing);
   });
 
+  testWidgets('without a widget (iOS) the menu is not there', (tester) async {
+    widgetSync.isAvailable = false;
+    repository.autoReply = Ok([delayedRe16]);
+    await pumpPage(tester);
+
+    expect(find.byType(PopupMenuButton<void>), findsNothing);
+  });
+
   testWidgets('offers to add the widget if the launcher can', (tester) async {
     widgetSync.canAdd = true;
     repository.autoReply = const Err(NetworkFailure());

@@ -10,6 +10,10 @@ import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
 /// The widget is a convenience: implementations log their errors instead
 /// of failing the app.
 abstract interface class WidgetSync {
+  /// Whether the app has a home-screen widget on this platform; without
+  /// one, the app offers nothing about it.
+  bool get isAvailable;
+
   /// Makes [stop] the stop of the widget, with [board] if one is at hand.
   Future<void> showStop(Stop stop, {DepartureBoard? board});
 

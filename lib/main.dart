@@ -1,4 +1,3 @@
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/app.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
@@ -7,6 +6,7 @@ import 'package:ruhr_transit/features/favourites/domain/favourites_repository.da
 import 'package:ruhr_transit/features/language/domain/language_repository.dart';
 import 'package:ruhr_transit/features/onboarding/domain/onboarding_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
+import 'package:ruhr_transit/features/reminders/data/android_reminder_platform.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
@@ -15,8 +15,7 @@ import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 Future<void> main() async {
   // Plugins (shared_preferences) need the binding before runApp.
   WidgetsFlutterBinding.ensureInitialized();
-  // Lets alarms run the reminder check while the app is closed.
-  await AndroidAlarmManager.initialize();
+  await initializeReminderAlarms();
   configureDependencies();
   // Loaded up front, so the start screen never flashes the empty state and
   // a change can never race the load. It is a single local read.

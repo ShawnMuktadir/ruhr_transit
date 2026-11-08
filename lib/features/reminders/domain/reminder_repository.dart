@@ -7,7 +7,10 @@ abstract interface class ReminderRepository {
   Future<void> save(List<Reminder> reminders);
 }
 
-/// Wakes the app at a time, also when it is closed or after a reboot.
+/// Makes the reminder come at a time, also when the app is closed or after
+/// a reboot. On Android an alarm wakes the app, which checks the delay
+/// first; iOS lets no app run at a set time, so there the notification
+/// itself is scheduled.
 abstract interface class ReminderAlarms {
   /// Replaces an alarm with the same [id]. Without [exact], Android may
   /// delay it by some minutes to save battery.
@@ -17,10 +20,11 @@ abstract interface class ReminderAlarms {
 
 /// The notifications and the permissions they need.
 abstract interface class ReminderNotifier {
-  /// Asks for the notification permission if needed (Android 13+).
+  /// Asks for the notification permission if needed (Android 13+, iOS).
   Future<bool> ensurePermission();
 
   /// Whether alarms may be on time (Android 12+: "Alarms & reminders").
+  /// Always on iOS.
   Future<bool> canBeExact();
 
   /// Opens the system page for "Alarms & reminders".
@@ -33,6 +37,9 @@ abstract interface class ReminderNotifier {
     required String channelName,
     required String channelDescription,
     ReminderOpening? opens,
+
+    /// When the system shows it; null shows it now.
+    DateTime? at,
   });
 
   /// What the notification that started the app opens, if it was started

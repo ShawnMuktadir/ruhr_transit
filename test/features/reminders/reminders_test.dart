@@ -10,6 +10,7 @@ import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
 import 'package:ruhr_transit/features/reminders/data/reminder_repository_impl.dart';
+import 'package:ruhr_transit/features/reminders/data/scheduled_reminder_alarms.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_worker.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
@@ -330,6 +331,70 @@ void main() {
       expect(notifier.shown.single.title, 'Leave in 10 min');
       expect(notifier.shown.single.body, contains('RE6 from Bochum Hbf at'));
       expect(notifier.shown.single.body, matches(RegExp(r'\d:30 (AM|PM)')));
+    });
+  });
+
+  group('ScheduledReminderAlarms (iOS)', () {
+    late FakeReminderRepository reminders;
+    late FakeReminderNotifier notifier;
+
+    setUp(() {
+      reminders = FakeReminderRepository([_reminder()]);
+      notifier = FakeReminderNotifier();
+    });
+
+    ScheduledReminderAlarms alarms({DateTime? now}) => ScheduledReminderAlarms(
+      reminders,
+      notifier,
+      now: () => now ?? _utc(7, 0),
+    );
+
+    test('schedules the notification itself, written for its time', () async {
+      await alarms().schedule(7, _utc(8, 10), exact: false);
+
+      final shown = notifier.shown.single;
+      expect(shown.id, 7);
+      expect(shown.title, 'In 10 Min. losgehen');
+      expect(shown.body, contains('RE6 ab Bochum Hbf um'));
+      expect(shown.body, contains('Gleis 3'));
+      expect(notifier.shownAt.single, _utc(8, 10));
+      expect(notifier.openedBy.single?.stop?.id, 'de:05911:5194');
+    });
+
+    test('a time that has passed schedules nothing', () async {
+      await alarms(now: _utc(8, 10)).schedule(7, _utc(8, 10), exact: true);
+      expect(notifier.shown, isEmpty);
+    });
+
+    test('an unknown reminder is an error', () async {
+      expect(alarms().schedule(8, _utc(8, 10), exact: true), throwsStateError);
+    });
+
+    test('cancelling removes the scheduled notification', () async {
+      await alarms().cancel(7);
+      expect(notifier.cancelled, [7]);
+    });
+
+    test('with the cubit: a reminder schedules its notification', () async {
+      reminders = FakeReminderRepository();
+      final cubit = RemindersCubit(
+        reminders,
+        alarms(),
+        notifier,
+        now: () => _utc(7, 0),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      final outcome = await cubit.add(
+        _journey(),
+        lead: const Duration(minutes: 10),
+        languageCode: 'en',
+        use24HourFormat: true,
+      );
+
+      expect(outcome, ReminderOutcome.set);
+      expect(notifier.shownAt.single, _utc(8, 10));
+      expect(notifier.shown.single.title, 'Leave in 10 min');
     });
   });
 

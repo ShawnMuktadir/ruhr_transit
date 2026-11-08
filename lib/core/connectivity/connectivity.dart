@@ -4,16 +4,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Whether the phone reaches the internet, as Android reports it.
+/// Whether the phone reaches the internet, as the system reports it.
 abstract interface class ConnectivitySource {
   /// The current state first, then every change.
   Stream<bool> watch();
 }
 
-/// [ConnectivitySource] through the app's own Android code
-/// (`ConnectivityStreamHandler.kt`); no plugin needed.
-class AndroidConnectivitySource implements ConnectivitySource {
-  const AndroidConnectivitySource();
+/// [ConnectivitySource] through the app's own platform code, no plugin
+/// needed: `ConnectivityStreamHandler.kt` on Android and
+/// `ConnectivityStreamHandler.swift` on iOS.
+class PlatformConnectivitySource implements ConnectivitySource {
+  const PlatformConnectivitySource();
 
   static const _channel = EventChannel('de.muktadir.ruhrtransit/connectivity');
 
@@ -23,7 +24,7 @@ class AndroidConnectivitySource implements ConnectivitySource {
 }
 
 /// `true` while online. Starts online, so nothing flashes "offline" before
-/// Android answered; requests fail on their own if it is not.
+/// the system answered; requests fail on their own if it is not.
 class ConnectivityCubit extends Cubit<bool> {
   ConnectivityCubit(ConnectivitySource source) : super(true) {
     _subscription = source.watch().listen(

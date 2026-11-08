@@ -21,10 +21,83 @@ jobs:
       - run: flutter pub get
 
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed lib test tool
+        run: dart format --output=none --set-exit-if-changed lib test tool integration_test test_driver
 
       - name: Analyze
         run: flutter analyze
 
       - name: Test
         run: flutter test
+
+  ios:
+    # Builds the iPhone app, then starts it on the simulator and takes
+    # screenshots with Apple's simctl. They are attached to the run as
+    # "ios-screenshots". (flutter drive hung on the runner's simulator.)
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      APP_ID: de.muktadir.ruhrtransit
+      SHOTS: build/screenshots
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.41.2
+          cache: true
+
+      - run: flutter pub get
+
+      # Unsigned: proves the release build compiles. Signing comes with
+      # TestFlight.
+      - name: Build for iPhone
+        run: flutter build ios --release --no-codesign
+
+      # The simulator runs only debug builds.
+      - name: Build for the simulator
+        run: flutter build ios --simulator --debug
+
+      - name: Start an iPhone simulator
+        id: simulator
+        run: |
+          # Any iPhone simulator the runner has; the last one listed.
+          udid=$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries[] | select(.key | test("iOS"))
+              | .value[] | select(.name | startswith("iPhone"))] | last | .udid')
+          echo "Simulator: $udid"
+          xcrun simctl bootstatus "$udid" -b
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Screenshots on the simulator
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          mkdir -p "$SHOTS"
+          # Starts the app, waits for it to draw (and to load the weather),
+          # takes a screenshot, and stops it again. Fails if it crashed.
+          shot() {
+            xcrun simctl launch "$UDID" "$APP_ID"
+            sleep 25
+            xcrun simctl io "$UDID" screenshot "$SHOTS/$1.png"
+            # grep -c reads everything, so no broken pipe under pipefail.
+            xcrun simctl spawn "$UDID" launchctl list | grep -c "$APP_ID" >/dev/null ||
+              { echo "The app is not running any more"; exit 1; }
+            xcrun simctl terminate "$UDID" "$APP_ID"
+          }
+          xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
+          shot 1_welcome
+          # Past onboarding, in German, as the app saves it
+          # (SharedPreferencesAsync: the app's standard UserDefaults).
+          xcrun simctl spawn "$UDID" defaults write "$APP_ID" onboarding_completed_v1 -bool true
+          xcrun simctl spawn "$UDID" defaults write "$APP_ID" app_language_v1 -string de
+          shot 2_plan_de
+          xcrun simctl ui "$UDID" appearance dark
+          shot 3_plan_de_dark
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-screenshots
+          path: build/screenshots
+          if-no-files-found: ignore
