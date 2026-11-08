@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/network/efa_error_mapper.dart';
@@ -28,10 +29,16 @@ class TripRepositoryImpl implements TripRepository {
       final json = await _remote.trips(query, cancelToken: cancelToken);
       return Ok(mapTripResponse(json));
     } on DioException catch (e) {
-      return Err(failureFromDioException(e));
+      final failure = failureFromDioException(e);
+      return Err(
+        failure is TimeoutFailure && query.isOutsideNrw
+            ? const OutsideNrwFailure()
+            : failure,
+      );
     } on EfaServerException catch (e) {
       return Err(ServerFailure(code: e.code, message: e.message));
     } on FormatException catch (e) {
+      debugPrint('Could not read the trips: ${e.message}');
       return Err(ParseFailure(e.message));
     } finally {
       if (identical(_inFlight, cancelToken)) _inFlight = null;

@@ -7,6 +7,7 @@ String failureMessage(AppLocalizations l10n, Failure failure) {
     // Cubits drop cancelled results; the network text is only a fallback.
     NetworkFailure() || CancelledFailure() => l10n.errorNetwork,
     TimeoutFailure() => l10n.errorTimeout,
+    OutsideNrwFailure() => l10n.errorOutsideNrw,
     ServerFailure() => l10n.errorServer,
     ParseFailure() => l10n.errorParse,
   };

@@ -14,6 +14,7 @@ import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_page.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/route_title.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_state.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
@@ -51,13 +52,11 @@ class TripResultsView extends StatelessWidget {
   Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<TripResultsCubit>();
+    final wait = query.isOutsideNrw ? l10n.tripOutsideNrwWait : null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${query.from.name} → ${query.to.name}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        toolbarHeight: RouteTitle.toolbarHeight(context),
+        title: RouteTitle(from: query.from.fullName, to: query.to.fullName),
         actions: [
           FavouriteJourneyButton(from: query.from, to: query.to),
           IconButton(
@@ -79,7 +78,7 @@ class TripResultsView extends StatelessWidget {
             );
         },
         builder: (context, state) => switch (state) {
-          TripResultsLoading() => const AppLoader(),
+          TripResultsLoading() => AppLoader(message: wait),
           TripResultsFailed(:final failure) => CenteredMessage(
             failureMessage(l10n, failure),
             action: FilledButton.tonal(
@@ -98,7 +97,7 @@ class TripResultsView extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Center(
                   child: isLoadingLater
-                      ? const AppLoader()
+                      ? AppLoader(message: wait)
                       : OutlinedButton.icon(
                           icon: const Icon(Icons.expand_more),
                           label: Text(l10n.tripLater),

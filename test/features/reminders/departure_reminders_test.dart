@@ -146,7 +146,9 @@ void main() {
       expect(minutes, greaterThan(5));
       await pump(tester);
 
-      await tester.tap(find.text(delayedRe16.line));
+      await tester.tap(
+        find.textContaining(delayedRe16.line, findRichText: true),
+      );
       await tester.pumpAndSettle();
       expect(find.text('5 min before it leaves'), findsOneWidget);
 
@@ -159,14 +161,18 @@ void main() {
 
     testWidgets('a second tap can remove it', (tester) async {
       await pump(tester);
-      await tester.tap(find.text(delayedRe16.line));
+      await tester.tap(
+        find.textContaining(delayedRe16.line, findRichText: true),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text('5 min before it leaves'));
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text(delayedRe16.line));
+      await tester.tap(
+        find.textContaining(delayedRe16.line, findRichText: true),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text('Remove reminder'));
       await tester.pumpAndSettle();
@@ -178,7 +184,9 @@ void main() {
     testWidgets('nothing to offer once it is too late', (tester) async {
       await pump(tester, at: delayedRe16.time);
 
-      await tester.tap(find.text(delayedRe16.line));
+      await tester.tap(
+        find.textContaining(delayedRe16.line, findRichText: true),
+      );
       await tester.pumpAndSettle();
 
       expect(find.textContaining('before it leaves'), findsNothing);
@@ -188,7 +196,9 @@ void main() {
       departures.autoReply = Ok([cancelledRe11]);
       await pump(tester);
 
-      await tester.tap(find.text(cancelledRe11.line));
+      await tester.tap(
+        find.textContaining(cancelledRe11.line, findRichText: true),
+      );
       await tester.pumpAndSettle();
 
       expect(find.textContaining('before it leaves'), findsNothing);
@@ -199,7 +209,9 @@ void main() {
     ) async {
       final semantics = tester.ensureSemantics();
       await pump(tester);
-      await tester.tap(find.text(delayedRe16.line));
+      await tester.tap(
+        find.textContaining(delayedRe16.line, findRichText: true),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text('5 min before it leaves'));
       await tester.pumpAndSettle();

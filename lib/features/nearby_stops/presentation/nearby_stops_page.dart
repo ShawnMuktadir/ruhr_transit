@@ -92,8 +92,8 @@ class NearbyStopsView extends StatelessWidget {
               onPressed: cubit.load,
             ),
           ),
-          NearbyLocating() => _Progress(l10n.nearbyLocating),
-          NearbyLoading() => const _Progress(null),
+          NearbyLocating() => AppLoader(message: l10n.nearbyLocating),
+          NearbyLoading() => const AppLoader(),
           NearbyLoaded(:final stops) when stops.isEmpty => CenteredMessage(
             l10n.nearbyEmpty,
           ),
@@ -115,28 +115,6 @@ class NearbyStopsView extends StatelessWidget {
         },
       ),
       bottomNavigationBar: const DataAttribution(),
-    );
-  }
-}
-
-class _Progress extends StatelessWidget {
-  const _Progress(this.text);
-
-  final String? text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const AppLoader(),
-          if (text case final text?) ...[
-            const SizedBox(height: 16),
-            Text(text),
-          ],
-        ],
-      ),
     );
   }
 }

@@ -52,7 +52,11 @@ class TripResultsCubit extends Cubit<TripResultsState> {
 
   /// Fetches later journeys until [minimumJourneys] are shown, EFA finds no
   /// new ones, or [_maxFillRequests] were made. The list shows meanwhile.
+  ///
+  /// Not outside NRW: each request can take minutes, so more trips are left
+  /// to the "later trips" button.
   Future<void> _fillUp() async {
+    if (query.isOutsideNrw) return;
     for (var i = 0; i < _maxFillRequests; i++) {
       final current = state;
       if (current is! TripResultsLoaded ||

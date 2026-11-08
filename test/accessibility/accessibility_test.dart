@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -320,6 +322,25 @@ void main() {
     ),
     'trip form, weather needs location': () =>
         planner(WeatherCubit(FakeWeatherRepository(), FakeLocationSource())),
+    'trip results, waiting outside NRW': () {
+      const query = TripQuery(from: berlinHbf, to: passauHbf, time: LeaveNow());
+      return BlocProvider(
+        create: (_) =>
+            TripResultsCubit(FakeTripRepository()..pending = Completer(), query)
+              ..load(),
+        child: const TripResultsView(query: query),
+      );
+    },
+    'trip results, no answer outside NRW': () {
+      const query = TripQuery(from: berlinHbf, to: passauHbf, time: LeaveNow());
+      return BlocProvider(
+        create: (_) => TripResultsCubit(
+          FakeTripRepository()..replies = [const Err(OutsideNrwFailure())],
+          query,
+        )..load(),
+        child: const TripResultsView(query: query),
+      );
+    },
     'trip results': () => BlocProvider(
       create: (_) => TripResultsCubit(
         FakeTripRepository(),
@@ -379,7 +400,9 @@ void main() {
       await tester.pumpAndSettle();
     },
     'departure board, reminder options': (tester) async {
-      await tester.tap(find.text(delayedRe16.line));
+      await tester.tap(
+        find.textContaining(delayedRe16.line, findRichText: true),
+      );
       await tester.pumpAndSettle();
     },
     'nearby stops, on the map': (tester) async {

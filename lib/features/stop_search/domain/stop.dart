@@ -47,6 +47,16 @@ class Stop {
   /// Only [LocationKind.stop] has departures.
   final LocationKind kind;
 
+  /// Whether this is in or close to NRW, where VRR's service answers quickly.
+  /// A DHID starts with the state's code (05 for NRW). Addresses, places and
+  /// some platforms have other IDs, so these go by NRW's bounding box.
+  bool get isInNrw => id.startsWith('de:')
+      ? id.startsWith('de:05')
+      : latitude >= 50.3 &&
+            latitude <= 52.6 &&
+            longitude >= 5.8 &&
+            longitude <= 9.5;
+
   /// Two stops are the same stop if they have the same global ID.
   @override
   bool operator ==(Object other) => other is Stop && other.id == id;

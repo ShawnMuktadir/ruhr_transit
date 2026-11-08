@@ -71,7 +71,7 @@ void main() {
 
     test('falls back to the line number for long-distance trains', () {
       // ICE/IC entries have no disassembledName.
-      expect(departures[6].line, '546');
+      expect(departures[6].line, 'ICE 546');
       expect(departures[6].mode, TransportMode.train);
     });
 
