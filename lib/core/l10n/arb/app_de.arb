@@ -606,6 +606,46 @@
   "@logOut": {
     "description": "Button; only shown while signed in."
   },
+  "settingsAccessibility": "Barrierefreiheit",
+  "@settingsAccessibility": {
+    "description": "Settings section heading."
+  },
+  "accessibilityIntro": "RuhrTransit richtet sich nach den Einstellungen Ihres Telefons:",
+  "@accessibilityIntro": {
+    "description": "Above the list of what the app follows."
+  },
+  "accessibilityTextTitle": "Größere Schrift",
+  "@accessibilityTextTitle": {
+    "description": "Accessibility item title."
+  },
+  "accessibilityText": "Die App wächst mit der Schriftgröße Ihres Telefons mit.",
+  "@accessibilityText": {
+    "description": "Accessibility item text."
+  },
+  "accessibilityMotionTitle": "Animationen entfernen",
+  "@accessibilityMotionTitle": {
+    "description": "Accessibility item title; the name of the Android setting."
+  },
+  "accessibilityMotion": "Ist diese Einstellung an, stehen der Wetterhimmel und die Lade-Bahn still.",
+  "@accessibilityMotion": {
+    "description": "Accessibility item text."
+  },
+  "accessibilityTalkBackTitle": "TalkBack",
+  "@accessibilityTalkBackTitle": {
+    "description": "Accessibility item title; the name of the Android screen reader."
+  },
+  "accessibilityTalkBack": "Der Bildschirmleser von Android liest den Bildschirm vor, für Menschen, die blind sind oder schlecht sehen. Jede Taste, Abfahrt und Verbindung in dieser App hat eine gesprochene Beschreibung. Ist TalkBack an, wählt einmal Tippen etwas aus, doppelt Tippen öffnet es.",
+  "@accessibilityTalkBack": {
+    "description": "Accessibility item text."
+  },
+  "accessibilityOpen": "Bedienungshilfen öffnen",
+  "@accessibilityOpen": {
+    "description": "Button that opens Android's accessibility settings."
+  },
+  "accessibilityOpenHint": "Dort schalten Sie TalkBack und mehr ein oder aus. Die App selbst kann das nicht.",
+  "@accessibilityOpenHint": {
+    "description": "Below the button that opens Android's accessibility settings."
+  },
   "settingsLegal": "Rechtliches",
   "@settingsLegal": {
     "description": "Settings section heading."

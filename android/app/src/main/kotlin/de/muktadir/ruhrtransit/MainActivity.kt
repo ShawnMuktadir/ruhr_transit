@@ -1,8 +1,11 @@
 package de.muktadir.ruhrtransit
 
 import android.app.LocaleManager
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Build
 import android.os.LocaleList
+import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -14,6 +17,16 @@ class MainActivity : FlutterActivity() {
     super.configureFlutterEngine(flutterEngine)
     EventChannel(flutterEngine.dartExecutor.binaryMessenger, CONNECTIVITY_CHANNEL)
         .setStreamHandler(ConnectivityStreamHandler(applicationContext))
+    MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SYSTEM_SETTINGS_CHANNEL)
+        .setMethodCallHandler { call, result ->
+          when (call.method) {
+            "accessibility" -> {
+              openSystemSettings(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+              result.success(null)
+            }
+            else -> result.notImplemented()
+          }
+        }
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, APP_LOCALE_CHANNEL)
         .setMethodCallHandler { call, result ->
           // Per-app languages exist from Android 13; before, the app only
@@ -38,8 +51,20 @@ class MainActivity : FlutterActivity() {
         }
   }
 
+  /// Opens a page of Android's Settings app. An app may open these but not
+  /// change what they control, e.g. turn on TalkBack.
+  private fun openSystemSettings(action: String) {
+    try {
+      startActivity(Intent(action))
+    } catch (e: ActivityNotFoundException) {
+      // Some phones lack the page; the main Settings page has a search.
+      startActivity(Intent(Settings.ACTION_SETTINGS))
+    }
+  }
+
   private companion object {
     const val APP_LOCALE_CHANNEL = "de.muktadir.ruhrtransit/app_locale"
     const val CONNECTIVITY_CHANNEL = "de.muktadir.ruhrtransit/connectivity"
+    const val SYSTEM_SETTINGS_CHANNEL = "de.muktadir.ruhrtransit/system_settings"
   }
 }

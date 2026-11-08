@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/platform/system_settings.dart';
 import 'package:ruhr_transit/features/language/presentation/locale_cubit.dart';
 import 'package:ruhr_transit/features/legal/presentation/legal_page.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
@@ -31,9 +33,11 @@ void main() {
   Future<void> pumpSettings(
     WidgetTester tester, {
     Future<PackageInfo> Function() packageInfo = fakePackageInfo,
+    Future<void> Function()? openAccessibility,
   }) async {
+    // Tall enough for the whole page, so every section is built.
     tester.view
-      ..physicalSize = const Size(1080, 2400)
+      ..physicalSize = const Size(1080, 6000)
       ..devicePixelRatio = 2.625;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
@@ -53,7 +57,10 @@ void main() {
             darkTheme: ThemeData.dark(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: SettingsPage(packageInfo: packageInfo),
+            home: SettingsPage(
+              packageInfo: packageInfo,
+              openAccessibility: openAccessibility ?? () async {},
+            ),
           ),
         ),
       ),
@@ -63,6 +70,58 @@ void main() {
 
   Brightness brightness(WidgetTester tester) =>
       Theme.of(tester.element(find.byType(SettingsPage))).brightness;
+
+  group('accessibility', () {
+    testWidgets('says what the app follows, TalkBack included', (tester) async {
+      await pumpSettings(tester);
+      expect(find.text('Accessibility'), findsOneWidget);
+      expect(find.text('Larger text'), findsOneWidget);
+      expect(find.text('Remove animations'), findsOneWidget);
+      expect(find.text('TalkBack'), findsOneWidget);
+      expect(find.textContaining('screen reader'), findsOneWidget);
+      expect(find.textContaining('cannot do this itself'), findsOneWidget);
+    });
+
+    testWidgets("the button opens the phone's accessibility settings", (
+      tester,
+    ) async {
+      var opened = 0;
+      await pumpSettings(tester, openAccessibility: () async => opened++);
+      await tester.tap(find.text('Open accessibility settings'));
+      expect(opened, 1);
+    });
+
+    testWidgets('asks Android for its accessibility page', (tester) async {
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        systemSettingsChannel,
+        (call) async => calls.add(call.method),
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          systemSettingsChannel,
+          null,
+        ),
+      );
+      await openAccessibilitySettings();
+      expect(calls, ['accessibility']);
+    });
+
+    testWidgets('a refusal from Android is not an error', (tester) async {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        systemSettingsChannel,
+        (call) async => throw PlatformException(code: 'no-settings'),
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          systemSettingsChannel,
+          null,
+        ),
+      );
+      await openAccessibilitySettings();
+      expect(tester.takeException(), isNull);
+    });
+  });
 
   testWidgets('the theme applies at once and is saved', (tester) async {
     await pumpSettings(tester);

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/platform/system_settings.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/features/language/presentation/language_options.dart';
 import 'package:ruhr_transit/features/language/presentation/locale_cubit.dart';
@@ -11,14 +12,22 @@ import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_page.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_page.dart';
+import 'package:ruhr_transit/features/settings/presentation/accessibility_section.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 
-/// Appearance, language, profile, legal texts and about.
+/// Appearance, language, accessibility, profile, legal texts and about.
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({this.packageInfo = PackageInfo.fromPlatform, super.key});
+  const SettingsPage({
+    this.packageInfo = PackageInfo.fromPlatform,
+    this.openAccessibility = openAccessibilitySettings,
+    super.key,
+  });
 
   /// Reads the app version; tests pass their own.
   final Future<PackageInfo> Function() packageInfo;
+
+  /// Opens Android's accessibility settings; tests pass their own.
+  final Future<void> Function() openAccessibility;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +79,8 @@ class SettingsPage extends StatelessWidget {
               ),
             ],
           ),
+          _SectionHeader(l10n.settingsAccessibility),
+          AccessibilitySection(openSettings: openAccessibility),
           _SectionHeader(l10n.settingsProfile),
           GroupCard(
             children: [
