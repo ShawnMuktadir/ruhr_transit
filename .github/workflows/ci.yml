@@ -21,10 +21,57 @@ jobs:
       - run: flutter pub get
 
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed lib test tool
+        run: dart format --output=none --set-exit-if-changed lib test tool integration_test test_driver
 
       - name: Analyze
         run: flutter analyze
 
       - name: Test
         run: flutter test
+
+  ios:
+    # Builds the iPhone app, then runs it on the simulator through
+    # integration_test/app_test.dart. The screenshots are attached to the
+    # run as "ios-screenshots".
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.41.2
+          cache: true
+
+      - run: flutter pub get
+
+      # Unsigned: proves the release build compiles. Signing comes with
+      # TestFlight.
+      - name: Build for iPhone
+        run: flutter build ios --release --no-codesign
+
+      - name: Start an iPhone simulator
+        id: simulator
+        run: |
+          # Any iPhone simulator the runner has; the last one listed.
+          udid=$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries[] | select(.key | test("iOS"))
+              | .value[] | select(.name | startswith("iPhone"))] | last | .udid')
+          echo "Simulator: $udid"
+          xcrun simctl bootstatus "$udid" -b
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Run the app on the simulator
+        run: >
+          flutter drive
+          --driver=test_driver/integration_test.dart
+          --target=integration_test/app_test.dart
+          -d ${{ steps.simulator.outputs.udid }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-screenshots
+          path: build/screenshots
+          if-no-files-found: ignore

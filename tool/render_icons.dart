@@ -1,16 +1,20 @@
 // Renders the launcher icon PNGs for Android 7.1 and below, which cannot
-// show the adaptive icon (res/mipmap-anydpi-v26/ic_launcher.xml).
+// show the adaptive icon (res/mipmap-anydpi-v26/ic_launcher.xml), and the
+// iPhone app icons.
 //
-// Draws the same shapes as res/drawable/ic_launcher_foreground.xml on a
-// round background, without an image package: shapes are tested per pixel,
-// supersampled for smooth edges, and written as PNG with dart:io's zlib.
+// Draws the same shapes as res/drawable/ic_launcher_foreground.xml, without
+// an image package: shapes are tested per pixel, supersampled for smooth
+// edges, and written as PNG with dart:io's zlib. Android's are round; iOS
+// wants full squares without transparency and rounds the corners itself.
 //
-//   dart run tool/render_legacy_icons.dart
+//   dart run tool/render_icons.dart
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
 const _resDir = 'android/app/src/main/res';
+const _iosIconDir = 'ios/Runner/Assets.xcassets/AppIcon.appiconset';
 
 /// Launcher icon sizes in pixels per density bucket (48 dp).
 const _sizes = {
@@ -29,14 +33,29 @@ const _supersampling = 4;
 
 void main() {
   for (final MapEntry(key: density, value: size) in _sizes.entries) {
-    final file = File('$_resDir/mipmap-$density/ic_launcher.png');
-    file.writeAsBytesSync(_encodePng(size, _render(size)));
-    stdout.writeln('Wrote ${file.path} ($size px)');
+    _write('$_resDir/mipmap-$density/ic_launcher.png', size, round: true);
+  }
+  // Every size the asset catalogue lists, e.g. 60x60 at 3x.
+  final catalogue = File('$_iosIconDir/Contents.json').readAsStringSync();
+  for (final image in (jsonDecode(catalogue) as Map)['images'] as List) {
+    final {'filename': String name, 'size': String points, 'scale': String x} =
+        image as Map;
+    final size = (double.parse(points.split('x').first) * int.parse(x[0]))
+        .round();
+    _write('$_iosIconDir/$name', size, round: false);
   }
 }
 
-/// RGBA pixels of the icon at [size] x [size].
-Uint8List _render(int size) {
+void _write(String path, int size, {required bool round}) {
+  File(path).writeAsBytesSync(
+    _encodePng(size, _render(size, round: round), alpha: round),
+  );
+  stdout.writeln('Wrote $path ($size px)');
+}
+
+/// RGBA pixels of the icon at [size] x [size]: on a circle when [round],
+/// else on the whole square.
+Uint8List _render(int size, {required bool round}) {
   final pixels = Uint8List(size * size * 4);
   // The adaptive icon's visible area is the middle 72 of its 108 units.
   final scale = 72 / size;
@@ -49,7 +68,7 @@ Uint8List _render(int size) {
         for (var sx = 0; sx < _supersampling; sx++) {
           final x = 18 + (px + (sx + 0.5) / _supersampling) * scale;
           final y = 18 + (py + (sy + 0.5) / _supersampling) * scale;
-          if (_inCircle(x, y, 54, 54, 36)) {
+          if (!round || _inCircle(x, y, 54, 54, 36)) {
             inCircle++;
             // The vector moves the glyph down by 4 units.
             if (_inGlyph(x, y - 4)) inGlyph++;
@@ -99,19 +118,19 @@ bool _inRoundedRect(double x, double y, num l, num t, num r, num b, num rad) {
   return _inCircle(x, y, cx, cy, rad);
 }
 
-/// A minimal PNG: 8-bit RGBA, no interlacing, filter 0 on every row.
-Uint8List _encodePng(int size, Uint8List rgba) {
+/// A minimal PNG: 8-bit RGBA, or RGB without [alpha], no interlacing,
+/// filter 0 on every row.
+Uint8List _encodePng(int size, Uint8List rgba, {required bool alpha}) {
   final raw = BytesBuilder();
-  for (var y = 0; y < size; y++) {
-    raw
-      ..addByte(0)
-      ..add(rgba.sublist(y * size * 4, (y + 1) * size * 4));
+  for (var i = 0; i < size * size; i++) {
+    if (i % size == 0) raw.addByte(0);
+    raw.add(rgba.sublist(i * 4, i * 4 + (alpha ? 4 : 3)));
   }
   final header = ByteData(13)
     ..setUint32(0, size)
     ..setUint32(4, size)
     ..setUint8(8, 8) // bit depth
-    ..setUint8(9, 6); // colour type RGBA
+    ..setUint8(9, alpha ? 6 : 2); // colour type RGBA or RGB
   return (BytesBuilder()
         ..add([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
         ..add(_chunk('IHDR', header.buffer.asUint8List()))

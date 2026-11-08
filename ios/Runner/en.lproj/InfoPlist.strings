@@ -1,0 +1,2 @@
+/* Shown when the app first asks for the location. */
+"NSLocationWhenInUseUsageDescription" = "RuhrTransit uses your location to find stops near you, to plan trips from where you are and to show the weather there.";

@@ -19,6 +19,9 @@ class HomeWidgetSync implements WidgetSync {
   static const launchHost = 'departures';
 
   @override
+  bool get isAvailable => true;
+
+  @override
   Future<void> showStop(Stop stop, {DepartureBoard? board}) =>
       _quietly('show stop', () => _write(stop, board));
 

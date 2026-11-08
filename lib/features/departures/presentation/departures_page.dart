@@ -112,14 +112,15 @@ class DeparturesView extends StatelessWidget {
             tooltip: l10n.refresh,
             onPressed: cubit.refresh,
           ),
-          PopupMenuButton<void>(
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                onTap: () => _showOnWidget(context),
-                child: Text(l10n.widgetShow),
-              ),
-            ],
-          ),
+          if (widgetSync.isAvailable)
+            PopupMenuButton<void>(
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  onTap: () => _showOnWidget(context),
+                  child: Text(l10n.widgetShow),
+                ),
+              ],
+            ),
         ],
       ),
       body: Column(

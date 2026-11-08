@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ruhr_transit/core/connectivity/connectivity.dart';
 import 'package:ruhr_transit/core/database/app_database.dart';
@@ -27,7 +28,9 @@ import 'package:ruhr_transit/features/profile/domain/profile_repository.dart';
 import 'package:ruhr_transit/features/recent_stops/data/recent_stops_repository_impl.dart';
 import 'package:ruhr_transit/features/recent_stops/domain/recent_stops_repository.dart';
 import 'package:ruhr_transit/features/reminders/data/android_reminder_platform.dart';
+import 'package:ruhr_transit/features/reminders/data/local_reminder_notifier.dart';
 import 'package:ruhr_transit/features/reminders/data/reminder_repository_impl.dart';
+import 'package:ruhr_transit/features/reminders/data/scheduled_reminder_alarms.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
 import 'package:ruhr_transit/features/settings/data/theme_repository_impl.dart';
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
@@ -44,6 +47,7 @@ import 'package:ruhr_transit/features/weather/data/bright_sky_remote_source.dart
 import 'package:ruhr_transit/features/weather/data/weather_repository_impl.dart';
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/data/home_widget_sync.dart';
+import 'package:ruhr_transit/features/widget_sync/data/no_widget_sync.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -54,6 +58,8 @@ final GetIt getIt = GetIt.instance;
 
 /// Registers all dependencies. Called once from `main()` before `runApp`.
 void configureDependencies() {
+  // iOS has no alarms that wake the app and no widget yet.
+  final ios = defaultTargetPlatform == TargetPlatform.iOS;
   getIt
     // One HTTP client for the whole app, so connections are reused.
     ..registerLazySingleton<Dio>(createEfaDio)
@@ -89,17 +95,23 @@ void configureDependencies() {
     )
     ..registerLazySingleton(() => BrightSkyRemoteSource(createBrightSkyDio()))
     ..registerFactory<WeatherRepository>(() => WeatherRepositoryImpl(getIt()))
-    ..registerLazySingleton<ConnectivitySource>(AndroidConnectivitySource.new)
+    ..registerLazySingleton<ConnectivitySource>(PlatformConnectivitySource.new)
     ..registerLazySingleton<ReminderRepository>(
       () => ReminderRepositoryImpl(getIt()),
     )
-    ..registerLazySingleton<ReminderAlarms>(AndroidReminderAlarms.new)
-    ..registerLazySingleton<ReminderNotifier>(AndroidReminderNotifier.new)
+    ..registerLazySingleton<ReminderAlarms>(
+      () => ios
+          ? ScheduledReminderAlarms(getIt(), getIt())
+          : const AndroidReminderAlarms(),
+    )
+    ..registerLazySingleton<ReminderNotifier>(LocalReminderNotifier.new)
     ..registerLazySingleton(SharedPreferencesAsync.new)
     // A singleton, because it queues its own writes: two instances could
     // overwrite each other's boards.
     ..registerLazySingleton(() => DepartureCache(getIt()))
-    ..registerLazySingleton<WidgetSync>(HomeWidgetSync.new)
+    ..registerLazySingleton<WidgetSync>(
+      () => ios ? const NoWidgetSync() : const HomeWidgetSync(),
+    )
     ..registerLazySingleton<FavouritesRepository>(
       () => FavouritesRepositoryImpl(getIt()),
     )

@@ -16,6 +16,9 @@ class FakeWidgetSync implements WidgetSync {
 
   Stop? launched;
   bool canAdd = false;
+
+  @override
+  bool isAvailable = true;
   int addCount = 0;
 
   @override

@@ -646,6 +646,26 @@
   "@accessibilityOpenHint": {
     "description": "Below the button that opens Android's accessibility settings."
   },
+  "accessibilityMotionTitleIos": "Bewegung reduzieren",
+  "@accessibilityMotionTitleIos": {
+    "description": "Accessibility item title on iOS; the name of the iOS setting."
+  },
+  "accessibilityVoiceOverTitle": "VoiceOver",
+  "@accessibilityVoiceOverTitle": {
+    "description": "Accessibility item title on iOS; the name of the iOS screen reader."
+  },
+  "accessibilityVoiceOver": "Der Bildschirmleser des iPhones liest den Bildschirm vor, für Menschen, die blind sind oder schlecht sehen. Jede Taste, Abfahrt und Verbindung in dieser App hat eine gesprochene Beschreibung. Ist VoiceOver an, wählt einmal Tippen etwas aus, doppelt Tippen öffnet es.",
+  "@accessibilityVoiceOver": {
+    "description": "Accessibility item text on iOS."
+  },
+  "accessibilityOpenIos": "Einstellungen öffnen",
+  "@accessibilityOpenIos": {
+    "description": "Button on iOS that opens the Settings app at this app's page."
+  },
+  "accessibilityOpenHintIos": "VoiceOver und „Bewegung reduzieren“ finden Sie dort unter Bedienungshilfen. Die App selbst kann sie nicht einschalten.",
+  "@accessibilityOpenHintIos": {
+    "description": "Below the button that opens the Settings app on iOS."
+  },
   "settingsLegal": "Rechtliches",
   "@settingsLegal": {
     "description": "Settings section heading."

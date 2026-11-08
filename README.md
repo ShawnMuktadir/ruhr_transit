@@ -88,9 +88,9 @@ where the app is put together. Text comes from the ARB files in
 # Refresh the recorded API responses used by tests
 dart run tool/capture_efa_fixtures.dart
 
-# Redraw the launcher PNGs for Android 7.1 and below after changing
-# res/drawable/ic_launcher_foreground.xml
-dart run tool/render_legacy_icons.dart
+# Redraw the launcher PNGs for Android 7.1 and below and the iPhone app
+# icons after changing res/drawable/ic_launcher_foreground.xml
+dart run tool/render_icons.dart
 
 # Regenerate the database code after changing its tables
 dart run build_runner build

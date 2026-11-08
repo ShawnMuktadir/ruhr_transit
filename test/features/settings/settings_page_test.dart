@@ -82,6 +82,22 @@ void main() {
       expect(find.textContaining('cannot do this itself'), findsOneWidget);
     });
 
+    testWidgets(
+      'on iPhone: VoiceOver, Reduce Motion and the Settings app',
+      (tester) async {
+        var opened = 0;
+        await pumpSettings(tester, openAccessibility: () async => opened++);
+        expect(find.text('VoiceOver'), findsOneWidget);
+        expect(find.text('Reduce Motion'), findsOneWidget);
+        expect(find.text('TalkBack'), findsNothing);
+        expect(find.text('Remove animations'), findsNothing);
+        expect(find.textContaining('under Accessibility'), findsOneWidget);
+        await tester.tap(find.text('Open Settings'));
+        expect(opened, 1);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+    );
+
     testWidgets("the button opens the phone's accessibility settings", (
       tester,
     ) async {
