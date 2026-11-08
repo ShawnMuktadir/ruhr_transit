@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
@@ -80,29 +81,55 @@ void main() {
   });
 
   group('RouteTitle', () {
-    Future<void> pumpTitle(WidgetTester tester, double textScale) =>
-        tester.pumpWidget(
-          MaterialApp(
-            home: Builder(
-              builder: (context) => MediaQuery(
-                data: MediaQuery.of(
-                  context,
-                ).copyWith(textScaler: TextScaler.linear(textScale)),
-                child: Builder(
-                  builder: (context) => Scaffold(
-                    appBar: AppBar(
-                      toolbarHeight: RouteTitle.toolbarHeight(context),
-                      title: const RouteTitle(
-                        from: 'Berlin, S+U Hauptbahnhof',
-                        to: 'Passau, Hauptbahnhof',
-                      ),
-                    ),
+    // Two buttons, as on the trip results.
+    Future<void> pumpTitle(
+      WidgetTester tester,
+      double textScale, {
+      double width = 411,
+    }) async {
+      tester.view
+        ..physicalSize = Size(width * 3, 2400)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(textScale)),
+              child: Builder(
+                builder: (context) => Scaffold(
+                  appBar: RouteTitle.appBar(
+                    context,
+                    from: 'Berlin, S+U Hauptbahnhof',
+                    to: 'Passau, Hauptbahnhof',
+                    actions: [
+                      IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+                      IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
-        );
+        ),
+      );
+    }
+
+    /// Whether [text] is shown in full, not cut off with "…".
+    bool whole(WidgetTester tester, String text) => !tester
+        .renderObject<RenderParagraph>(find.text(text))
+        .didExceedMaxLines;
+
+    for (final width in [360.0, 411.0]) {
+      testWidgets('shows both names in full on $width dp', (tester) async {
+        await pumpTitle(tester, 1, width: width);
+        expect(whole(tester, 'Berlin, S+U Hauptbahnhof'), isTrue);
+        expect(whole(tester, '→ Passau, Hauptbahnhof'), isTrue);
+        expect(tester.takeException(), isNull);
+      });
+    }
 
     for (final scale in [1.0, 2.0]) {
       testWidgets('shows both ends with towns at text ×$scale', (tester) async {

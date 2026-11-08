@@ -394,11 +394,23 @@ void main() {
   };
 
   /// Steps to reach a screen that has no page of its own.
+  /// Scrolls [finder] into the middle of the list, clear of the bars that
+  /// grow with large text, and taps it.
+  Future<void> tapInList(WidgetTester tester, Finder finder) async {
+    await tester.scrollUntilVisible(
+      finder,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await Scrollable.ensureVisible(tester.element(finder), alignment: 0.5);
+    await tester.pumpAndSettle();
+    await tester.tap(finder);
+    await tester.pumpAndSettle();
+  }
+
   final reach = <String, Future<void> Function(WidgetTester)>{
-    'trip details, way to the first stop added': (tester) async {
-      await tester.tap(find.textContaining('Weg zu'));
-      await tester.pumpAndSettle();
-    },
+    'trip details, way to the first stop added': (tester) =>
+        tapInList(tester, find.textContaining('Weg zu')),
     'departure board, reminder options': (tester) async {
       await tester.tap(
         find.textContaining(delayedRe16.line, findRichText: true),
@@ -417,145 +429,147 @@ void main() {
       await tester.tap(find.byIcon(Icons.location_on).first);
       await tester.pump();
     },
-    'trip details, choosing a reminder': (tester) async {
-      await tester.tap(find.text('Ans Losgehen erinnern'));
-      await tester.pumpAndSettle();
-    },
+    'trip details, choosing a reminder': (tester) =>
+        tapInList(tester, find.text('Ans Losgehen erinnern')),
     'language choice': (tester) async {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
     },
-    'journey details, run unavailable': (tester) async {
-      // At 2x the row is further down than the list has built yet.
-      await tester.scrollUntilVisible(
-        find.textContaining('Zwischenhalte'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.ensureVisible(find.textContaining('Zwischenhalte'));
-      await tester.tap(find.textContaining('Zwischenhalte'));
-      await tester.pumpAndSettle();
-    },
+    // At 2x the row is further down than the list has built yet.
+    'journey details, run unavailable': (tester) =>
+        tapInList(tester, find.textContaining('Zwischenhalte')),
     'journey details, everything open': (tester) async {
-      await tester.tap(find.textContaining('Hinweise'));
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.textContaining('Halt danach'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.ensureVisible(find.textContaining('Halt danach'));
-      await tester.tap(find.textContaining('Halt danach'));
-      await tester.pumpAndSettle();
+      await tapInList(tester, find.textContaining('Hinweise'));
+      await tapInList(tester, find.textContaining('Halt danach'));
     },
     'notice text': (tester) async {
-      await tester.tap(find.textContaining('Hinweise'));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text(lineNotice.title));
-      await tester.tap(find.text(lineNotice.title));
-      await tester.pumpAndSettle();
+      await tapInList(tester, find.textContaining('Hinweise'));
+      await tapInList(tester, find.text(lineNotice.title));
     },
   };
 
+  // 411 dp wide, and 360 dp (a common narrow phone, e.g. 1080 px at
+  // 480 dpi) for the screens with the widest rows.
+  bool narrowToo(String name) =>
+      name.startsWith('departure board') ||
+      name.startsWith('trip results') ||
+      name.startsWith('journey details') ||
+      name.startsWith('trip details');
+
   for (final MapEntry(key: name, value: build) in screens.entries) {
-    for (final brightness in Brightness.values) {
-      for (final textScale in [1.0, 1.3, 2.0]) {
-        testWidgets('$name, ${brightness.name}, text ×$textScale', (
-          tester,
-        ) async {
-          tester.view
-            ..physicalSize = const Size(1080, 2400)
-            ..devicePixelRatio = 2.625;
-          addTearDown(tester.view.reset);
-          final semantics = tester.ensureSemantics();
-          final favourites = FakeFavouritesRepository(
-            name.contains('with favourites') ? [bochumHbf, dortmundHbf] : [],
-          );
-          // The picker test shows Dortmund as a favourite only.
-          if (name.contains('history')) favourites.saved = [dortmundHbf];
+    for (final pixelRatio in [2.625, if (narrowToo(name)) 3.0]) {
+      for (final brightness in Brightness.values) {
+        for (final textScale in [1.0, 1.3, 2.0]) {
+          final width = (1080 / pixelRatio).round();
+          testWidgets(
+            '$name, ${brightness.name}, text ×$textScale, $width dp',
+            (tester) async {
+              tester.view
+                ..physicalSize = const Size(1080, 2400)
+                ..devicePixelRatio = pixelRatio;
+              addTearDown(tester.view.reset);
+              final semantics = tester.ensureSemantics();
+              final favourites = FakeFavouritesRepository(
+                name.contains('with favourites')
+                    ? [bochumHbf, dortmundHbf]
+                    : [],
+              );
+              // The picker test shows Dortmund as a favourite only.
+              if (name.contains('history')) favourites.saved = [dortmundHbf];
 
-          await tester.pumpWidget(
-            MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (_) =>
-                      FavouritesCubit(favourites, initial: favourites.saved),
-                ),
-                BlocProvider(
-                  create: (_) => RecentStopsCubit(
-                    FakeRecentStopsRepository(),
-                    initial: name.contains('history')
-                        ? [
-                            bochumHbf,
-                            const Stop(
-                              id: 'de:05913:131',
-                              name: 'Hbf',
-                              fullName: 'Dortmund, Hbf',
-                              locality: 'Dortmund',
-                              latitude: 51.5,
-                              longitude: 7.4,
+              await tester.pumpWidget(
+                MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (_) => FavouritesCubit(
+                        favourites,
+                        initial: favourites.saved,
+                      ),
+                    ),
+                    BlocProvider(
+                      create: (_) => RecentStopsCubit(
+                        FakeRecentStopsRepository(),
+                        initial: name.contains('history')
+                            ? [
+                                bochumHbf,
+                                const Stop(
+                                  id: 'de:05913:131',
+                                  name: 'Hbf',
+                                  fullName: 'Dortmund, Hbf',
+                                  locality: 'Dortmund',
+                                  latitude: 51.5,
+                                  longitude: 7.4,
+                                ),
+                              ]
+                            : const [],
+                      ),
+                    ),
+                    BlocProvider(
+                      create: (_) => FavouriteJourneysCubit(
+                        FakeFavouriteJourneysRepository([
+                          if (name.contains('saved journeys') &&
+                              !name.contains('no saved')) ...[
+                            FavouriteJourney(
+                              from: bochumHbf,
+                              to: dortmundHbf,
+                              savedAt: DateTime.utc(2026, 11, 2),
+                              label: 'Work, RE1 at 7:40',
                             ),
-                          ]
-                        : const [],
+                            FavouriteJourney(
+                              from: dortmundHbf,
+                              to: bochumHbf,
+                              savedAt: DateTime.utc(2026, 11, 2),
+                            ),
+                          ],
+                        ]),
+                      ),
+                    ),
+                    // The planner greets with the profile's name.
+                    BlocProvider(
+                      create: (_) => ProfileCubit(
+                        FakeProfileRepository('Shawn'),
+                        FakeAuthRepository(),
+                      ),
+                    ),
+                  ],
+                  child: MaterialApp(
+                    locale: const Locale('de'),
+                    localizationsDelegates:
+                        AppLocalizations.localizationsDelegates,
+                    supportedLocales: AppLocalizations.supportedLocales,
+                    theme: AppTheme.light,
+                    darkTheme: AppTheme.dark,
+                    themeMode: brightness == Brightness.dark
+                        ? ThemeMode.dark
+                        : ThemeMode.light,
+                    builder: (context, child) => MediaQuery(
+                      data: MediaQuery.of(context).copyWith(
+                        textScaler: TextScaler.linear(textScale),
+                        // A still picture, as the sky's movement never settles.
+                        disableAnimations: true,
+                      ),
+                      child: child!,
+                    ),
+                    home: build(),
                   ),
                 ),
-                BlocProvider(
-                  create: (_) => FavouriteJourneysCubit(
-                    FakeFavouriteJourneysRepository([
-                      if (name.contains('saved journeys') &&
-                          !name.contains('no saved')) ...[
-                        FavouriteJourney(
-                          from: bochumHbf,
-                          to: dortmundHbf,
-                          savedAt: DateTime.utc(2026, 11, 2),
-                          label: 'Work, RE1 at 7:40',
-                        ),
-                        FavouriteJourney(
-                          from: dortmundHbf,
-                          to: bochumHbf,
-                          savedAt: DateTime.utc(2026, 11, 2),
-                        ),
-                      ],
-                    ]),
-                  ),
-                ),
-                // The planner greets with the profile's name.
-                BlocProvider(
-                  create: (_) => ProfileCubit(
-                    FakeProfileRepository('Shawn'),
-                    FakeAuthRepository(),
-                  ),
-                ),
-              ],
-              child: MaterialApp(
-                locale: const Locale('de'),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                theme: AppTheme.light,
-                darkTheme: AppTheme.dark,
-                themeMode: brightness == Brightness.dark
-                    ? ThemeMode.dark
-                    : ThemeMode.light,
-                builder: (context, child) => MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    textScaler: TextScaler.linear(textScale),
-                    // A still picture, as the sky's movement never settles.
-                    disableAnimations: true,
-                  ),
-                  child: child!,
-                ),
-                home: build(),
-              ),
-            ),
-          );
-          await tester.pumpAndSettle();
-          await reach[name]?.call(tester);
+              );
+              await tester.pumpAndSettle();
+              await reach[name]?.call(tester);
 
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(textContrastGuideline));
-          semantics.dispose();
-        });
+              await expectLater(
+                tester,
+                meetsGuideline(androidTapTargetGuideline),
+              );
+              await expectLater(
+                tester,
+                meetsGuideline(labeledTapTargetGuideline),
+              );
+              await expectLater(tester, meetsGuideline(textContrastGuideline));
+              semantics.dispose();
+            },
+          );
+        }
       }
     }
   }

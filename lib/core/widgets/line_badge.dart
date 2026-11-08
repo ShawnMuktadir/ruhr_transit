@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
@@ -14,12 +16,51 @@ class LineBadge extends StatelessWidget {
   /// Keeps badges in a column the same width; smaller in a row of badges.
   final double minWidth;
 
+  /// How wide the badge for [line] and [mode] is on this screen, at this
+  /// text size.
+  static double widthOf(
+    BuildContext context,
+    String line,
+    TransportMode? mode, {
+    double minWidth = 64,
+  }) {
+    final painter = TextPainter(
+      text: _label(context, line, mode),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final text = painter.width;
+    painter.dispose();
+    // Padding, and the icon with its gap.
+    return math.max(minWidth, text + 16 + (mode == null ? 0 : 20));
+  }
+
+  static TextSpan _label(
+    BuildContext context,
+    String line,
+    TransportMode? mode,
+  ) {
+    final colors = Theme.of(context).colorScheme;
+    return TextSpan(
+      style: Theme.of(
+        context,
+      ).textTheme.labelLarge?.copyWith(color: colors.onPrimaryContainer),
+      children: [
+        if (mode case final mode?)
+          TextSpan(
+            text: '${transportModeLabel(AppLocalizations.of(context), mode)} ',
+          ),
+        TextSpan(
+          text: line,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final style = Theme.of(
-      context,
-    ).textTheme.labelLarge?.copyWith(color: colors.onPrimaryContainer);
     return Container(
       constraints: BoxConstraints(minWidth: minWidth),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -42,22 +83,7 @@ class LineBadge extends StatelessWidget {
             ),
             const SizedBox(width: 4),
           ],
-          Text.rich(
-            TextSpan(
-              children: [
-                if (mode case final mode?)
-                  TextSpan(
-                    text:
-                        '${transportModeLabel(AppLocalizations.of(context), mode)} ',
-                  ),
-                TextSpan(
-                  text: line,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            style: style,
-          ),
+          Flexible(child: Text.rich(_label(context, line, mode))),
         ],
       ),
     );

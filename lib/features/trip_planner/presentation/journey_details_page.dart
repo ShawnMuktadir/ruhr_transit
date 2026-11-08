@@ -130,12 +130,10 @@ class _JourneyDetailsPageState extends State<JourneyDetailsPage> {
     final l10n = AppLocalizations.of(context);
     final notices = journey.notices;
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: RouteTitle.toolbarHeight(context),
-        title: RouteTitle(
-          from: query?.from.fullName ?? journey.legs.first.origin.name,
-          to: query?.to.fullName ?? journey.legs.last.destination.name,
-        ),
+      appBar: RouteTitle.appBar(
+        context,
+        from: query?.from.fullName ?? journey.legs.first.origin.name,
+        to: query?.to.fullName ?? journey.legs.last.destination.name,
         actions: [
           if (hasMap(journey))
             IconButton(
@@ -254,17 +252,19 @@ class _RideTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          // Side by side when they fit, else the direction goes below: at
+          // large text on a narrow phone the badge alone can fill the row.
+          Wrap(
+            spacing: 12,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               LineBadge(leg.line, mode: leg.mode),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  l10n.tripDirection(leg.direction),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium,
-                ),
+              Text(
+                l10n.tripDirection(leg.direction),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium,
               ),
             ],
           ),

@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:ruhr_transit/features/weather/domain/weather.dart';
 
 /// What moves or glows in a [WeatherLook].
@@ -20,6 +20,15 @@ enum WeatherScene {
   /// The sun and fog stay still: they look right that way, and it saves
   /// the battery.
   bool get moves => this != sun && this != fog;
+
+  /// How often what moves takes a step. Drifting clouds and twinkling stars
+  /// look smooth at 10 a second; falling rain and snow need 20. Each step
+  /// costs a frame, which is most of the cost (measured on a phone: 20 a
+  /// second about 15 % of a core).
+  Duration get step => switch (this) {
+    rain || storm || snow => const Duration(milliseconds: 50),
+    _ => const Duration(milliseconds: 100),
+  };
 }
 
 /// The colours of the planner's header for one kind of weather, chosen so
@@ -245,50 +254,71 @@ class WeatherBackdrop extends StatefulWidget {
   static const fadeHeight = 32.0;
 
   @override
-  State<WeatherBackdrop> createState() => _WeatherBackdropState();
+  State<WeatherBackdrop> createState() => WeatherBackdropState();
 }
 
-class _WeatherBackdropState extends State<WeatherBackdrop>
-    with SingleTickerProviderStateMixin {
-  /// Slow movement needs no more frames than this, even on a 120 Hz screen.
-  static const _frame = Duration(milliseconds: 33);
-
-  late final Ticker _ticker = createTicker(_tick);
+class WeatherBackdropState extends State<WeatherBackdrop>
+    with WidgetsBindingObserver {
+  /// A timer rather than a ticker: a ticker wakes the app on every screen
+  /// refresh, up to 120 times a second, which cost about 35 % of a core on
+  /// a phone even though the sky changed far less often.
+  Timer? _timer;
   final _seconds = ValueNotifier<double>(0);
-  Duration _painted = Duration.zero;
 
-  void _tick(Duration elapsed) {
-    if (elapsed - _painted < _frame) return;
-    _painted = elapsed;
-    _seconds.value = elapsed.inMicroseconds / Duration.microsecondsPerSecond;
-  }
+  /// How far the sky has moved, in seconds of animation.
+  @visibleForTesting
+  double get seconds => _seconds.value;
 
-  void _syncTicker() {
+  /// Moves only while it can be seen and the user has not removed
+  /// animations: not in a hidden tab, not under another page, not while the
+  /// app is in the background.
+  void _sync() {
+    final visible =
+        TickerMode.valuesOf(context).enabled &&
+        switch (WidgetsBinding.instance.lifecycleState) {
+          null || AppLifecycleState.resumed => true,
+          _ => false,
+        };
     final animate =
-        widget.look.scene.moves && !MediaQuery.disableAnimationsOf(context);
-    if (animate && !_ticker.isActive) {
-      _painted = Duration.zero;
-      _ticker.start();
-    } else if (!animate && _ticker.isActive) {
-      _ticker.stop();
+        widget.look.scene.moves &&
+        !MediaQuery.disableAnimationsOf(context) &&
+        visible;
+    final step = widget.look.scene.step;
+    if (animate && _timer == null) {
+      _timer = Timer.periodic(step, (_) {
+        _seconds.value += step.inMicroseconds / Duration.microsecondsPerSecond;
+      });
+    } else if (!animate) {
+      _timer?.cancel();
+      _timer = null;
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) => _sync();
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _syncTicker();
+    _sync();
   }
 
   @override
   void didUpdateWidget(WeatherBackdrop oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _syncTicker();
+    _sync();
   }
 
   @override
   void dispose() {
-    _ticker.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
     _seconds.dispose();
     super.dispose();
   }
