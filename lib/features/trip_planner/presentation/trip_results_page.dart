@@ -54,9 +54,10 @@ class TripResultsView extends StatelessWidget {
     final cubit = context.read<TripResultsCubit>();
     final wait = query.isOutsideNrw ? l10n.tripOutsideNrwWait : null;
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: RouteTitle.toolbarHeight(context),
-        title: RouteTitle(from: query.from.fullName, to: query.to.fullName),
+      appBar: RouteTitle.appBar(
+        context,
+        from: query.from.fullName,
+        to: query.to.fullName,
         actions: [
           FavouriteJourneyButton(from: query.from, to: query.to),
           IconButton(

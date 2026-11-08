@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -227,6 +228,7 @@ class _Board extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final stacked = departures.isNotEmpty && _stacked(context);
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: departures.isEmpty
@@ -236,18 +238,54 @@ class _Board extends StatelessWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: departures.length,
-              itemBuilder: (context, index) =>
-                  ListCard(child: _DepartureTile(departures[index], stop)),
+              itemBuilder: (context, index) => ListCard(
+                child: _DepartureTile(
+                  departures[index],
+                  stop,
+                  stacked: stacked,
+                ),
+              ),
             ),
     );
+  }
+
+  /// Whether line, destination and time are too tight side by side: the
+  /// destination then wraps mid-word ("Schürbank-str."), so it goes below
+  /// line and time instead. One answer for the whole board, so all rows
+  /// look alike. Depends on the screen width (360 dp phones are common),
+  /// the text size and the widest badge ("Train ICE 203").
+  bool _stacked(BuildContext context) {
+    final text = MediaQuery.textScalerOf(context);
+    if (text.scale(10) >= 13) return true;
+    final screen = MediaQuery.sizeOf(context).width;
+    final badge = departures
+        .map((d) => LineBadge.widthOf(context, d.line, d.mode))
+        .fold<double>(0, math.max);
+    final time = TextPainter(
+      text: TextSpan(
+        text: '88:88 +88',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: text,
+    )..layout();
+    final timeWidth = math.min(screen * 0.3, time.width);
+    time.dispose();
+    // Card margins and padding, and the gaps between the three columns.
+    final destination =
+        screen - listCardMargin.horizontal - 32 - badge - timeWidth - 32;
+    return destination < text.scale(120);
   }
 }
 
 class _DepartureTile extends StatelessWidget {
-  const _DepartureTile(this.departure, this.stop);
+  const _DepartureTile(this.departure, this.stop, {required this.stacked});
 
   final Departure departure;
   final Stop stop;
+
+  /// Destination below line and time, as the three are too tight in a row.
+  final bool stacked;
 
   /// Sets or removes a reminder; null when there is nothing to offer: no
   /// reminders here (tests of a single page), cancelled, or too late.
@@ -321,10 +359,6 @@ class _DepartureTile extends StatelessWidget {
           ),
       ],
     );
-    // From 1.3x text the three columns leave the destination too narrow
-    // (words break mid-word), so it moves below line and time.
-    final stacked = MediaQuery.textScalerOf(context).scale(10) >= 13;
-
     // A plain layout rather than a ListTile: ListTile fixes the height of
     // its trailing widget, which cuts off time and platform at large font
     // sizes. For TalkBack it is one item with a fixed order, whichever

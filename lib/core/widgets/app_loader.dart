@@ -55,20 +55,34 @@ class _AppLoaderState extends State<AppLoader>
       ),
     );
     if (widget._size == 24) return tram;
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          tram,
-          if (widget.message case final message?)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-              child: Semantics(
-                liveRegion: true,
-                child: Text(message, textAlign: TextAlign.center),
+    final message = widget.message;
+    if (message == null) return Center(child: tram);
+    // Scrolls when the text does not fit, e.g. at large text sizes on a
+    // short screen; centered otherwise.
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: constraints.maxHeight,
+            minWidth: constraints.maxWidth,
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  tram,
+                  const SizedBox(height: 16),
+                  Semantics(
+                    liveRegion: true,
+                    child: Text(message, textAlign: TextAlign.center),
+                  ),
+                ],
               ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }

@@ -61,6 +61,37 @@ void main() {
     return '${twoDigits(local.hour)}:${twoDigits(local.minute)}';
   }
 
+  group('rows on narrow and wide screens', () {
+    Future<Rect> destinationAt(WidgetTester tester, double width) async {
+      tester.view
+        ..physicalSize = Size(width * 3, 2400)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      repository.autoReply = Ok([delayedRe16]);
+      await pumpPage(tester);
+      await tester.pump();
+      return tester.getRect(find.text(delayedRe16.destination));
+    }
+
+    testWidgets('on a 360 dp phone the destination goes below the line', (
+      tester,
+    ) async {
+      final destination = await destinationAt(tester, 360);
+      final badge = tester.getRect(find.byType(LineBadge).first);
+      expect(destination.top, greaterThanOrEqualTo(badge.bottom));
+      // Whole words, not cut mid-word: it gets the row's full width.
+      expect(destination.width, greaterThan(200));
+    });
+
+    testWidgets('on a wide screen line, destination and time share a row', (
+      tester,
+    ) async {
+      final destination = await destinationAt(tester, 600);
+      final badge = tester.getRect(find.byType(LineBadge).first);
+      expect(destination.left, greaterThan(badge.right));
+    });
+  });
+
   testWidgets('shows the stop name and the board with attribution', (
     tester,
   ) async {
