@@ -3,8 +3,8 @@
 See when buses and trains in the Ruhr area really leave, and plan trips across
 Germany. No sign-up, no ads, no tracking.
 
-An Android app built with Flutter, in German and English, with light and dark
-themes.
+An Android and iPhone app built with Flutter, in German and English, with
+light and dark themes.
 
 **Status:** in development, not yet on the Play Store. Before release it needs
 production access from VRR, an upload key, store graphics, and finished legal
@@ -149,12 +149,16 @@ They are still drafts, see [docs/privacy-policy.md](docs/privacy-policy.md).
   so the trip planner does not mark them. The departure board does.
 - Some long-distance trains arrive with no line name, and show as "Zug".
 - Weather and maps cover Germany only.
+- On iPhone, reminders come at the time known when they were set (iOS lets no
+  app check the delay in the background), and there is no home-screen widget
+  yet.
 
 ## Release
 
 The full checklist, including VRR production access, is in
 [docs/play-console.md](docs/play-console.md). Store texts are in
-[docs/store-listing.md](docs/store-listing.md).
+[docs/store-listing.md](docs/store-listing.md). iPhone builds go to TestFlight
+through GitHub Actions, no Mac needed: see [docs/testflight.md](docs/testflight.md).
 
 Create the upload key once. Keep the file and passwords outside the repository,
 and back them up:

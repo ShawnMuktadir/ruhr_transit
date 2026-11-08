@@ -1,0 +1,115 @@
+name: TestFlight
+
+# Builds a signed iPhone app and uploads it to App Store Connect, from
+# where TestFlight installs it. Started by hand: Actions > TestFlight >
+# Run workflow. The secrets are described in docs/testflight.md.
+on:
+  workflow_dispatch:
+
+# One upload at a time; build numbers must only go up.
+concurrency: testflight
+
+jobs:
+  upload:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      PROFILE_NAME: RuhrTransit App Store
+    steps:
+      - uses: actions/checkout@v4
+
+      # App Store Connect accepts only builds from a recent Xcode; take the
+      # newest one the runner has.
+      - name: Select the newest Xcode
+        run: |
+          xcode=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.41.2
+          cache: true
+
+      - run: flutter pub get
+
+      # The distribution certificate and profile, in a keychain of their own
+      # that is deleted at the end (GitHub's documented way).
+      - name: Install the certificate and profile
+        env:
+          CERT_P12: ${{ secrets.IOS_DIST_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          PROFILE: ${{ secrets.IOS_PROFILE }}
+        run: |
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          keychain_password=$(openssl rand -base64 24)
+          echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security import "$RUNNER_TEMP/cert.p12" -P "$CERT_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$keychain"
+          security set-key-partition-list -S apple-tool:,apple: \
+            -k "$keychain_password" "$keychain" > /dev/null
+          security list-keychain -d user -s "$keychain"
+          profiles="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$profiles"
+          echo "$PROFILE" | base64 --decode > "$profiles/ruhrtransit.mobileprovision"
+
+      # Only the Runner target is signed by hand; the pods need no signing.
+      - name: Signing settings
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cat > ios/Flutter/Signing.xcconfig <<EOF
+          CODE_SIGN_STYLE = Manual
+          DEVELOPMENT_TEAM = $TEAM_ID
+          CODE_SIGN_IDENTITY = Apple Distribution
+          CODE_SIGN_IDENTITY[sdk=iphoneos*] = Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER = $PROFILE_NAME
+          EOF
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>de.muktadir.ruhrtransit</key><string>$PROFILE_NAME</string>
+            </dict>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          EOF
+
+      # The run number keeps every upload's build number higher than the
+      # last; the version comes from pubspec.yaml.
+      - name: Build the app
+        run: >
+          flutter build ipa --release
+          --build-number=${{ github.run_number }}
+          --export-options-plist="$RUNNER_TEMP/ExportOptions.plist"
+
+      - name: Upload to App Store Connect
+        env:
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$KEY_P8" | base64 --decode \
+            > ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8
+          xcrun altool --upload-app --type ios \
+            --file build/ios/ipa/*.ipa \
+            --apiKey "$KEY_ID" --apiIssuer "$ISSUER_ID"
+
+      - name: Remove the keychain and key
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" || true
+          rm -rf ~/.appstoreconnect "$RUNNER_TEMP/cert.p12"
