@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/dismiss_background.dart';
+import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journey.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
 
@@ -22,12 +23,9 @@ class FavouriteJourneysList extends StatelessWidget {
     return BlocBuilder<FavouriteJourneysCubit, FavouriteJourneysState>(
       builder: (context, state) => switch (state) {
         FavouriteJourneysLoading() => const AppLoader(),
-        FavouriteJourneysFailed() => CenteredMessage(
+        FavouriteJourneysFailed() => CenteredMessage.retry(
           l10n.journeysLoadFailed,
-          action: FilledButton.tonal(
-            onPressed: context.read<FavouriteJourneysCubit>().retry,
-            child: Text(l10n.retry),
-          ),
+          onRetry: context.read<FavouriteJourneysCubit>().retry,
         ),
         FavouriteJourneysLoaded(:final journeys) when journeys.isEmpty =>
           CenteredMessage(l10n.journeysEmpty, icon: Icons.bookmark_border),
@@ -105,19 +103,13 @@ class _JourneyTile extends StatelessWidget {
   void _removeWithUndo(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<FavouriteJourneysCubit>()..remove(journey);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.journeyRemoved(journey.from.fullName, journey.to.fullName),
-          ),
-          action: SnackBarAction(
-            label: l10n.undo,
-            onPressed: () => cubit.restore(journey),
-          ),
-        ),
-      );
+    ScaffoldMessenger.of(context).showMessage(
+      l10n.journeyRemoved(journey.from.fullName, journey.to.fullName),
+      action: SnackBarAction(
+        label: l10n.undo,
+        onPressed: () => cubit.restore(journey),
+      ),
+    );
   }
 
   Future<void> _editLabel(BuildContext context) async {

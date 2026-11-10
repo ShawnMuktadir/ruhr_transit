@@ -1,7 +1,5 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
+import 'package:ruhr_transit/core/storage/json_list_store.dart';
 import 'package:ruhr_transit/features/favourites/data/stop_json.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder_repository.dart';
@@ -12,33 +10,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Stored as JSON. [SharedPreferencesAsync] has no cache, so the app sees
 /// what the alarm wrote while it ran in the background.
 class ReminderRepositoryImpl implements ReminderRepository {
-  const ReminderRepositoryImpl(this._preferences);
+  ReminderRepositoryImpl(SharedPreferencesAsync preferences)
+    : _store = JsonListStore(
+        preferences,
+        key: storageKey,
+        fromJson: _read,
+        toJson: _write,
+      );
 
   static const storageKey = 'reminders_v1';
 
-  final SharedPreferencesAsync _preferences;
+  final JsonListStore<Reminder> _store;
 
   @override
-  Future<List<Reminder>> load() async {
-    final raw = await _preferences.getString(storageKey);
-    if (raw == null) return const [];
-    try {
-      final entries = jsonDecode(raw) as List<Object?>;
-      return [for (final entry in entries) ?_read(entry)];
-    } on FormatException catch (e) {
-      debugPrint('Unreadable reminders: $e');
-      return const [];
-    } on TypeError catch (e) {
-      debugPrint('Unreadable reminders: $e');
-      return const [];
-    }
-  }
+  Future<List<Reminder>> load() => _store.load();
 
   @override
-  Future<void> save(List<Reminder> reminders) => _preferences.setString(
-    storageKey,
-    jsonEncode([for (final reminder in reminders) _write(reminder)]),
-  );
+  Future<void> save(List<Reminder> reminders) => _store.save(reminders);
 
   static Map<String, Object?> _write(Reminder r) => {
     'id': r.id,
@@ -92,15 +80,15 @@ class ReminderRepositoryImpl implements ReminderRepository {
             .where((mode) => mode.name == json['mode'])
             .firstOrNull,
         stopName: stopName,
-        platform: json['platform'] as String?,
+        platform: _string(json['platform']),
         plannedDeparture: planned,
         departure: best,
         walkBefore: Duration(seconds: walkBeforeSeconds),
         lead: Duration(seconds: leadSeconds),
         languageCode: languageCode,
         use24HourFormat: use24HourFormat,
-        originStopId: json['originStopId'] as String?,
-        originParentId: json['originParentId'] as String?,
+        originStopId: _string(json['originStopId']),
+        originParentId: _string(json['originParentId']),
         runKey: _readRunKey(json['run']),
         boardStop: _readStop(json['boardStop']),
         tripFrom: _readStop(json['tripFrom']),
@@ -109,6 +97,9 @@ class ReminderRepositoryImpl implements ReminderRepository {
     }
     return null;
   }
+
+  /// An optional text; a broken one reads as none.
+  static String? _string(Object? json) => json is String ? json : null;
 
   /// Reminders saved before this field, or with a broken one, have none.
   static Stop? _readStop(Object? json) {

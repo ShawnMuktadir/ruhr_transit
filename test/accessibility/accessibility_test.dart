@@ -64,7 +64,6 @@ import '../helpers/fake_stop_repository.dart';
 import '../helpers/fake_trip_repository.dart';
 import '../helpers/fake_vehicle_run_repository.dart';
 import '../helpers/fake_weather_repository.dart';
-import '../helpers/fake_widget_sync.dart';
 import '../helpers/fixtures.dart';
 
 /// Every screen, in light and dark, at 100, 130 and 200 % font size, on a
@@ -210,7 +209,7 @@ void main() {
           bochumHbf.id,
           now: () => boardTime,
         )..load(),
-        child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
+        child: const DeparturesView(stop: bochumHbf),
       ),
     ),
     'trip details, way to the first stop offered': tripWithWay,
@@ -240,7 +239,7 @@ void main() {
           bochumHbf.id,
           now: () => boardTime,
         )..load(),
-        child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
+        child: const DeparturesView(stop: bochumHbf),
       ),
       at: delayedRe16.plannedTime.subtract(const Duration(minutes: 40)),
     ),
@@ -272,7 +271,7 @@ void main() {
         bochumHbf.id,
         now: () => boardTime,
       )..load(),
-      child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
+      child: const DeparturesView(stop: bochumHbf),
     ),
     'outdated departure board': () => BlocProvider(
       create: (_) => DeparturesCubit(
@@ -285,7 +284,7 @@ void main() {
         bochumHbf.id,
         now: () => boardTime,
       )..load(),
-      child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
+      child: const DeparturesView(stop: bochumHbf),
     ),
     'nearby stops, approximate': () => BlocProvider(
       create: (_) => NearbyStopsCubit(

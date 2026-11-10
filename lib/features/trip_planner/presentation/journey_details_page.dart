@@ -8,6 +8,7 @@ import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
+import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminder_tile.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -72,9 +73,8 @@ class _JourneyDetailsPageState extends State<JourneyDetailsPage> {
     setState(() => _finding = false);
 
     final l10n = AppLocalizations.of(context);
-    void say(String message) => ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+    void say(String message) =>
+        ScaffoldMessenger.of(context).showMessage(message);
     switch (result) {
       case WalkFound(:final journey):
         final route = journey.legs.whereType<WalkLeg>().firstOrNull;

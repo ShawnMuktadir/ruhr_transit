@@ -61,12 +61,9 @@ class _LegalPageState extends State<LegalPage> {
         future: _text,
         builder: (context, snapshot) => switch (snapshot) {
           AsyncSnapshot(:final data?) => MarkdownView(data),
-          AsyncSnapshot(hasError: true) => CenteredMessage(
+          AsyncSnapshot(hasError: true) => CenteredMessage.retry(
             l10n.legalLoadFailed,
-            action: FilledButton.tonal(
-              onPressed: () => setState(_load),
-              child: Text(l10n.retry),
-            ),
+            onRetry: () => setState(_load),
           ),
           _ => const AppLoader(),
         },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 
 /// A centred text with an optional button below, for idle, empty and error
 /// states.
@@ -7,6 +8,14 @@ import 'package:flutter/material.dart';
 /// sizes, and pull-to-refresh works around it.
 class CenteredMessage extends StatelessWidget {
   const CenteredMessage(this.text, {this.action, this.icon, super.key});
+
+  /// An error that a new try may fix, with a [RetryButton].
+  CenteredMessage.retry(
+    this.text, {
+    required VoidCallback onRetry,
+    this.icon,
+    super.key,
+  }) : action = RetryButton(onRetry);
 
   final String text;
   final Widget? action;
@@ -53,4 +62,17 @@ class CenteredMessage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "Try again", the button of every error that a new try may fix.
+class RetryButton extends StatelessWidget {
+  const RetryButton(this.onPressed, {super.key});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => FilledButton.tonal(
+    onPressed: onPressed,
+    child: Text(AppLocalizations.of(context).retry),
+  );
 }

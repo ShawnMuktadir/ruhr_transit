@@ -1,8 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
-import 'package:ruhr_transit/core/network/efa_error_mapper.dart';
+import 'package:ruhr_transit/core/network/request_result.dart';
 import 'package:ruhr_transit/features/weather/data/bright_sky_remote_source.dart';
 import 'package:ruhr_transit/features/weather/data/weather_mapper.dart';
 import 'package:ruhr_transit/features/weather/domain/weather.dart';
@@ -34,12 +32,10 @@ class WeatherRepositoryImpl implements WeatherRepository {
     // Both at once; the forecast never throws.
     final forecast = _forecast(lat, lon, hour);
     try {
-      final current = await _remote.current(latitude: lat, longitude: lon);
-      return Ok(mapWeather(current, await forecast));
-    } on DioException catch (e) {
-      return Err(failureFromDioException(e));
-    } on FormatException catch (e) {
-      return Err(ParseFailure(e.message));
+      return await requestResult(() async {
+        final current = await _remote.current(latitude: lat, longitude: lon);
+        return mapWeather(current, await forecast);
+      });
     } finally {
       // Not left unawaited when the current weather failed.
       await forecast;

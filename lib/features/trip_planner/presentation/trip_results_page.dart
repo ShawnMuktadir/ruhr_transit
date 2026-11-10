@@ -9,6 +9,7 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
+import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
@@ -72,20 +73,15 @@ class TripResultsView extends StatelessWidget {
             state is TripResultsLoaded && state.laterFailure != null,
         listener: (context, state) {
           final failure = (state as TripResultsLoaded).laterFailure!;
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(content: Text(failureMessage(l10n, failure))),
-            );
+          ScaffoldMessenger.of(
+            context,
+          ).showMessage(failureMessage(l10n, failure));
         },
         builder: (context, state) => switch (state) {
           TripResultsLoading() => AppLoader(message: wait),
-          TripResultsFailed(:final failure) => CenteredMessage(
+          TripResultsFailed(:final failure) => CenteredMessage.retry(
             failureMessage(l10n, failure),
-            action: FilledButton.tonal(
-              onPressed: cubit.load,
-              child: Text(l10n.retry),
-            ),
+            onRetry: cubit.load,
           ),
           TripResultsLoaded(:final journeys) when journeys.isEmpty =>
             CenteredMessage(l10n.tripResultsEmpty),

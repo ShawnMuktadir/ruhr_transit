@@ -5,6 +5,8 @@ import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
+import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
+import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 /// The departure board of one stop.
 ///
@@ -18,11 +20,17 @@ class DeparturesCubit extends Cubit<DeparturesState> {
     this._repository,
     this.stopId, {
     DateTime Function() now = DateTime.now,
+    WidgetSync? widgetSync,
   }) : _now = now,
+       _widgetSync = widgetSync,
        super(const DeparturesLoading());
 
   final DepartureRepository _repository;
   final DateTime Function() _now;
+
+  /// The home-screen widget; none on platforms without one, and in tests
+  /// that do not need it.
+  final WidgetSync? _widgetSync;
 
   /// Global ID of the stop, e.g. `de:05911:5194`.
   final String stopId;
@@ -45,6 +53,29 @@ class DeparturesCubit extends Cubit<DeparturesState> {
     if (state is! DeparturesLoaded) return load();
     await _fetch();
   }
+
+  /// Whether this phone has the home-screen widget.
+  bool get hasWidget => _widgetSync?.isAvailable ?? false;
+
+  /// Makes [stop] the widget's stop, with the board on screen so the widget
+  /// is filled right away. Returns whether the launcher can also place the
+  /// widget, see [addWidget].
+  Future<bool> showOnWidget(Stop stop) async {
+    final widgetSync = _widgetSync;
+    if (widgetSync == null) return false;
+    final board = switch (state) {
+      DeparturesLoaded(:final departures, :final fetchedAt) => DepartureBoard(
+        departures,
+        fetchedAt: fetchedAt,
+      ),
+      _ => null,
+    };
+    await widgetSync.showStop(stop, board: board);
+    return widgetSync.canAddWidget();
+  }
+
+  /// Asks the launcher to place the widget; the user confirms there.
+  Future<void> addWidget() async => _widgetSync?.addWidget();
 
   Future<void> _fetch() async {
     final fetch = ++_fetchCount;

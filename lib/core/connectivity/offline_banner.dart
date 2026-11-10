@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/connectivity/connectivity.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/optional_provider.dart';
 
 /// Shows "Keine Internetverbindung" above every page while offline. For
 /// `MaterialApp.builder`: the banner takes the status bar's space, so the
@@ -89,11 +90,7 @@ class OnReconnect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    try {
-      context.read<ConnectivityCubit>();
-    } on ProviderNotFoundException {
-      return child;
-    }
+    if (context.maybeRead<ConnectivityCubit>() == null) return child;
     return BlocListener<ConnectivityCubit, bool>(
       listenWhen: (wasOnline, online) => !wasOnline && online,
       listener: (_, _) => onReconnect(),

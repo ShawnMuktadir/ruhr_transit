@@ -67,16 +67,6 @@ class RemindersCubit extends Cubit<List<Reminder>> {
     _emit(current);
   }
 
-  /// The cubit, rebuilding on changes; null where none is provided (tests of
-  /// a single page).
-  static RemindersCubit? maybeWatch(BuildContext context) {
-    try {
-      return context.watch<RemindersCubit>();
-    } on ProviderNotFoundException {
-      return null;
-    }
-  }
-
   /// The set reminder for [journey], if any.
   Reminder? reminderFor(Journey journey) {
     final key = Reminder.keyOf(journey);

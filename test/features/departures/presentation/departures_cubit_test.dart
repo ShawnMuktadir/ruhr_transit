@@ -8,6 +8,8 @@ import 'package:ruhr_transit/features/departures/presentation/departures_cubit.d
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
 
 import '../../../helpers/fake_departure_repository.dart';
+import '../../../helpers/fake_stop_repository.dart';
+import '../../../helpers/fake_widget_sync.dart';
 
 const _stopId = 'de:05911:5194';
 
@@ -303,6 +305,35 @@ void main() {
             .having((s) => s.departures, 'departures', [movedU35])
             .having((s) => s.refreshFailure, 'refreshFailure', isNull),
       );
+    });
+  });
+
+  group('home-screen widget', () {
+    test('shows the stop with the board on screen', () async {
+      final widgetSync = FakeWidgetSync()..canAdd = true;
+      final withWidget = DeparturesCubit(
+        repository,
+        _stopId,
+        now: () => now,
+        widgetSync: widgetSync,
+      );
+      addTearDown(withWidget.close);
+      repository.autoReply = Ok([delayedRe16]);
+      await withWidget.load();
+
+      expect(withWidget.hasWidget, isTrue);
+      expect(await withWidget.showOnWidget(bochumHbf), isTrue);
+      final (stop, board) = widgetSync.shown.single;
+      expect(stop, bochumHbf);
+      expect(board?.departures, [delayedRe16]);
+
+      await withWidget.addWidget();
+      expect(widgetSync.addCount, 1);
+    });
+
+    test('without a widget there is nothing to show', () async {
+      expect(cubit.hasWidget, isFalse);
+      expect(await cubit.showOnWidget(bochumHbf), isFalse);
     });
   });
 }
