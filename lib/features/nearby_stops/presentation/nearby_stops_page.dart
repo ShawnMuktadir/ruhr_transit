@@ -105,12 +105,9 @@ class NearbyStopsView extends StatelessWidget {
               departures: departures,
             ),
           NearbyLocationProblem(:final problem) => _LocationProblem(problem),
-          NearbyFailed(:final failure) => CenteredMessage(
+          NearbyFailed(:final failure) => CenteredMessage.retry(
             failureMessage(l10n, failure),
-            action: FilledButton.tonal(
-              onPressed: cubit.load,
-              child: Text(l10n.retry),
-            ),
+            onRetry: cubit.load,
           ),
         },
       ),
@@ -241,10 +238,7 @@ class _LocationProblem extends StatelessWidget {
             TextButton(onPressed: cubit.load, child: Text(l10n.retry)),
           ],
         ),
-        null => FilledButton.tonal(
-          onPressed: cubit.load,
-          child: Text(l10n.retry),
-        ),
+        null => RetryButton(cubit.load),
       },
     );
   }

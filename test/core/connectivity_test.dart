@@ -20,7 +20,6 @@ import '../helpers/fake_favourite_journeys_repository.dart';
 import '../helpers/fake_favourites_repository.dart';
 import '../helpers/fake_stop_repository.dart';
 import '../helpers/fake_trip_repository.dart';
-import '../helpers/fake_widget_sync.dart';
 
 void main() {
   late FakeConnectivitySource source;
@@ -114,7 +113,7 @@ void main() {
           create: (_) =>
               DeparturesCubit(departures, bochumHbf.id, now: () => boardTime)
                 ..load(),
-          child: DeparturesView(stop: bochumHbf, widgetSync: FakeWidgetSync()),
+          child: const DeparturesView(stop: bochumHbf),
         ),
       ),
     );

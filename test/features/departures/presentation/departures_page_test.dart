@@ -44,10 +44,13 @@ void main() {
             child: child!,
           ),
           home: BlocProvider(
-            create: (_) =>
-                DeparturesCubit(repository, bochumHbf.id, now: () => boardTime)
-                  ..load(),
-            child: DeparturesView(stop: bochumHbf, widgetSync: widgetSync),
+            create: (_) => DeparturesCubit(
+              repository,
+              bochumHbf.id,
+              now: () => boardTime,
+              widgetSync: widgetSync,
+            )..load(),
+            child: const DeparturesView(stop: bochumHbf),
           ),
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
+import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 
@@ -49,13 +50,7 @@ class _ProfileFormState extends State<_ProfileForm> {
     final saved = await context.read<ProfileCubit>().saveDisplayName(
       _name.text,
     );
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(saved ? l10n.profileSaved : l10n.profileSaveFailed),
-        ),
-      );
+    messenger.showMessage(saved ? l10n.profileSaved : l10n.profileSaveFailed);
   }
 
   @override

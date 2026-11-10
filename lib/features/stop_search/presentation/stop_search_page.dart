@@ -12,6 +12,7 @@ import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/dismiss_background.dart';
+import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 import 'package:ruhr_transit/features/recent_stops/presentation/recent_stops_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -176,12 +177,9 @@ class _StopSearchBodyState extends State<StopSearchBody> {
               // Saved stops still work without internet.
               StopSearchFailed(:final query, failure: NetworkFailure()) =>
                 _OfflineResults(query, onPicked: widget.onPicked),
-              StopSearchFailed(:final failure) => CenteredMessage(
+              StopSearchFailed(:final failure) => CenteredMessage.retry(
                 failureMessage(l10n, failure),
-                action: FilledButton.tonal(
-                  onPressed: context.read<StopSearchCubit>().retry,
-                  child: Text(l10n.retry),
-                ),
+                onRetry: context.read<StopSearchCubit>().retry,
               ),
             },
           ),
@@ -256,17 +254,13 @@ class _StartContent extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<FavouritesCubit>();
     final index = cubit.remove(stop);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(l10n.favouriteRemoved(stop.fullName)),
-          action: SnackBarAction(
-            label: l10n.undo,
-            onPressed: () => cubit.restore(stop, index),
-          ),
-        ),
-      );
+    ScaffoldMessenger.of(context).showMessage(
+      l10n.favouriteRemoved(stop.fullName),
+      action: SnackBarAction(
+        label: l10n.undo,
+        onPressed: () => cubit.restore(stop, index),
+      ),
+    );
   }
 }
 
@@ -350,17 +344,13 @@ class _RecentStops extends StatelessWidget {
     String message,
     VoidCallback undo,
   ) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          action: SnackBarAction(
-            label: AppLocalizations.of(context).undo,
-            onPressed: undo,
-          ),
-        ),
-      );
+    ScaffoldMessenger.of(context).showMessage(
+      message,
+      action: SnackBarAction(
+        label: AppLocalizations.of(context).undo,
+        onPressed: undo,
+      ),
+    );
   }
 }
 
@@ -406,15 +396,11 @@ class _OfflineResults extends StatelessWidget {
       for (final stop in recent)
         if (matches(stop) && !favourites.contains(stop)) stop,
     ];
-    final retry = FilledButton.tonal(
-      onPressed: context.read<StopSearchCubit>().retry,
-      child: Text(l10n.retry),
-    );
     if (savedFavourites.isEmpty && savedRecent.isEmpty) {
-      return CenteredMessage(
+      return CenteredMessage.retry(
         l10n.stopSearchOfflineNone(query),
         icon: Icons.cloud_off_outlined,
-        action: retry,
+        onRetry: context.read<StopSearchCubit>().retry,
       );
     }
     return ListView(

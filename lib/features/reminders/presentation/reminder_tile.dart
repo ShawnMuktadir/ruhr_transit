@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
+import 'package:ruhr_transit/core/widgets/optional_provider.dart';
+import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
@@ -24,9 +26,7 @@ class ReminderTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (Reminder.keyOf(journey) == null) return const SizedBox.shrink();
-    try {
-      context.read<RemindersCubit>();
-    } on ProviderNotFoundException {
+    if (context.maybeRead<RemindersCubit>() == null) {
       return const SizedBox.shrink();
     }
     final l10n = AppLocalizations.of(context);
@@ -159,7 +159,5 @@ Future<void> chooseReminder(
     ReminderOutcome.tooLate => (l10n.reminderTooLate, null),
     ReminderOutcome.failed => (l10n.reminderFailed, null),
   };
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message), action: action));
+  messenger.showMessage(message, action: action);
 }

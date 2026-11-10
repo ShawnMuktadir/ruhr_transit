@@ -127,10 +127,7 @@ void main() {
                 bochumHbf.id,
                 now: () => boardTime,
               )..load(),
-              child: DeparturesView(
-                stop: bochumHbf,
-                widgetSync: FakeWidgetSync(),
-              ),
+              child: const DeparturesView(stop: bochumHbf),
             ),
           ),
         ),

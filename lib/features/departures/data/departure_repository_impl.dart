@@ -1,11 +1,8 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
-import 'package:ruhr_transit/core/network/efa_error_mapper.dart';
-import 'package:ruhr_transit/core/network/efa_json.dart';
+import 'package:ruhr_transit/core/network/request_result.dart';
 import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
 import 'package:ruhr_transit/features/departures/data/departure_mapper.dart';
 import 'package:ruhr_transit/features/departures/data/efa_departure_remote_source.dart';
@@ -29,16 +26,12 @@ class DepartureRepositoryImpl implements DepartureRepository {
   final Future<void> Function(String stopId, DepartureBoard board)?
   onBoardFetched;
 
-  /// The request that is still running, if any. Holding this makes the
-  /// repository stateful, so it is registered as a factory: one per page.
-  CancelToken? _inFlight;
+  /// A second refresh replaces the first.
+  final _latest = LatestRequest();
 
   @override
-  Future<Result<DepartureBoard>> departuresAt(String stopId) async {
-    // A second refresh replaces the first; only the newest answer matters.
-    _inFlight?.cancel();
-    final cancelToken = _inFlight = CancelToken();
-    try {
+  Future<Result<DepartureBoard>> departuresAt(String stopId) => _latest.run(
+    (cancelToken) => requestResult(() async {
       final json = await _remote.departuresAt(stopId, cancelToken: cancelToken);
       final board = DepartureBoard(
         mapDepartureMonitorResponse(json),
@@ -50,17 +43,9 @@ class DepartureRepositoryImpl implements DepartureRepository {
       if (onBoardFetched case final notify?) {
         _inBackground('pass on', notify(stopId, board));
       }
-      return Ok(board);
-    } on DioException catch (e) {
-      return Err(failureFromDioException(e));
-    } on EfaServerException catch (e) {
-      return Err(ServerFailure(code: e.code, message: e.message));
-    } on FormatException catch (e) {
-      return Err(ParseFailure(e.message));
-    } finally {
-      if (identical(_inFlight, cancelToken)) _inFlight = null;
-    }
-  }
+      return board;
+    }),
+  );
 
   void _inBackground(String action, Future<void> work) => unawaited(
     work.catchError((Object e) {

@@ -130,6 +130,24 @@ void main() {
           InMemorySharedPreferencesAsync.empty(),
     );
 
+    test('a broken optional field costs only that field', () async {
+      final repository = ReminderRepositoryImpl(SharedPreferencesAsync());
+      await repository.save([_reminder()]);
+      final stored = await SharedPreferencesAsync().getString(
+        ReminderRepositoryImpl.storageKey,
+      );
+      final entry = (jsonDecode(stored!) as List).single as Map;
+      entry['platform'] = 3;
+      await SharedPreferencesAsync().setString(
+        ReminderRepositoryImpl.storageKey,
+        jsonEncode([entry]),
+      );
+
+      final read = (await repository.load()).single;
+      expect(read.id, 7);
+      expect(read.platform, isNull);
+    });
+
     test('keeps everything the alarm needs', () async {
       final repository = ReminderRepositoryImpl(SharedPreferencesAsync());
       await repository.save([_reminder()]);

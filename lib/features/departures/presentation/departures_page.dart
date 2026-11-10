@@ -13,10 +13,11 @@ import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
+import 'package:ruhr_transit/core/widgets/optional_provider.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
+import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
-import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
@@ -38,49 +39,32 @@ class DeparturesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          DeparturesCubit(getIt<DepartureRepository>(), stop.id)..load(),
-      child: DeparturesView(stop: stop, widgetSync: getIt<WidgetSync>()),
+      create: (_) => DeparturesCubit(
+        getIt<DepartureRepository>(),
+        stop.id,
+        widgetSync: getIt<WidgetSync>(),
+      )..load(),
+      child: DeparturesView(stop: stop),
     );
   }
 }
 
 class DeparturesView extends StatelessWidget {
-  const DeparturesView({
-    required this.stop,
-    required this.widgetSync,
-    super.key,
-  });
+  const DeparturesView({required this.stop, super.key});
 
   final Stop stop;
-  final WidgetSync widgetSync;
 
   Future<void> _showOnWidget(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    // The board on screen, so the widget is filled right away.
-    final board = switch (context.read<DeparturesCubit>().state) {
-      DeparturesLoaded(:final departures, :final fetchedAt) => DepartureBoard(
-        departures,
-        fetchedAt: fetchedAt,
-      ),
-      _ => null,
-    };
-    await widgetSync.showStop(stop, board: board);
-    final canAdd = await widgetSync.canAddWidget();
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(l10n.widgetShown(stop.fullName)),
-          action: canAdd
-              ? SnackBarAction(
-                  label: l10n.widgetAdd,
-                  onPressed: widgetSync.addWidget,
-                )
-              : null,
-        ),
-      );
+    final cubit = context.read<DeparturesCubit>();
+    final canAdd = await cubit.showOnWidget(stop);
+    messenger.showMessage(
+      l10n.widgetShown(stop.fullName),
+      action: canAdd
+          ? SnackBarAction(label: l10n.widgetAdd, onPressed: cubit.addWidget)
+          : null,
+    );
   }
 
   /// Retries what failed when the phone is back online.
@@ -112,7 +96,7 @@ class DeparturesView extends StatelessWidget {
             tooltip: l10n.refresh,
             onPressed: cubit.refresh,
           ),
-          if (widgetSync.isAvailable)
+          if (cubit.hasWidget)
             PopupMenuButton<void>(
               itemBuilder: (context) => [
                 PopupMenuItem(
@@ -138,20 +122,15 @@ class DeparturesView extends StatelessWidget {
                   state is DeparturesLoaded && state.refreshFailure != null,
               listener: (context, state) {
                 final failure = (state as DeparturesLoaded).refreshFailure!;
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(
-                    SnackBar(content: Text(failureMessage(l10n, failure))),
-                  );
+                ScaffoldMessenger.of(
+                  context,
+                ).showMessage(failureMessage(l10n, failure));
               },
               builder: (context, state) => switch (state) {
                 DeparturesLoading() => const AppLoader(),
-                DeparturesFailed(:final failure) => CenteredMessage(
+                DeparturesFailed(:final failure) => CenteredMessage.retry(
                   failureMessage(l10n, failure),
-                  action: FilledButton.tonal(
-                    onPressed: cubit.load,
-                    child: Text(l10n.retry),
-                  ),
+                  onRetry: cubit.load,
                 ),
                 DeparturesLoaded(:final departures) => Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -326,7 +305,7 @@ class _DepartureTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final reminders = RemindersCubit.maybeWatch(context);
+    final reminders = context.maybeWatch<RemindersCubit>();
     final isSet = reminders?.reminderForDeparture(departure, stop) != null;
     final onTap = _onTap(context, reminders, isSet);
     final notes = [
