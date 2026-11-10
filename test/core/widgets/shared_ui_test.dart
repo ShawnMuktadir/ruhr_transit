@@ -54,6 +54,54 @@ void main() {
     expect(find.text('Undo'), findsOneWidget);
   });
 
+  group('showMessage closes by itself', () {
+    Future<void> showWithUndo(
+      WidgetTester tester, {
+      bool screenReader = false,
+    }) async {
+      if (screenReader) {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const FakeAccessibilityFeatures(accessibleNavigation: true);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+      }
+      await tester.pumpWidget(
+        _app(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () => ScaffoldMessenger.of(context).showMessage(
+                'Removed',
+                action: SnackBarAction(label: 'Undo', onPressed: () {}),
+              ),
+              child: const Text('Go'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Go'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a message with a button, after 8 seconds', (tester) async {
+      await showWithUndo(tester);
+
+      await tester.pump(const Duration(seconds: 7));
+      expect(find.text('Removed'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      expect(find.text('Removed'), findsNothing);
+    });
+
+    testWidgets('but not with a screen reader on', (tester) async {
+      await showWithUndo(tester, screenReader: true);
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pumpAndSettle();
+      expect(find.text('Removed'), findsOneWidget);
+    });
+  });
+
   testWidgets('maybeRead and maybeWatch: the cubit or null', (tester) async {
     int? read;
     int? watched;

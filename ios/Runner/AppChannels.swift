@@ -25,5 +25,77 @@ enum AppChannels {
           result(FlutterMethodNotImplemented)
         }
       }
+
+    FlutterMethodChannel(name: "de.muktadir.ruhrtransit/share", binaryMessenger: messenger)
+      .setMethodCallHandler { call, result in
+        switch call.method {
+        case "text":
+          let arguments = call.arguments as? [String: Any]
+          AppChannels.shareText(
+            arguments?["text"] as? String ?? "",
+            subject: arguments?["subject"] as? String
+          )
+          result(nil)
+        default:
+          result(FlutterMethodNotImplemented)
+        }
+      }
+  }
+
+  /// The iOS share sheet, e.g. for Messages or Mail, over the page on top.
+  private static func shareText(_ text: String, subject: String?) {
+    guard let top = topViewController() else { return }
+    let sheet = UIActivityViewController(
+      activityItems: [ShareTextItem(text: text, subject: subject)],
+      applicationActivities: nil)
+    // Needed where the sheet opens as a popover (iPad); harmless elsewhere.
+    sheet.popoverPresentationController?.sourceView = top.view
+    sheet.popoverPresentationController?.sourceRect = CGRect(
+      x: top.view.bounds.midX, y: top.view.bounds.midY, width: 0, height: 0)
+    sheet.popoverPresentationController?.permittedArrowDirections = []
+    top.present(sheet, animated: true)
+  }
+
+  /// The view controller on top of the app's key window, so the sheet opens
+  /// over anything already presented.
+  private static func topViewController() -> UIViewController? {
+    let window = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap(\.windows)
+      .first(where: \.isKeyWindow)
+    var top = window?.rootViewController
+    while let presented = top?.presentedViewController {
+      top = presented
+    }
+    return top
+  }
+}
+
+/// Shared text with a subject, which Mail uses for the mail's subject.
+private final class ShareTextItem: NSObject, UIActivityItemSource {
+  private let text: String
+  private let subject: String?
+
+  init(text: String, subject: String?) {
+    self.text = text
+    self.subject = subject
+  }
+
+  func activityViewControllerPlaceholderItem(_ controller: UIActivityViewController) -> Any {
+    text
+  }
+
+  func activityViewController(
+    _ controller: UIActivityViewController,
+    itemForActivityType activityType: UIActivity.ActivityType?
+  ) -> Any? {
+    text
+  }
+
+  func activityViewController(
+    _ controller: UIActivityViewController,
+    subjectForActivityType activityType: UIActivity.ActivityType?
+  ) -> String {
+    subject ?? ""
   }
 }
