@@ -102,16 +102,16 @@ void main() {
       }
     });
 
-    testWidgets('marks a changed platform, in English and German', (
+    testWidgets('marks a changed platform with the old one, in two languages', (
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
       const chip = PlatformChip(platform: '2', plannedPlatform: '1');
 
       await pumpChip(tester, chip);
-      expect(find.text('Platform 2 (changed)'), findsOneWidget);
+      expect(find.text('Platform 2 (was 1)'), findsOneWidget);
       expect(
-        find.bySemanticsLabel('Platform changed to Platform 2'),
+        find.bySemanticsLabel('Platform change: Platform 2 instead of 1'),
         findsOneWidget,
       );
       expect(
@@ -120,8 +120,11 @@ void main() {
       );
 
       await pumpChip(tester, chip, locale: 'de');
-      expect(find.text('Gleis 2 (geändert)'), findsOneWidget);
-      expect(find.bySemanticsLabel('Gleiswechsel auf Gleis 2'), findsOneWidget);
+      expect(find.text('Gleis 2 (statt 1)'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('Gleiswechsel: Gleis 2 statt 1'),
+        findsOneWidget,
+      );
       semantics.dispose();
     });
 

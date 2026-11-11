@@ -130,21 +130,29 @@
       }
     }
   },
-  "platformChangedHint": "{platform} (geändert)",
+  "platformChangedHint": "{platform} (statt {planned})",
   "@platformChangedHint": {
-    "description": "Platform chip text when the platform differs from the timetable.",
+    "description": "Platform chip text when the platform differs from the timetable; planned is the timetable's platform as EFA names it.",
     "placeholders": {
       "platform": {
         "type": "String",
         "example": "Gleis 2"
+      },
+      "planned": {
+        "type": "String",
+        "example": "3"
       }
     }
   },
-  "departurePlatformChanged": "Gleiswechsel auf {platform}",
+  "departurePlatformChanged": "Gleiswechsel: {platform} statt {planned}",
   "@departurePlatformChanged": {
     "description": "Screen reader label for a platform that differs from the timetable.",
     "placeholders": {
       "platform": {
+        "type": "String",
+        "example": "Gleis 2"
+      },
+      "planned": {
         "type": "String",
         "example": "3"
       }
@@ -1193,6 +1201,15 @@
   "shareFooter": "Geteilt aus RuhrTransit",
   "@shareFooter": {
     "description": "Last line of a shared trip."
+  },
+  "tripPlatformChanges": "{count, plural, =1{Gleiswechsel} other{{count} Gleiswechsel}}",
+  "@tripPlatformChanges": {
+    "description": "On a trip in the results and atop its details when a ride boards or ends at another platform than planned.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "mapShowTrip": "Auf der Karte zeigen",
   "@mapShowTrip": {

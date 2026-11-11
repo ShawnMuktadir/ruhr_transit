@@ -166,17 +166,23 @@ class _JourneyDetailsPageState extends State<JourneyDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [JourneyDate(journey), JourneyTimes(journey)],
               ),
-              subtitle: Text(
-                [
-                  formatTripDuration(l10n, journey.duration),
-                  if (journey.legs.every((leg) => leg is WalkLeg))
-                    l10n.tripWalkOnly
-                  else if (journey.transfers == 0)
-                    l10n.tripDirect
-                  else
-                    l10n.tripTransfers(journey.transfers),
-                  if (journey.isTimetableOnly) l10n.tripTimetableOnlyDetail,
-                ].join(' · '),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    [
+                      formatTripDuration(l10n, journey.duration),
+                      if (journey.legs.every((leg) => leg is WalkLeg))
+                        l10n.tripWalkOnly
+                      else if (journey.transfers == 0)
+                        l10n.tripDirect
+                      else
+                        l10n.tripTransfers(journey.transfers),
+                      if (journey.isTimetableOnly) l10n.tripTimetableOnlyDetail,
+                    ].join(' · '),
+                  ),
+                  PlatformChangeNote(journey),
+                ],
               ),
             ),
           ),

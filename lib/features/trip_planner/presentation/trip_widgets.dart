@@ -155,6 +155,8 @@ String journeySummary(BuildContext context, Journey journey) {
     if (journey.notices case final notices when notices.isNotEmpty)
       l10n.tripNotices(notices.length),
     if (journey.hasWarning) l10n.noticeAffectsTrip,
+    if (journey.platformChanges case final changes when changes.isNotEmpty)
+      l10n.tripPlatformChanges(changes.length),
     if (journey.isTimetableOnly) l10n.tripTimetableOnly,
   ].join(', ');
   return l10n.tripSummary(
@@ -162,4 +164,37 @@ String journeySummary(BuildContext context, Journey journey) {
     timeOf(journey.arrival),
     details,
   );
+}
+
+/// "Platform change" in the error colours when a ride boards or ends at
+/// another platform than planned; nothing otherwise. Where it changed shows
+/// in the trip's details, on the platform itself.
+class PlatformChangeNote extends StatelessWidget {
+  const PlatformChangeNote(this.journey, {super.key});
+
+  final Journey journey;
+
+  @override
+  Widget build(BuildContext context) {
+    final changes = journey.platformChanges.length;
+    if (changes == 0) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.error;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.swap_horiz, size: 16, color: color),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            AppLocalizations.of(context).tripPlatformChanges(changes),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

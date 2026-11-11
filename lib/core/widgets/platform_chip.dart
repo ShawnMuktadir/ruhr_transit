@@ -23,8 +23,24 @@ String? platformLabel(
       : l10n.platformLabel(value);
 }
 
+/// The platform as text, with the timetable's when it changed, e.g.
+/// "Gleis 4 (statt 3)": the old one tells where not to wait. Null when
+/// there is no platform.
+String? platformText(
+  AppLocalizations l10n,
+  String? platform, {
+  String? plannedPlatform,
+  TransportMode? mode,
+}) {
+  final label = platformLabel(l10n, platform, mode: mode);
+  if (label == null) return null;
+  return _isChanged(platform, plannedPlatform)
+      ? l10n.platformChangedHint(label, plannedPlatform!.trim())
+      : label;
+}
+
 /// What a screen reader says for the platform, e.g. "Gleis 5" or
-/// "Gleiswechsel auf Gleis 2". Null when there is no platform.
+/// "Gleiswechsel: Gleis 4 statt 3". Null when there is no platform.
 String? platformSpokenLabel(
   AppLocalizations l10n,
   String? platform, {
@@ -34,7 +50,7 @@ String? platformSpokenLabel(
   final label = platformLabel(l10n, platform, mode: mode);
   if (label == null) return null;
   return _isChanged(platform, plannedPlatform)
-      ? l10n.departurePlatformChanged(label)
+      ? l10n.departurePlatformChanged(label, plannedPlatform!.trim())
       : label;
 }
 
@@ -66,8 +82,13 @@ class PlatformChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final label = platformLabel(l10n, platform, mode: mode);
-    if (label == null) return const SizedBox.shrink();
+    final text = platformText(
+      l10n,
+      platform,
+      plannedPlatform: plannedPlatform,
+      mode: mode,
+    );
+    if (text == null) return const SizedBox.shrink();
 
     final colors = Theme.of(context).colorScheme;
     final changed = _isChanged(platform, plannedPlatform);
@@ -81,7 +102,7 @@ class PlatformChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        changed ? l10n.platformChangedHint(label) : label,
+        text,
         semanticsLabel: platformSpokenLabel(
           l10n,
           platform,

@@ -177,6 +177,7 @@ class _JourneyCard extends StatelessWidget {
                             : l10n.tripTransfers(transfers),
                         style: theme.textTheme.bodySmall,
                       ),
+                      PlatformChangeNote(journey),
                       if (journey.isTimetableOnly)
                         Text(
                           l10n.tripTimetableOnly,
