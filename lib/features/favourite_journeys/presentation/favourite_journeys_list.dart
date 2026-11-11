@@ -61,6 +61,7 @@ class _JourneyTile extends StatelessWidget {
       // Swiping is not possible with TalkBack; it offers this action in its
       // actions menu, like the menu button does for everyone.
       child: Semantics(
+        container: true,
         customSemanticsActions: {
           CustomSemanticsAction(label: l10n.journeyRemove): () =>
               _removeWithUndo(context),

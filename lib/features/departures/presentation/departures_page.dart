@@ -21,6 +21,7 @@ import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_state.dart';
+import 'package:ruhr_transit/features/departures/presentation/show_cancelled_cubit.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourite_stop_button.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminder_tile.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
@@ -85,6 +86,8 @@ class DeparturesView extends StatelessWidget {
   Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<DeparturesCubit>();
+    // Null in tests of the page alone: cancelled departures then show.
+    final showCancelled = context.maybeWatch<ShowCancelledCubit>();
     return Scaffold(
       appBar: AppBar(
         title: Text(stop.fullName),
@@ -96,13 +99,20 @@ class DeparturesView extends StatelessWidget {
             tooltip: l10n.refresh,
             onPressed: cubit.refresh,
           ),
-          if (cubit.hasWidget)
+          if (cubit.hasWidget || showCancelled != null)
             PopupMenuButton<void>(
               itemBuilder: (context) => [
-                PopupMenuItem(
-                  onTap: () => _showOnWidget(context),
-                  child: Text(l10n.widgetShow),
-                ),
+                if (showCancelled != null)
+                  CheckedPopupMenuItem(
+                    checked: showCancelled.state,
+                    onTap: () => showCancelled.set(!showCancelled.state),
+                    child: Text(l10n.departuresShowCancelled),
+                  ),
+                if (cubit.hasWidget)
+                  PopupMenuItem(
+                    onTap: () => _showOnWidget(context),
+                    child: Text(l10n.widgetShow),
+                  ),
               ],
             ),
         ],
@@ -136,11 +146,16 @@ class DeparturesView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _UpdatedAt(state),
-                    Expanded(
-                      child: _Board(
-                        departures,
-                        stop: stop,
-                        onRefresh: cubit.refresh,
+                    ..._shown(
+                      context,
+                      departures,
+                      showCancelled: showCancelled?.state ?? true,
+                      board: (shown) => Expanded(
+                        child: _Board(
+                          shown,
+                          stop: stop,
+                          onRefresh: cubit.refresh,
+                        ),
                       ),
                     ),
                   ],
@@ -153,6 +168,36 @@ class DeparturesView extends StatelessWidget {
       bottomNavigationBar: const DataAttribution(),
     );
   }
+}
+
+/// [board] with the departures to show, and how many cancelled ones are
+/// hidden, so a hidden one is never mistaken for one that is not there.
+List<Widget> _shown(
+  BuildContext context,
+  List<Departure> departures, {
+  required bool showCancelled,
+  required Widget Function(List<Departure> shown) board,
+}) {
+  if (showCancelled) return [board(departures)];
+  final shown = [
+    for (final departure in departures)
+      if (!departure.isCancelled) departure,
+  ];
+  final hidden = departures.length - shown.length;
+  final theme = Theme.of(context);
+  return [
+    if (hidden > 0)
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+        child: Text(
+          AppLocalizations.of(context).departuresCancelledHidden(hidden),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    board(shown),
+  ];
 }
 
 /// When the board was fetched. Stays visible while scrolling, so an

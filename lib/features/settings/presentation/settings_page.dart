@@ -202,6 +202,7 @@ class _SectionHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Semantics(
       header: true,
+      container: true,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
         child: Text(

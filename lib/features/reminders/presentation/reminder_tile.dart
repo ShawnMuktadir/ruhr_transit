@@ -110,6 +110,7 @@ Future<void> chooseReminder(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
               child: Semantics(
                 header: true,
+                container: true,
                 child: Text(
                   l10n.reminderSheetTitle,
                   style: Theme.of(context).textTheme.titleMedium,

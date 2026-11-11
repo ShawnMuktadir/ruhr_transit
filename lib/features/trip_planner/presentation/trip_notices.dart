@@ -139,6 +139,7 @@ class _NoticeSheet extends StatelessWidget {
               ),
             Semantics(
               header: true,
+              container: true,
               child: Text(notice.title, style: theme.textTheme.titleLarge),
             ),
             if (summary != null) ...[

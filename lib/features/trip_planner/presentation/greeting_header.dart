@@ -108,6 +108,8 @@ class _GreetingHeaderState extends State<GreetingHeader> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // No container: the heading takes in the question below, so both
+        // are read as one ("Good night, Where to today?").
         Semantics(
           header: true,
           child: AnimatedDefaultTextStyle(

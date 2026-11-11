@@ -9,6 +9,7 @@ import 'package:ruhr_transit/core/network/dio_factory.dart';
 import 'package:ruhr_transit/features/trip_planner/data/efa_trip_remote_source.dart';
 import 'package:ruhr_transit/features/trip_planner/data/trip_repository_impl.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_means.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 
 import '../../../helpers/fake_http_adapter.dart';
@@ -136,6 +137,34 @@ void main() {
       'itdTime': '1730',
       'itdTripDateTimeDepArr': 'arr',
     });
+  });
+
+  test('means of transport turned off are left out by VRR', () async {
+    final repository = repositoryAnswering(
+      (_) async => textResponse(readEfaFixture('trip_bochum_dortmund')),
+    );
+
+    await repository.trips(
+      query(const LeaveNow()).withExcluded({TripMeans.ice, TripMeans.bus}),
+    );
+
+    expect(adapter.requests.single.uri.queryParameters, {
+      ...common,
+      'excludedMeans': 'checkbox',
+      'exclMOT_5': '1',
+      'exclMOT_6': '1',
+      'exclMOT_7': '1',
+      'exclMOT_16': '1',
+      'exclMOT_17': '1',
+    });
+  });
+
+  test('every means of transport stands for its product classes', () {
+    expect(TripMeans.regionalTrain.productClasses, {0, 13});
+    expect(TripMeans.intercity.productClasses, {14, 15});
+    // Each class belongs to one means only.
+    final all = [for (final m in TripMeans.values) ...m.productClasses];
+    expect(all.toSet(), hasLength(all.length));
   });
 
   test('an EFA error message becomes ServerFailure', () async {

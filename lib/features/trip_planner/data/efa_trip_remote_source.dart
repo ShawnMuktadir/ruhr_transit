@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:ruhr_transit/core/config/app_config.dart';
 import 'package:ruhr_transit/core/network/efa_json.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_means.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 
 /// Calls the EFA trip request. Returns the raw response object; mapping and
@@ -27,6 +28,11 @@ class EfaTripRemoteSource {
         // EFA returns fewer when it finds fewer; live it sent 3 to 4.
         'calcNumberOfTrips': '5',
         'coordOutputFormat': 'WGS84[dd.ddddd]',
+        if (query.excluded.isNotEmpty) ...{
+          'excludedMeans': 'checkbox',
+          for (final productClass in TripMeans.excludedClasses(query.excluded))
+            'exclMOT_$productClass': '1',
+        },
         ...switch (query.time) {
           // Without a time EFA plans from now.
           LeaveNow() => const <String, String>{},

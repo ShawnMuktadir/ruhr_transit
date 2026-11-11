@@ -8,6 +8,7 @@ import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/theme/app_theme.dart';
+import 'package:ruhr_transit/features/departures/presentation/show_cancelled_cubit.dart';
 import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journeys_repository.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
 import 'package:ruhr_transit/features/favourites/domain/favourites_repository.dart';
@@ -30,6 +31,7 @@ import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dar
 import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/trip_means_filter.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 class RuhrTransitApp extends StatefulWidget {
@@ -98,6 +100,8 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     getIt<ThemeRepository>(),
     initial: widget.themeMode,
   );
+  late final _excludedMeans = ExcludedMeansCubit(getIt());
+  late final _showCancelled = ShowCancelledCubit(getIt());
   late final _profile = ProfileCubit(
     getIt<ProfileRepository>(),
     getIt<AuthRepository>(),
@@ -142,6 +146,8 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
     unawaited(_locale.close());
     unawaited(_onboarding.close());
     unawaited(_theme.close());
+    unawaited(_excludedMeans.close());
+    unawaited(_showCancelled.close());
     unawaited(_profile.close());
     unawaited(_connectivity.close());
     unawaited(_reminders.close());
@@ -183,6 +189,8 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
         BlocProvider.value(value: _locale),
         BlocProvider.value(value: _onboarding),
         BlocProvider.value(value: _theme),
+        BlocProvider.value(value: _excludedMeans),
+        BlocProvider.value(value: _showCancelled),
         BlocProvider.value(value: _profile),
         BlocProvider.value(value: _connectivity),
         BlocProvider.value(value: _reminders),

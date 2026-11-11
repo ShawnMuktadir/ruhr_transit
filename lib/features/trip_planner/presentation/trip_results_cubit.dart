@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_means.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_state.dart';
@@ -10,14 +12,26 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_sta
 class TripResultsCubit extends Cubit<TripResultsState> {
   TripResultsCubit(
     this._repository,
-    this.query, {
+    TripQuery query, {
     DateTime Function() now = DateTime.now,
-  }) : _now = now,
+  }) : _query = query,
+       _now = now,
        super(const TripResultsLoading());
 
   final TripRepository _repository;
-  final TripQuery query;
   final DateTime Function() _now;
+
+  /// What is searched; the means of transport can change, see
+  /// [changeExcluded].
+  TripQuery get query => _query;
+  TripQuery _query;
+
+  /// Searches again without [excluded], after the user changed the filter.
+  Future<void> changeExcluded(Set<TripMeans> excluded) async {
+    if (setEquals(excluded, _query.excluded)) return;
+    _query = _query.withExcluded(excluded);
+    await load();
+  }
 
   /// How long ago a journey may have left and still be shown, as phone
   /// clocks are often slightly off.

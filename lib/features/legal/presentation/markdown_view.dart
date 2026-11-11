@@ -111,6 +111,7 @@ class MarkdownView extends StatelessWidget {
               padding: EdgeInsets.only(top: level == 1 ? 8 : 20, bottom: 8),
               child: Semantics(
                 header: true,
+                container: true,
                 child: Text.rich(
                   inlineSpans(value, switch (level) {
                     1 => text.headlineSmall,

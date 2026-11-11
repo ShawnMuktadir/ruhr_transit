@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
+import 'package:ruhr_transit/core/widgets/heading.dart';
 import 'package:ruhr_transit/core/widgets/optional_provider.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
 
@@ -100,6 +101,29 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Removed'), findsOneWidget);
     });
+  });
+
+  testWidgets('a heading is its own node, not the whole section', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      _app(
+        const Column(
+          children: [Heading('Means of transport'), Text('Regional train')],
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.byType(Heading)),
+      isSemantics(label: 'Means of transport', isHeader: true),
+    );
+    expect(
+      tester.getSemantics(find.text('Regional train')),
+      isSemantics(label: 'Regional train', isHeader: false),
+    );
+    semantics.dispose();
   });
 
   testWidgets('maybeRead and maybeWatch: the cubit or null', (tester) async {
