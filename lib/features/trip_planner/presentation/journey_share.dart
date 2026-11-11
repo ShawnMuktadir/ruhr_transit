@@ -68,7 +68,12 @@ String journeyShareText(
                 '${mode == null ? '' : '${transportModeLabel(l10n, mode)} '}'
                 '$line → $direction',
             origin.name,
-            ?platformLabel(l10n, origin.platform, mode: mode),
+            ?platformText(
+              l10n,
+              origin.platform,
+              plannedPlatform: origin.plannedPlatform,
+              mode: mode,
+            ),
           ].join(', '),
         WalkLeg(:final origin, :final destination, :final duration) =>
           '${clock(origin)}  ${l10n.tripWalk(duration.inMinutes)} → '

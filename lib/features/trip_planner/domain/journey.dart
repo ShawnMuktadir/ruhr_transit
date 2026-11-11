@@ -43,6 +43,14 @@ class Journey {
     return rides.isNotEmpty && rides.every((ride) => !ride.isRealtime);
   }
 
+  /// Where a ride boards or ends at another platform than the timetable's,
+  /// in travel order.
+  List<TripStop> get platformChanges => [
+    for (final ride in legs.whereType<TransitLeg>())
+      for (final stop in [ride.origin, ride.destination])
+        if (stop.platformChanged) stop,
+  ];
+
   /// Changes between vehicles; walks are not counted as rides.
   int get transfers {
     final rides = legs.whereType<TransitLeg>().length;
