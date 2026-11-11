@@ -31,6 +31,8 @@ The legal basis is Art. 6(1)(b) GDPR (providing the information you request); fo
 
 **Maps:** When you open a map (a trip on the map, stops near me as a map), the app loads the map images for the area shown from basemap.de at the German Federal Agency for Cartography and Geodesy (BKG, sgx.geodatenzentrum.de). BKG receives your IP address and which area is loaded – for "Stops near me" roughly where you are. BKG's privacy policy applies: https://www.bkg.bund.de/datenschutz
 
+**Translation:** VRR's notices and delay reasons are in German. If the app is in another language and you tap "Translate" next to such a text, the app opens it in Google Translate: in the Google Translate app if installed, otherwise in your browser. Google then receives that VRR text, which contains nothing about you, and your IP address. Google's privacy policy applies: https://policies.google.com/privacy. The app sends nothing to Google otherwise.
+
 ## Data on your device
 
 Stored on your device only:

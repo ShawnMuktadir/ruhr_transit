@@ -26,6 +26,22 @@ enum AppChannels {
         }
       }
 
+    FlutterMethodChannel(name: "de.muktadir.ruhrtransit/links", binaryMessenger: messenger)
+      .setMethodCallHandler { call, result in
+        switch call.method {
+        case "open":
+          // Answers whether an app or the browser took the link.
+          let arguments = call.arguments as? [String: Any]
+          guard let text = arguments?["url"] as? String, let url = URL(string: text) else {
+            result(false)
+            return
+          }
+          UIApplication.shared.open(url) { opened in result(opened) }
+        default:
+          result(FlutterMethodNotImplemented)
+        }
+      }
+
     FlutterMethodChannel(name: "de.muktadir.ruhrtransit/share", binaryMessenger: messenger)
       .setMethodCallHandler { call, result in
         switch call.method {

@@ -31,6 +31,8 @@ Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der von Ihnen ang
 
 **Karten:** Öffnen Sie eine Karte (Verbindung auf der Karte, Haltestellen in der Nähe als Karte), lädt die App die Kartenbilder für den angezeigten Ausschnitt von basemap.de beim Bundesamt für Kartographie und Geodäsie (BKG, sgx.geodatenzentrum.de). Das BKG erhält dabei Ihre IP-Adresse und welcher Ausschnitt geladen wird – bei „In der Nähe“ also ungefähr, wo Sie sind. Es gilt die Datenschutzerklärung des BKG: https://www.bkg.bund.de/datenschutz
 
+**Übersetzung:** Hinweise und Verspätungsgründe des VRR sind auf Deutsch. Ist die App auf eine andere Sprache eingestellt und tippen Sie neben einem solchen Text auf „Übersetzen“, öffnet die App ihn in Google Übersetzer: in der App Google Übersetzer, wenn sie installiert ist, sonst in Ihrem Browser. Google erhält dabei diesen Text des VRR, der nichts über Sie enthält, und Ihre IP-Adresse. Es gilt die Datenschutzerklärung von Google: https://policies.google.com/privacy. Sonst sendet die App nichts an Google.
+
 ## Daten auf Ihrem Gerät
 
 Nur auf Ihrem Gerät gespeichert werden:
