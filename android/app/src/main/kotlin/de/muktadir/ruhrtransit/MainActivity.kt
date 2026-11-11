@@ -27,6 +27,19 @@ class MainActivity : FlutterActivity() {
             else -> result.notImplemented()
           }
         }
+    MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SHARE_CHANNEL)
+        .setMethodCallHandler { call, result ->
+          when (call.method) {
+            "text" -> {
+              shareText(call.argument<String>("text").orEmpty(), call.argument("subject"))
+              result.success(null)
+            }
+            // Android 13+ shows copied text itself, so apps should not.
+            "systemConfirmsCopy" ->
+              result.success(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            else -> result.notImplemented()
+          }
+        }
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, APP_LOCALE_CHANNEL)
         .setMethodCallHandler { call, result ->
           // Per-app languages exist from Android 13; before, the app only
@@ -62,9 +75,20 @@ class MainActivity : FlutterActivity() {
     }
   }
 
+  /// Android's share chooser, e.g. for a messenger or mail.
+  private fun shareText(text: String, subject: String?) {
+    val send = Intent(Intent.ACTION_SEND).apply {
+      type = "text/plain"
+      putExtra(Intent.EXTRA_TEXT, text)
+      subject?.let { putExtra(Intent.EXTRA_SUBJECT, it) }
+    }
+    startActivity(Intent.createChooser(send, null))
+  }
+
   private companion object {
     const val APP_LOCALE_CHANNEL = "de.muktadir.ruhrtransit/app_locale"
     const val CONNECTIVITY_CHANNEL = "de.muktadir.ruhrtransit/connectivity"
     const val SYSTEM_SETTINGS_CHANNEL = "de.muktadir.ruhrtransit/system_settings"
+    const val SHARE_CHANNEL = "de.muktadir.ruhrtransit/share"
   }
 }

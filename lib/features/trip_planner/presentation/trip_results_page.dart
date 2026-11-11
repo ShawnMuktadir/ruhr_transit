@@ -15,6 +15,7 @@ import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_page.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/journey_share.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/route_title.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_state.dart';
@@ -127,8 +128,8 @@ class _JourneyCard extends StatelessWidget {
     final noticeColor = warning
         ? theme.colorScheme.error
         : theme.colorScheme.primary;
-    // One node for TalkBack: the summary sentence plus the tap action,
-    // instead of every time, badge and chevron on its own.
+    // One node for TalkBack: the summary sentence plus the tap and long-press
+    // actions, instead of every time, badge and chevron on its own.
     return MergeSemantics(
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -140,8 +141,11 @@ class _JourneyCard extends StatelessWidget {
                   JourneyDetailsPage(journey: journey, query: query),
             ),
           ),
+          onLongPress: () =>
+              JourneyShareSheet.show(context, journey, query: query),
           child: Semantics(
             label: journeySummary(context, journey),
+            onLongPressHint: l10n.tripShareHint,
             excludeSemantics: true,
             child: Padding(
               padding: const EdgeInsets.all(12),

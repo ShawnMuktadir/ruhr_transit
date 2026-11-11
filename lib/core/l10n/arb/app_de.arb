@@ -1156,6 +1156,44 @@
   "@offlineBanner": {
     "description": "Banner above every page while the phone is offline."
   },
+  "tripShare": "Fahrt teilen",
+  "@tripShare": {
+    "description": "Tooltip of the share button in trip details, and heading of the share sheet."
+  },
+  "tripShareHint": "Teilen oder kopieren",
+  "@tripShareHint": {
+    "description": "What a long press on a trip in the results does, read by screen readers."
+  },
+  "tripCopy": "Kopieren",
+  "@tripCopy": {
+    "description": "Share sheet item: copies the trip as text."
+  },
+  "tripShareAction": "Teilen …",
+  "@tripShareAction": {
+    "description": "Share sheet item: opens the phone's share sheet."
+  },
+  "tripCopied": "Fahrt kopiert",
+  "@tripCopied": {
+    "description": "Snack bar after copying a trip."
+  },
+  "shareArrive": "Ankunft {stop}",
+  "@shareArrive": {
+    "description": "Last line of a shared trip, after the arrival time.",
+    "placeholders": {
+      "stop": {
+        "type": "String",
+        "example": "Essen Hbf"
+      }
+    }
+  },
+  "shareLink": "Live im VRR-Fahrplan:",
+  "@shareLink": {
+    "description": "In a shared trip, above the link to VRR's web journey planner."
+  },
+  "shareFooter": "Geteilt aus RuhrTransit",
+  "@shareFooter": {
+    "description": "Last line of a shared trip."
+  },
   "mapShowTrip": "Auf der Karte zeigen",
   "@mapShowTrip": {
     "description": "App bar button of the trip details that opens the map."

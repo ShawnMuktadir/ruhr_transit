@@ -16,6 +16,7 @@ import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/vehicle_run_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/walk_to_stop.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/journey_share.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/ride_stops.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/route_title.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
@@ -146,6 +147,12 @@ class _JourneyDetailsPageState extends State<JourneyDetailsPage> {
                 ),
               ),
             ),
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            tooltip: l10n.tripShare,
+            onPressed: () =>
+                JourneyShareSheet.show(context, journey, query: query),
+          ),
           if (query case final query?)
             FavouriteJourneyButton(from: query.from, to: query.to),
         ],
