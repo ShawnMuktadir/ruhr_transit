@@ -171,6 +171,7 @@ class _StopList extends StatelessWidget {
           // The card with these two is on the map, which TalkBack cannot
           // use to find a stop; it offers them on the row (actions menu).
           Semantics(
+            container: true,
             customSemanticsActions: {
               if (TripActions.maybeOf(context) case final actions?)
                 CustomSemanticsAction(label: l10n.stopPlanFromHere): () =>

@@ -7,6 +7,8 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
+import 'package:ruhr_transit/core/widgets/heading.dart';
+import 'package:ruhr_transit/core/widgets/optional_provider.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -16,6 +18,7 @@ import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/greeting_header.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/trip_means_filter.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
 import 'package:ruhr_transit/features/weather/presentation/weather_backdrop.dart';
 import 'package:ruhr_transit/features/weather/presentation/weather_chip.dart';
@@ -167,6 +170,15 @@ class TripFormView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   _TimeChooser(state.time),
+                  if (context.maybeRead<ExcludedMeansCubit>() != null) ...[
+                    const SizedBox(height: 16),
+                    Heading(
+                      l10n.tripMeansTitle,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    const TripMeansChips(),
+                  ],
                   const SizedBox(height: 24),
                   if (state.isSameStop)
                     Padding(

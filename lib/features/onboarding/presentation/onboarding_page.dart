@@ -106,6 +106,7 @@ class _LanguageStep extends StatelessWidget {
         children: [
           Semantics(
             header: true,
+            container: true,
             child: Text(
               l10n.onboardingLanguageTitle,
               style: theme.textTheme.headlineSmall,

@@ -9,14 +9,17 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
+import 'package:ruhr_transit/core/widgets/optional_provider.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
+import 'package:ruhr_transit/features/trip_planner/domain/trip_means.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_query.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/trip_repository.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_page.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/journey_share.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/route_title.dart';
+import 'package:ruhr_transit/features/trip_planner/presentation/trip_means_filter.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_state.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dart';
@@ -29,8 +32,14 @@ class TripResultsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The saved means of transport apply to every search, also from saved
+    // journeys and reminders.
+    final excluded = context.maybeRead<ExcludedMeansCubit>()?.state ?? {};
     return BlocProvider(
-      create: (_) => TripResultsCubit(getIt<TripRepository>(), query)..load(),
+      create: (_) => TripResultsCubit(
+        getIt<TripRepository>(),
+        query.withExcluded(excluded),
+      )..load(),
       child: TripResultsView(query: query),
     );
   }
@@ -41,15 +50,26 @@ class TripResultsView extends StatelessWidget {
 
   final TripQuery query;
 
-  /// Retries what failed when the phone is back online.
+  /// Retries what failed when the phone is back online, and searches again
+  /// when the means of transport change.
   @override
-  Widget build(BuildContext context) => OnReconnect(
-    onReconnect: () {
-      final cubit = context.read<TripResultsCubit>();
-      if (cubit.state is TripResultsFailed) unawaited(cubit.load());
-    },
-    child: Builder(builder: _build),
-  );
+  Widget build(BuildContext context) {
+    final page = OnReconnect(
+      onReconnect: () {
+        final cubit = context.read<TripResultsCubit>();
+        if (cubit.state is TripResultsFailed) unawaited(cubit.load());
+      },
+      child: Builder(builder: _build),
+    );
+    final means = context.maybeRead<ExcludedMeansCubit>();
+    if (means == null) return page;
+    return BlocListener<ExcludedMeansCubit, Set<TripMeans>>(
+      bloc: means,
+      listener: (context, excluded) =>
+          unawaited(context.read<TripResultsCubit>().changeExcluded(excluded)),
+      child: page,
+    );
+  }
 
   Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -61,6 +81,12 @@ class TripResultsView extends StatelessWidget {
         from: query.from.fullName,
         to: query.to.fullName,
         actions: [
+          if (context.maybeRead<ExcludedMeansCubit>() != null)
+            IconButton(
+              icon: const Icon(Icons.filter_alt_outlined),
+              tooltip: l10n.tripMeansFilter,
+              onPressed: () => TripMeansSheet.show(context),
+            ),
           FavouriteJourneyButton(from: query.from, to: query.to),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -78,34 +104,38 @@ class TripResultsView extends StatelessWidget {
             context,
           ).showMessage(failureMessage(l10n, failure));
         },
-        builder: (context, state) => switch (state) {
-          TripResultsLoading() => AppLoader(message: wait),
-          TripResultsFailed(:final failure) => CenteredMessage.retry(
-            failureMessage(l10n, failure),
-            onRetry: cubit.load,
-          ),
-          TripResultsLoaded(:final journeys) when journeys.isEmpty =>
-            CenteredMessage(l10n.tripResultsEmpty),
-          TripResultsLoaded(:final journeys, :final isLoadingLater) => ListView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            children: [
-              for (final journey in journeys)
-                _JourneyCard(journey, query: query),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: isLoadingLater
-                      ? AppLoader(message: wait)
-                      : OutlinedButton.icon(
-                          icon: const Icon(Icons.expand_more),
-                          label: Text(l10n.tripLater),
-                          onPressed: cubit.loadLater,
-                        ),
-                ),
+        builder: (context, state) => _WithMeansNote(
+          cubit.query.excluded,
+          child: switch (state) {
+            TripResultsLoading() => AppLoader(message: wait),
+            TripResultsFailed(:final failure) => CenteredMessage.retry(
+              failureMessage(l10n, failure),
+              onRetry: cubit.load,
+            ),
+            TripResultsLoaded(:final journeys) when journeys.isEmpty =>
+              CenteredMessage(l10n.tripResultsEmpty),
+            TripResultsLoaded(:final journeys, :final isLoadingLater) =>
+              ListView(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                children: [
+                  for (final journey in journeys)
+                    _JourneyCard(journey, query: query),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: isLoadingLater
+                          ? AppLoader(message: wait)
+                          : OutlinedButton.icon(
+                              icon: const Icon(Icons.expand_more),
+                              label: Text(l10n.tripLater),
+                              onPressed: cubit.loadLater,
+                            ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        },
+          },
+        ),
       ),
       bottomNavigationBar: const DataAttribution(),
     );
@@ -222,6 +252,28 @@ class _JourneyCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// [child] with "Without …" above it while some means of transport are off.
+class _WithMeansNote extends StatelessWidget {
+  const _WithMeansNote(this.excluded, {required this.child});
+
+  final Set<TripMeans> excluded;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (excluded.isEmpty) return child;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: TripMeansNote(excluded),
+        ),
+        Expanded(child: child),
+      ],
     );
   }
 }

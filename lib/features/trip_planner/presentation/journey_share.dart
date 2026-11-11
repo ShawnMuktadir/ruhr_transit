@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/platform/share.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
+import 'package:ruhr_transit/core/widgets/heading.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
@@ -121,13 +122,7 @@ abstract final class JourneyShareSheet {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  l10n.tripShare,
-                  style: Theme.of(sheet).textTheme.titleMedium,
-                ),
-              ),
+              child: Heading(l10n.tripShare),
             ),
             ListTile(
               leading: const Icon(Icons.copy_outlined),

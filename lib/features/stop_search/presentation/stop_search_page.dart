@@ -287,6 +287,7 @@ class _RecentStops extends StatelessWidget {
             children: [
               Semantics(
                 header: true,
+                container: true,
                 child: Text(
                   l10n.recentStopsTitle,
                   style: Theme.of(context).textTheme.titleSmall,
@@ -306,7 +307,10 @@ class _RecentStops extends StatelessWidget {
             background: const DismissBackground(),
             onDismissed: (_) => _removeWithUndo(context, stop),
             // Swiping is not possible with TalkBack; it offers this action.
+            // Its own node, so the label and the action stay on this stop
+            // instead of moving up to the whole "Recent" section.
             child: Semantics(
+              container: true,
               customSemanticsActions: {
                 CustomSemanticsAction(label: l10n.recentStopRemove): () =>
                     _removeWithUndo(context, stop),

@@ -1211,6 +1211,53 @@
       }
     }
   },
+  "meansRegionalTrain": "Regionalzug",
+  "@meansRegionalTrain": {
+    "description": "Means-of-transport chip: RE and RB trains."
+  },
+  "meansIce": "ICE",
+  "@meansIce": {
+    "description": "Means-of-transport chip."
+  },
+  "meansIntercity": "IC/EC",
+  "@meansIntercity": {
+    "description": "Means-of-transport chip: IC, EC, night trains and Flixtrain."
+  },
+  "meansOther": "Andere",
+  "@meansOther": {
+    "description": "Means-of-transport chip: ferries, on-demand buses, cable cars and the rest."
+  },
+  "tripMeansTitle": "Verkehrsmittel",
+  "@tripMeansTitle": {
+    "description": "Heading of the means-of-transport chips."
+  },
+  "tripMeansFilter": "Verkehrsmittel wählen",
+  "@tripMeansFilter": {
+    "description": "Tooltip of the filter button on the trip results."
+  },
+  "tripMeansWithout": "Ohne {means}",
+  "@tripMeansWithout": {
+    "description": "Above trip results while some means of transport are off.",
+    "placeholders": {
+      "means": {
+        "type": "String",
+        "example": "ICE, Bus"
+      }
+    }
+  },
+  "departuresShowCancelled": "Ausfälle anzeigen",
+  "@departuresShowCancelled": {
+    "description": "Switch in the departure board menu."
+  },
+  "departuresCancelledHidden": "{count, plural, =1{1 Ausfall ausgeblendet} other{{count} Ausfälle ausgeblendet}}",
+  "@departuresCancelledHidden": {
+    "description": "Above the board while cancelled departures are hidden.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "mapShowTrip": "Auf der Karte zeigen",
   "@mapShowTrip": {
     "description": "App bar button of the trip details that opens the map."

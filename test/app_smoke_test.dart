@@ -22,6 +22,9 @@ import 'package:ruhr_transit/features/settings/domain/theme_repository.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop_repository.dart';
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import 'helpers/fake_connectivity.dart';
 import 'helpers/fake_departure_repository.dart';
@@ -45,6 +48,8 @@ void main() {
   late FakeReminderNotifier reminderNotifier;
 
   setUp(() {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
     reminderNotifier = FakeReminderNotifier();
     widgetSync = FakeWidgetSync();
     language = FakeLanguageRepository();
@@ -71,7 +76,9 @@ void main() {
       ..registerSingleton<ConnectivitySource>(FakeConnectivitySource())
       ..registerSingleton<ReminderRepository>(FakeReminderRepository())
       ..registerSingleton<ReminderAlarms>(FakeReminderAlarms())
-      ..registerSingleton<ReminderNotifier>(reminderNotifier);
+      ..registerSingleton<ReminderNotifier>(reminderNotifier)
+      // Settings kept directly in preferences: the trip filter, cancelled.
+      ..registerSingleton(SharedPreferencesAsync());
     PackageInfo.setMockInitialValues(
       appName: 'RuhrTransit',
       packageName: 'de.muktadir.ruhrtransit',

@@ -59,6 +59,7 @@ class RouteTitle extends StatelessWidget {
     final theme = Theme.of(context);
     return Semantics(
       header: true,
+      container: true,
       label: '$from → $to',
       excludeSemantics: true,
       child: Column(
