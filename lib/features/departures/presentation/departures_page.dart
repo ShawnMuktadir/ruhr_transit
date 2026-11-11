@@ -16,6 +16,7 @@ import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/core/widgets/optional_provider.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
+import 'package:ruhr_transit/core/widgets/translate.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
@@ -382,6 +383,9 @@ class _DepartureTile extends StatelessWidget {
                   : colors.onSurfaceVariant,
             ),
           ),
+        // VRR's reasons are German; "Cancelled" is the app's own.
+        if (departure.notes.isNotEmpty)
+          TranslateButton(departure.notes.join('\n')),
       ],
     );
     // A plain layout rather than a ListTile: ListTile fixes the height of
@@ -397,6 +401,11 @@ class _DepartureTile extends StatelessWidget {
       ].join(', '),
       onTap: onTap,
       onTapHint: onTap == null ? null : l10n.reminderOnDeparture,
+      // The row reads as one sentence, which hides its translate button.
+      customSemanticsActions: Translate.semanticsAction(
+        context,
+        departure.notes.join('\n'),
+      ),
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,

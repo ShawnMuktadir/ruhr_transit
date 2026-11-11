@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/widgets/translate.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
 
 /// VRR's notices for a journey under "3 Hinweise", always collapsed, so
@@ -150,6 +151,13 @@ class _NoticeSheet extends StatelessWidget {
               const SizedBox(height: 16),
               SelectableText(notice.text, style: theme.textTheme.bodyLarge),
             ],
+            const SizedBox(height: 8),
+            TranslateButton(
+              [
+                notice.title,
+                notice.text,
+              ].where((t) => t.isNotEmpty).join('\n\n'),
+            ),
           ],
         ),
       ),

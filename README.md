@@ -129,6 +129,9 @@ The app has no accounts and no analytics.
 - **Sent to Bright Sky:** your coordinates, rounded to about 1 km, for the
   weather.
 - **Sent to basemap.de:** the map area shown, through the map images requested.
+- **Opened in Google Translate:** a VRR notice or delay reason (German), only
+  when the app is in another language and you tap "Translate". It opens in the
+  Translate app or the browser; nothing about you is in the text.
 - **Stored on the device only:** favourites, search history (last 10), reminders,
   saved departures, widget data, map images (at most 100 MB) and settings.
 

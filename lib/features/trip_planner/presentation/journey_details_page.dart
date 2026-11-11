@@ -9,6 +9,7 @@ import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
+import 'package:ruhr_transit/core/widgets/translate.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminder_tile.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -293,6 +294,7 @@ class _RideTile extends StatelessWidget {
                 ),
               ),
             ),
+          if (leg.notes.isNotEmpty) TranslateButton(leg.notes.join('\n')),
         ],
       ),
     );

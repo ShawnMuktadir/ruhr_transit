@@ -3,6 +3,7 @@ package de.muktadir.ruhrtransit
 import android.app.LocaleManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.LocaleList
 import android.provider.Settings
@@ -24,6 +25,14 @@ class MainActivity : FlutterActivity() {
               openSystemSettings(Settings.ACTION_ACCESSIBILITY_SETTINGS)
               result.success(null)
             }
+            else -> result.notImplemented()
+          }
+        }
+    MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LINKS_CHANNEL)
+        .setMethodCallHandler { call, result ->
+          when (call.method) {
+            // Answers whether an app or browser took the link.
+            "open" -> result.success(openLink(call.argument<String>("url").orEmpty()))
             else -> result.notImplemented()
           }
         }
@@ -75,6 +84,16 @@ class MainActivity : FlutterActivity() {
     }
   }
 
+  /// Opens a web link in the app that handles it (e.g. Google Translate)
+  /// or the browser.
+  private fun openLink(url: String): Boolean =
+      try {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        true
+      } catch (e: ActivityNotFoundException) {
+        false
+      }
+
   /// Android's share chooser, e.g. for a messenger or mail.
   private fun shareText(text: String, subject: String?) {
     val send = Intent(Intent.ACTION_SEND).apply {
@@ -90,5 +109,6 @@ class MainActivity : FlutterActivity() {
     const val CONNECTIVITY_CHANNEL = "de.muktadir.ruhrtransit/connectivity"
     const val SYSTEM_SETTINGS_CHANNEL = "de.muktadir.ruhrtransit/system_settings"
     const val SHARE_CHANNEL = "de.muktadir.ruhrtransit/share"
+    const val LINKS_CHANNEL = "de.muktadir.ruhrtransit/links"
   }
 }

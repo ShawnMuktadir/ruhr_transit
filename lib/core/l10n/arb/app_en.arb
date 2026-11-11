@@ -233,6 +233,8 @@
   "tripMeansWithout": "Without {means}",
   "departuresShowCancelled": "Show cancelled departures",
   "departuresCancelledHidden": "{count, plural, =1{1 cancelled departure hidden} other{{count} cancelled departures hidden}}",
+  "translate": "Translate",
+  "translateFailed": "Could not open the translation.",
   "mapShowTrip": "Show on map",
   "mapTitle": "Map",
   "mapTripSummary": "Map of the trip from {from} to {to}, {rides, plural, =1{1 ride} other{{rides} rides}}",

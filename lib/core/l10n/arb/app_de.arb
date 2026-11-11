@@ -1258,6 +1258,14 @@
       }
     }
   },
+  "translate": "Übersetzen",
+  "@translate": {
+    "description": "Button and screen reader action that opens a German VRR text in Google Translate; only shown when the app is not in German."
+  },
+  "translateFailed": "Die Übersetzung konnte nicht geöffnet werden.",
+  "@translateFailed": {
+    "description": "Snack bar when no app or browser could open Google Translate."
+  },
   "mapShowTrip": "Auf der Karte zeigen",
   "@mapShowTrip": {
     "description": "App bar button of the trip details that opens the map."
