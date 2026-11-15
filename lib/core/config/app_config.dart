@@ -20,8 +20,9 @@ abstract final class AppConfig {
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 15);
 
-  /// For a trip with neither end in NRW: VRR's service is sometimes far
+  /// For a trip with an end outside NRW: VRR's service is sometimes far
   /// slower for those (measured one evening: Berlin to Munich 50 s, Berlin to
-  /// Passau 111 s; on other days 4 to 20 s).
-  static const Duration outsideNrwTimeout = Duration(minutes: 2);
+  /// Passau 111 s; on other days 4 to 20 s; Essen to a Bavarian village
+  /// 16 to 21 s).
+  static const Duration leavingNrwTimeout = Duration(minutes: 2);
 }

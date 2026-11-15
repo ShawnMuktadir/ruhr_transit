@@ -47,7 +47,7 @@ void main() {
     'coordOutputFormat': 'WGS84[dd.ddddd]',
   };
 
-  group('outside NRW', () {
+  group('leaving NRW', () {
     const outside = TripQuery(from: berlinHbf, to: passauHbf, time: LeaveNow());
     Future<ResponseBody> timesOut(RequestOptions options) async =>
         throw DioException.receiveTimeout(
@@ -65,7 +65,7 @@ void main() {
       expect(timeout, const Duration(minutes: 2));
     });
 
-    test('with one end in NRW, the usual wait', () async {
+    test('with only one end in NRW, also up to two minutes', () async {
       Duration? timeout;
       final repository = repositoryAnswering((options) async {
         timeout = options.receiveTimeout;
@@ -74,6 +74,16 @@ void main() {
       await repository.trips(
         const TripQuery(from: bochumHbf, to: passauHbf, time: LeaveNow()),
       );
+      expect(timeout, const Duration(minutes: 2));
+    });
+
+    test('with both ends in NRW, the usual wait', () async {
+      Duration? timeout;
+      final repository = repositoryAnswering((options) async {
+        timeout = options.receiveTimeout;
+        return textResponse(readEfaFixture('trip_bochum_dortmund'));
+      });
+      await repository.trips(query(const LeaveNow()));
       expect(timeout, AppConfig.receiveTimeout);
     });
 
@@ -81,7 +91,7 @@ void main() {
       final repository = repositoryAnswering(timesOut);
       expect(
         failureOf(await repository.trips(outside)),
-        isA<OutsideNrwFailure>(),
+        isA<LeavesNrwFailure>(),
       );
     });
 

@@ -26,9 +26,9 @@ class TripRepositoryImpl implements TripRepository {
       }),
     );
     switch (result) {
-      // Outside NRW the service is sometimes very slow; it says so.
-      case Err(failure: TimeoutFailure()) when query.isOutsideNrw:
-        return const Err(OutsideNrwFailure());
+      // Beyond NRW the service is sometimes very slow; it says so.
+      case Err(failure: TimeoutFailure()) when query.leavesNrw:
+        return const Err(LeavesNrwFailure());
       case Err(failure: ParseFailure(:final message)):
         debugPrint('Could not read the trips: $message');
       case _:
