@@ -321,7 +321,7 @@ void main() {
     ),
     'trip form, weather needs location': () =>
         planner(WeatherCubit(FakeWeatherRepository(), FakeLocationSource())),
-    'trip results, waiting outside NRW': () {
+    'trip results, waiting, leaving NRW': () {
       const query = TripQuery(from: berlinHbf, to: passauHbf, time: LeaveNow());
       return BlocProvider(
         create: (_) =>
@@ -330,11 +330,11 @@ void main() {
         child: const TripResultsView(query: query),
       );
     },
-    'trip results, no answer outside NRW': () {
+    'trip results, no answer, leaving NRW': () {
       const query = TripQuery(from: berlinHbf, to: passauHbf, time: LeaveNow());
       return BlocProvider(
         create: (_) => TripResultsCubit(
-          FakeTripRepository()..replies = [const Err(OutsideNrwFailure())],
+          FakeTripRepository()..replies = [const Err(LeavesNrwFailure())],
           query,
         )..load(),
         child: const TripResultsView(query: query),

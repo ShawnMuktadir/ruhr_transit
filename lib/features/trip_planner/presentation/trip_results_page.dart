@@ -74,7 +74,7 @@ class TripResultsView extends StatelessWidget {
   Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<TripResultsCubit>();
-    final wait = query.isOutsideNrw ? l10n.tripOutsideNrwWait : null;
+    final wait = query.leavesNrw ? l10n.tripLeavesNrwWait : null;
     return Scaffold(
       appBar: RouteTitle.appBar(
         context,

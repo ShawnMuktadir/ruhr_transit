@@ -283,7 +283,7 @@ void main() {
       expect((cubit.state as TripResultsLoaded).journeys, hasLength(4));
     });
 
-    group('outside NRW', () {
+    group('leaving NRW', () {
       late TripResultsCubit outside;
 
       setUp(() {

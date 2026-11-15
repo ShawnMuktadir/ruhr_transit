@@ -40,8 +40,8 @@ class EfaTripRemoteSource {
           ArriveBy(:final time) => _timeParameters(time, 'arr'),
         },
       },
-      options: query.isOutsideNrw
-          ? Options(receiveTimeout: AppConfig.outsideNrwTimeout)
+      options: query.leavesNrw
+          ? Options(receiveTimeout: AppConfig.leavingNrwTimeout)
           : null,
       cancelToken: cancelToken,
     );

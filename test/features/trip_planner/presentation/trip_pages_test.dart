@@ -297,7 +297,7 @@ void main() {
       await tester.pump();
     }
 
-    group('outside NRW', () {
+    group('leaving NRW', () {
       const outside = TripQuery(
         from: berlinHbf,
         to: passauHbf,
@@ -323,13 +323,21 @@ void main() {
         expect(find.textContaining('VRR area'), findsOneWidget);
       });
 
-      testWidgets('says nothing of the kind with one end in NRW', (
-        tester,
-      ) async {
+      testWidgets('says so too with only one end in NRW', (tester) async {
         repository.pending = Completer();
         await pumpOutside(
           tester,
           const TripQuery(from: bochumHbf, to: passauHbf, time: LeaveNow()),
+        );
+        expect(find.byType(AppLoader), findsOneWidget);
+        expect(find.textContaining('VRR area'), findsOneWidget);
+      });
+
+      testWidgets('says nothing of the kind within NRW', (tester) async {
+        repository.pending = Completer();
+        await pumpOutside(
+          tester,
+          const TripQuery(from: bochumHbf, to: dortmundHbf, time: LeaveNow()),
         );
         expect(find.byType(AppLoader), findsOneWidget);
         expect(find.textContaining('VRR area'), findsNothing);
@@ -338,10 +346,10 @@ void main() {
       testWidgets('says why when there is no answer, and offers a retry', (
         tester,
       ) async {
-        repository.replies = [const Err(OutsideNrwFailure())];
+        repository.replies = [const Err(LeavesNrwFailure())];
         await pumpOutside(tester, outside);
         await tester.pump();
-        expect(find.textContaining('outside NRW'), findsOneWidget);
+        expect(find.textContaining('leaves NRW'), findsOneWidget);
         expect(find.text('Try again'), findsOneWidget);
       });
     });

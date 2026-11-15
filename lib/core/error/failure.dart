@@ -18,9 +18,9 @@ final class TimeoutFailure extends Failure {
   const TimeoutFailure();
 }
 
-/// A trip with neither end in NRW got no answer, even with the longer wait.
-final class OutsideNrwFailure extends Failure {
-  const OutsideNrwFailure();
+/// A trip leaving NRW got no answer, even with the longer wait.
+final class LeavesNrwFailure extends Failure {
+  const LeavesNrwFailure();
 }
 
 /// The server answered, but with an error. EFA reports most errors with
