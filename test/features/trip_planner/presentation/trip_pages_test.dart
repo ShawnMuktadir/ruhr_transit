@@ -308,7 +308,12 @@ void main() {
         await tester.pumpWidget(
           app(
             BlocProvider(
-              create: (_) => TripResultsCubit(repository, query)..load(),
+              create: (_) => TripResultsCubit(
+                repository,
+                query,
+                // Before the sample journeys leave.
+                now: () => DateTime.utc(2026, 11, 2, 7),
+              )..load(),
               child: TripResultsView(query: query),
             ),
           ),
@@ -341,6 +346,32 @@ void main() {
         );
         expect(find.byType(AppLoader), findsOneWidget);
         expect(find.textContaining('VRR area'), findsNothing);
+      });
+
+      testWidgets('shows the loader and the hint while later trips load', (
+        tester,
+      ) async {
+        final later = Completer<Result<List<Journey>>>();
+        repository
+          ..replies = [
+            Ok([directS1]),
+          ]
+          ..onQuery = () {
+            if (repository.queries.length == 2) repository.pending = later;
+          };
+        await pumpOutside(tester, outside);
+        await tester.pump();
+
+        await tester.tap(find.text('Later trips'));
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(AppLoader), findsOneWidget);
+        expect(find.textContaining('VRR area'), findsOneWidget);
+
+        later.complete(Ok([laterRe11]));
+        await tester.pump();
+        expect(find.textContaining('RE11', findRichText: true), findsOneWidget);
       });
 
       testWidgets('says why when there is no answer, and offers a retry', (
