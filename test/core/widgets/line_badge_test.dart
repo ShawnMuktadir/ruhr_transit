@@ -5,6 +5,7 @@ import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/network/efa_transport.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
+import 'package:ruhr_transit/core/widgets/two_line_title.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/route_title.dart';
 
 void main() {
@@ -144,7 +145,7 @@ void main() {
       final semantics = tester.ensureSemantics();
       await pumpTitle(tester, 1);
       expect(
-        tester.getSemantics(find.byType(RouteTitle)),
+        tester.getSemantics(find.byType(TwoLineTitle)),
         isSemantics(
           label: 'Berlin, S+U Hauptbahnhof → Passau, Hauptbahnhof',
           isHeader: true,

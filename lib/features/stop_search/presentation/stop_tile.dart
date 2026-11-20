@@ -59,22 +59,32 @@ class StopTile extends StatelessWidget {
         ),
         title: Text(stop.name),
         // "Adresse · Bochum": the kind first, so a street is not taken for a
-        // stop of the same name.
-        subtitle: switch (([?kind, ?stop.locality, ?detail], below)) {
-          ([], null) => null,
-          (final parts, null) => Text(parts.join(' · ')),
-          (final parts, final below?) => Column(
+        // stop of the same name. The modes follow the text, not the row's
+        // end, so a big station's five icons leave the text its width; they
+        // move to their own line when they do not fit.
+        subtitle: switch ([
+          if ([
+                if ([?kind, ?stop.locality, ?detail] case final parts
+                    when parts.isNotEmpty)
+                  Text(parts.join(' · ')),
+                if (stop.modes.isNotEmpty) _ModeIcons(stop.modes),
+              ]
+              case final line when line.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: line,
+            ),
+          ?below,
+        ]) {
+          [] => null,
+          [final only] => only,
+          final lines => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [if (parts.isNotEmpty) Text(parts.join(' · ')), below],
+            children: lines,
           ),
         },
-        trailing: switch (action) {
-          final action? => Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [_ModeIcons(stop.modes), action],
-          ),
-          null => _ModeIcons(stop.modes),
-        },
+        trailing: action,
         onTap: switch (onSelected) {
           final onSelected? => () => onSelected(stop),
           null => () => Navigator.of(context).push(
@@ -94,16 +104,13 @@ class _ModeIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 4,
       children: [
         // Enum order, so every row lists modes the same way.
         for (final mode in TransportMode.values)
           if (modes.contains(mode))
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: TransportModeIcon(mode, size: 20, color: color),
-            ),
+            TransportModeIcon(mode, size: 18, color: color),
       ],
     );
   }

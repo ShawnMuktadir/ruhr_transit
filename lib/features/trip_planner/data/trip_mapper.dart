@@ -137,7 +137,7 @@ List<TripStop> _mapIntermediateStops(Object? json) {
 /// Null for a stop without a name or time: one odd stop should not cost
 /// the whole trip.
 TripStop? _mapIntermediateStop(Map<String, Object?> json) {
-  final name = readEfaStopName(json['name']);
+  final name = readEfaTripStopName(json);
   final departure = readEfaTime(json['departureTimePlanned']);
   final plannedTime = departure ?? readEfaTime(json['arrivalTimePlanned']);
   if (name == null || plannedTime == null) return null;
@@ -322,7 +322,7 @@ TripStop _mapStop(Object? json, String timeKind) {
     throw const FormatException('Leg without origin or destination');
   }
   final name =
-      readEfaStopName(json['name']) ??
+      readEfaTripStopName(json) ??
       (throw const FormatException('Leg stop without name'));
   final plannedTime = readEfaTime(json['${timeKind}TimePlanned']);
   if (plannedTime == null) {

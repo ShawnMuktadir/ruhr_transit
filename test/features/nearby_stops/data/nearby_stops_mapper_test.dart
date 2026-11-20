@@ -42,10 +42,15 @@ void main() {
 
       expect(nearby.first.stop.fullName, searched.fullName);
       expect(nearby.first.stop.name, searched.name);
-      // Also when the name repeats the town; checked against a live stop
-      // finder response, which has "Bochum, Bochum Hbf/Boulevard".
-      expect(nearby[1].stop.fullName, 'Bochum, Bochum Hbf/Boulevard');
-      expect(nearby[1].stop.name, 'Bochum Hbf/Boulevard');
+      // Also when EFA's name repeats the town ("Bochum Hbf/Boulevard"):
+      // without it, like "Hbf" next to it in the list.
+      final searchedBoulevard = mapStopFinderResponse(
+        readEfaFixtureJson('stopfinder_bochum_hbf'),
+      ).firstWhere((stop) => stop.id == nearby[1].stop.id);
+      expect(nearby[1].stop.fullName, 'Bochum, Hbf/Boulevard');
+      expect(nearby[1].stop.name, 'Hbf/Boulevard');
+      expect(searchedBoulevard.fullName, 'Bochum, Hbf/Boulevard');
+      expect(searchedBoulevard.name, 'Hbf/Boulevard');
     });
 
     test('no stop nearby is an empty list', () {

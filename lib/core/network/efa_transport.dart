@@ -73,3 +73,30 @@ String? readEfaStopName(Object? json) => switch (json) {
   ),
   _ => null,
 };
+
+/// EFA shortens long names in trips and runs with a town code: "GE Buer
+/// Rath. Kunstmuseum", "BO-Bochumer Ver./Jahrhunderth.".
+final _townCode = RegExp(r'^[A-ZÄÖÜ]{1,3}[ -]');
+
+/// The name of a stop or platform in a trip or run, like [readEfaStopName].
+/// A name EFA shortened with a town code is written out from the stop's
+/// own name and town, as stop search shows it: "Gelsenkirchen Buer
+/// Rathaus/Kunstmuseum".
+String? readEfaTripStopName(Map<String, Object?> json) {
+  final name = readEfaStopName(json['name']);
+  if (name == null || !_townCode.hasMatch(name)) return name;
+  final stop = switch (json) {
+    {'type': 'stop'} => json,
+    {'parent': final Map<String, Object?> parent} => parent,
+    _ => null,
+  };
+  if (stop case {
+    'type': 'stop',
+    'disassembledName': final String short,
+    'parent': {'type': 'locality', 'name': final String town},
+  } when short.trim().isNotEmpty) {
+    final full = readEfaStopName(short)!;
+    return full.startsWith('$town ') ? full : '$town $full';
+  }
+  return name;
+}

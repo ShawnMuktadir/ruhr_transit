@@ -32,4 +32,24 @@ void main() {
 
     expect(stopFromJson(json).kind, LocationKind.stop);
   });
+
+  test('a stop saved with the town in its name reads without it', () {
+    final json = stopToJson(address)
+      ..['name'] = 'Bochum Hbf/Boulevard'
+      ..['fullName'] = 'Bochum, Bochum Hbf/Boulevard';
+
+    final read = stopFromJson(json);
+    expect(read.name, 'Hbf/Boulevard');
+    expect(read.fullName, 'Bochum, Hbf/Boulevard');
+  });
+
+  test('a town only at the start of a word stays', () {
+    final json = stopToJson(address)
+      ..['name'] = 'Bochum-Langendreer S'
+      ..['fullName'] = 'Bochum, Bochum-Langendreer S';
+
+    final read = stopFromJson(json);
+    expect(read.name, 'Bochum-Langendreer S');
+    expect(read.fullName, 'Bochum, Bochum-Langendreer S');
+  });
 }

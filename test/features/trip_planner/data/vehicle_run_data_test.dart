@@ -44,6 +44,18 @@ void main() {
       expect(run.indexOf('de:05113:9289:90:2'), 8);
     });
 
+    test('writes out a name EFA shortened with a town code', () {
+      // EFA: "D-Flughafen Bf"; the stop search calls it this.
+      expect(
+        run.stops.map((stop) => stop.name),
+        contains('Düsseldorf Flughafen Bahnhof'),
+      );
+      expect(
+        run.stops.map((stop) => stop.name),
+        isNot(contains('D-Flughafen Bf')),
+      );
+    });
+
     test('rejects a response without a run', () {
       expect(() => mapRunResponse(const {}), throwsFormatException);
       expect(

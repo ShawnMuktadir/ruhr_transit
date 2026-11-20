@@ -17,6 +17,7 @@ import 'package:ruhr_transit/features/stop_search/presentation/stop_search_page.
 import 'package:ruhr_transit/features/stop_search/presentation/stop_tile.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
+import '../../../helpers/board_title.dart';
 import '../../../helpers/fake_departure_repository.dart';
 import '../../../helpers/fake_favourites_repository.dart';
 import '../../../helpers/fake_recent_stops_repository.dart';
@@ -165,7 +166,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DeparturesPage), findsOneWidget);
-    expect(find.text('Bochum, Hbf'), findsOneWidget);
+    expect(findBoardTitle('Bochum, Hbf'), findsOneWidget);
     expect(find.textContaining('All information without guarantee'), findsOne);
   });
 
@@ -276,7 +277,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DeparturesPage), findsOneWidget);
-    expect(find.text('Dortmund, Hbf'), findsOneWidget);
+    expect(findBoardTitle('Dortmund, Hbf'), findsOneWidget);
     // The star on the board knows the stop is a favourite.
     expect(find.byTooltip('Remove from favourites'), findsOneWidget);
   });

@@ -18,6 +18,7 @@ import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/core/widgets/translate.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
+import 'package:ruhr_transit/core/widgets/two_line_title.dart';
 import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_cubit.dart';
@@ -90,8 +91,13 @@ class DeparturesView extends StatelessWidget {
     // Null in tests of the page alone: cancelled departures then show.
     final showCancelled = context.maybeWatch<ShowCancelledCubit>();
     return Scaffold(
-      appBar: AppBar(
-        title: Text(stop.fullName),
+      // The stop's name in full, its town below: an app bar cuts a long
+      // "Bochum, Hbf/Boulevard" off after a few letters.
+      appBar: TwoLineTitle.appBar(
+        context,
+        title: stop.name,
+        subtitle: stop.locality,
+        semanticsLabel: stop.fullName,
         actions: [
           FavouriteStopButton(stop),
           // Pull-to-refresh is not discoverable or usable for everyone.
@@ -362,9 +368,11 @@ class _DepartureTile extends StatelessWidget {
     final destination = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Three lines: a German name can be one long word
+        // ("Knappschafts-Krankenhaus").
         Text(
           departure.destination,
-          maxLines: 2,
+          maxLines: 3,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.bodyLarge?.copyWith(
             decoration: departure.isCancelled

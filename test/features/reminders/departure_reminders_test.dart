@@ -33,6 +33,7 @@ import 'package:ruhr_transit/features/trip_planner/presentation/journey_details_
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
 import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
+import '../../helpers/board_title.dart';
 import '../../helpers/fake_departure_repository.dart';
 import '../../helpers/fake_favourite_journeys_repository.dart';
 import '../../helpers/fake_favourites_repository.dart';
@@ -307,7 +308,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(JourneyDetailsPage), findsNothing);
       expect(find.byType(DeparturesPage), findsOneWidget);
-      expect(find.text('Bochum, Hbf'), findsOneWidget);
+      expect(findBoardTitle('Bochum, Hbf'), findsOneWidget);
     });
 
     testWidgets('offline: the stop too', (tester) async {

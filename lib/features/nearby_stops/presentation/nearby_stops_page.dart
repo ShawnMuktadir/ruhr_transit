@@ -13,6 +13,7 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
+import 'package:ruhr_transit/core/widgets/now_builder.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
@@ -420,29 +421,36 @@ class _NextDeparturesState extends State<_NextDepartures> {
       future: _board,
       builder: (context, snapshot) {
         if (snapshot.data case Ok(value: final board)) {
-          final now = DateTime.now();
-          // EFA lists by planned time; a late train can come first though
-          // it leaves later (ICE 940, 93 min late, before an S1 "now").
-          final next =
-              (board.departures
-                      .where((d) => !d.isCancelled && !d.time.isBefore(now))
-                      .toList()
-                    ..sort((a, b) => a.time.compareTo(b.time)))
-                  .take(2);
-          if (next.isNotEmpty) {
-            return Text(
-              [
-                for (final departure in next)
-                  switch (departure.time.difference(now).inMinutes) {
-                    < 1 => l10n.nearbyNextNow(departure.line),
-                    final minutes => l10n.nearbyNextIn(departure.line, minutes),
-                  },
-              ].join(' · '),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.primary,
-              ),
-            );
-          }
+          // Counts down while the page stays open; departed ones drop off.
+          return NowBuilder(
+            builder: (context, now) {
+              // EFA lists by planned time; a late train can come first
+              // though it leaves later (ICE 940, 93 min late, before an S1
+              // "now").
+              final next =
+                  (board.departures
+                          .where((d) => !d.isCancelled && !d.time.isBefore(now))
+                          .toList()
+                        ..sort((a, b) => a.time.compareTo(b.time)))
+                      .take(2);
+              if (next.isEmpty) return const SizedBox.shrink();
+              return Text(
+                [
+                  for (final departure in next)
+                    switch (departure.time.difference(now).inMinutes) {
+                      < 1 => l10n.nearbyNextNow(departure.line),
+                      final minutes => l10n.nearbyNextIn(
+                        departure.line,
+                        minutes,
+                      ),
+                    },
+                ].join(' · '),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              );
+            },
+          );
         }
         return const SizedBox.shrink();
       },

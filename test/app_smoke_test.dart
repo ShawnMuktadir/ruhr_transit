@@ -26,6 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import 'helpers/board_title.dart';
 import 'helpers/fake_connectivity.dart';
 import 'helpers/fake_departure_repository.dart';
 import 'helpers/fake_favourite_journeys_repository.dart';
@@ -148,7 +149,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DeparturesPage), findsOneWidget);
-      expect(find.text('Bochum, Hbf'), findsOneWidget);
+      expect(findBoardTitle('Bochum, Hbf'), findsOneWidget);
 
       await tester.pageBack();
       await tester.pumpAndSettle();
@@ -175,7 +176,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DeparturesPage), findsOneWidget);
-      expect(find.text('Dortmund, Hbf'), findsOneWidget);
+      expect(findBoardTitle('Dortmund, Hbf'), findsOneWidget);
     });
 
     testWidgets('a widget tap while running opens the board', (tester) async {
@@ -186,7 +187,7 @@ void main() {
       widgetSync.taps.add(dortmundHbf);
       await tester.pumpAndSettle();
 
-      expect(find.text('Dortmund, Hbf'), findsOneWidget);
+      expect(findBoardTitle('Dortmund, Hbf'), findsOneWidget);
     });
 
     testWidgets('repeated widget taps do not stack boards', (tester) async {
