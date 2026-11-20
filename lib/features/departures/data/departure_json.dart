@@ -16,9 +16,12 @@ DepartureBoard boardFromJson(Object? json) {
     'fetchedAt': final String fetchedAt,
     'departures': final List<Object?> departures,
   }) {
-    return DepartureBoard([
-      for (final d in departures) departureFromJson(d),
-    ], fetchedAt: _parseUtc(fetchedAt));
+    // Boards saved before the app sorted by expected time are in EFA's
+    // order.
+    return DepartureBoard(
+      inDepartureOrder([for (final d in departures) departureFromJson(d)]),
+      fetchedAt: _parseUtc(fetchedAt),
+    );
   }
   throw FormatException('Not a saved departure board: $json');
 }

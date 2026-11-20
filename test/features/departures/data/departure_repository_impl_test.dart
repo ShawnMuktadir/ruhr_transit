@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/network/dio_factory.dart';
 import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
+import 'package:ruhr_transit/features/departures/data/departure_mapper.dart';
 import 'package:ruhr_transit/features/departures/data/departure_repository_impl.dart';
 import 'package:ruhr_transit/features/departures/data/efa_departure_remote_source.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
@@ -85,6 +86,27 @@ void main() {
     final board = (result as Ok<DepartureBoard>).value;
     expect(board.departures, hasLength(20));
     expect(board.fetchedAt, _now);
+  });
+
+  test('lists the departures in the order they actually leave', () async {
+    final repository = repositoryAnswering(
+      (_) async => textResponse(readEfaFixture('dm_bochum_hbf')),
+    );
+
+    final board =
+        (await repository.departuresAt(_bochumHbf) as Ok<DepartureBoard>).value;
+
+    final times = [for (final d in board.departures) d.time];
+    expect(times, [...times]..sort());
+    // EFA's own order, by planned time, would not be: a delayed train
+    // there comes before departures that leave sooner.
+    final efaTimes = [
+      for (final d in mapDepartureMonitorResponse(
+        readEfaFixtureJson('dm_bochum_hbf'),
+      ))
+        d.time,
+    ];
+    expect(efaTimes, isNot([...efaTimes]..sort()));
   });
 
   test('saves a fetched board for lastBoard', () async {
