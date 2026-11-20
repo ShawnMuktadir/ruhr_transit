@@ -119,8 +119,9 @@ void main() {
     testWidgets('a direct ride with delays and the VRR link', (tester) async {
       final text = await textOf(tester, directS1, query: _query);
       final ride = directS1.legs.single as TransitLeg;
-      final departs = '${_clock(ride.origin.plannedTime)} (3 min late)';
-      final arrives = '${_clock(ride.destination.plannedTime)} (2 min late)';
+      // The expected times, as on screen.
+      final departs = '${_clock(ride.origin.time)} (3 min late)';
+      final arrives = '${_clock(ride.destination.time)} (2 min late)';
       final lines = text.split('\n');
 
       expect(lines[0], 'Bochum, Hbf → Dortmund, Hbf');

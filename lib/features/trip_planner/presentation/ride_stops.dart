@@ -706,7 +706,7 @@ class StopRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // A minimum, not a fixed width: "10:14 AM +12" must still fit.
+          // A minimum, not a fixed width: a delayed stop's two times wrap.
           ConstrainedBox(
             constraints: BoxConstraints(
               minWidth: 112,

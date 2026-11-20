@@ -1221,11 +1221,23 @@
   },
   "meansIntercity": "IC/EC",
   "@meansIntercity": {
-    "description": "Means-of-transport chip: IC, EC, night trains and Flixtrain."
+    "description": "Means-of-transport tile: IC, EC and night trains."
+  },
+  "meansFlixtrain": "Flixtrain",
+  "@meansFlixtrain": {
+    "description": "Means-of-transport tile: FlixTrain (FLX)."
+  },
+  "meansFerry": "Fähre",
+  "@meansFerry": {
+    "description": "Means-of-transport tile: ferries."
+  },
+  "meansOnDemand": "Rufbus",
+  "@meansOnDemand": {
+    "description": "Means-of-transport tile: on-demand buses that run only when booked."
   },
   "meansOther": "Andere",
   "@meansOther": {
-    "description": "Means-of-transport chip: ferries, on-demand buses, cable cars and the rest."
+    "description": "Means-of-transport tile: the Wuppertal Schwebebahn, TaxiBus, cable cars and the rest."
   },
   "tripMeansTitle": "Verkehrsmittel",
   "@tripMeansTitle": {

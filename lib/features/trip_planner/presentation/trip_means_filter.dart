@@ -36,7 +36,7 @@ class ExcludedMeansCubit extends SettingCubit<Set<TripMeans>> {
   }
 }
 
-/// The name of [means] on its chip and in "Without …".
+/// The name of [means] on its tile and in "Without …".
 String tripMeansLabel(AppLocalizations l10n, TripMeans means) =>
     switch (means) {
       TripMeans.regionalTrain => l10n.meansRegionalTrain,
@@ -44,32 +44,174 @@ String tripMeansLabel(AppLocalizations l10n, TripMeans means) =>
       TripMeans.subway => l10n.modeSubway,
       TripMeans.tram => l10n.modeTram,
       TripMeans.bus => l10n.modeBus,
+      TripMeans.onDemand => l10n.meansOnDemand,
       TripMeans.ice => l10n.meansIce,
       TripMeans.intercity => l10n.meansIntercity,
+      TripMeans.flixtrain => l10n.meansFlixtrain,
+      TripMeans.ferry => l10n.meansFerry,
       TripMeans.other => l10n.meansOther,
     };
 
-/// One chip per means of transport, on while trips may use it. Only works
-/// below an [ExcludedMeansCubit].
-class TripMeansChips extends StatelessWidget {
-  const TripMeansChips({super.key});
+/// The icon of [means] on its tile, like the stops' mode icons.
+IconData tripMeansIcon(TripMeans means) => switch (means) {
+  TripMeans.regionalTrain => Icons.train,
+  TripMeans.suburbanTrain => Icons.directions_railway,
+  TripMeans.subway => Icons.subway,
+  TripMeans.tram => Icons.tram,
+  TripMeans.bus => Icons.directions_bus,
+  TripMeans.onDemand => Icons.hail,
+  TripMeans.ice => Icons.directions_railway_filled,
+  TripMeans.intercity => Icons.train_outlined,
+  TripMeans.flixtrain => Icons.directions_transit,
+  TripMeans.ferry => Icons.directions_boat,
+  TripMeans.other => Icons.more_horiz,
+};
+
+/// One tile per means of transport, on while trips may use it: three of
+/// the same width in a row, on any phone. Fewer per row only when a word
+/// of a name would not fit, e.g. at a large text size, so no word is ever
+/// cut. Only works below an [ExcludedMeansCubit].
+class TripMeansGrid extends StatelessWidget {
+  const TripMeansGrid({super.key});
+
+  static const _spacing = 8.0;
+
+  /// Room for the text inside a tile: its padding on both sides.
+  static const _tilePadding = 8.0;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final excluded = context.watch<ExcludedMeansCubit>().state;
     final cubit = context.read<ExcludedMeansCubit>();
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: [
-        for (final means in TripMeans.values)
-          FilterChip(
-            label: Text(tripMeansLabel(l10n, means)),
-            selected: !excluded.contains(means),
-            onSelected: (_) => cubit.toggle(means),
+    final style = TripMeansTile.labelStyle(context);
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    final labels = {
+      for (final means in TripMeans.values) means: tripMeansLabel(l10n, means),
+    };
+    // The widest single word: a tile may wrap between words, not inside.
+    var widestWord = 0.0;
+    for (final word in labels.values.expand((l) => l.split(' '))) {
+      final painter = TextPainter(
+        text: TextSpan(text: word, style: style),
+        textDirection: direction,
+        textScaler: scaler,
+      )..layout();
+      if (painter.width > widestWord) widestWord = painter.width;
+      painter.dispose();
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double columnWidth(int columns) =>
+            (constraints.maxWidth - (columns - 1) * _spacing) / columns;
+        final columns = [3, 2].firstWhere(
+          (n) => columnWidth(n) - 2 * _tilePadding >= widestWord,
+          orElse: () => 1,
+        );
+        const means = TripMeans.values;
+        return Column(
+          children: [
+            for (var start = 0; start < means.length; start += columns)
+              Padding(
+                padding: EdgeInsets.only(top: start == 0 ? 0 : _spacing),
+                // Tiles in a row share the height of the tallest.
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = start; i < start + columns; i++) ...[
+                        if (i > start) const SizedBox(width: _spacing),
+                        Expanded(
+                          child: i < means.length
+                              ? TripMeansTile(
+                                  icon: tripMeansIcon(means[i]),
+                                  label: labels[means[i]]!,
+                                  selected: !excluded.contains(means[i]),
+                                  onTap: () => cubit.toggle(means[i]),
+                                )
+                              // Keeps the last row's tiles as wide as the
+                              // others.
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// A means of transport that can be turned on and off: filled while on,
+/// outlined while off.
+class TripMeansTile extends StatelessWidget {
+  const TripMeansTile({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    super.key,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  static TextStyle? labelStyle(BuildContext context) =>
+      Theme.of(context).textTheme.labelLarge;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final foreground = selected
+        ? colors.onSecondaryContainer
+        : colors.onSurfaceVariant;
+    return Semantics(
+      button: true,
+      toggled: selected,
+      label: label,
+      excludeSemantics: true,
+      child: Material(
+        color: selected ? colors.secondaryContainer : Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: selected
+              ? BorderSide.none
+              : BorderSide(color: colors.outlineVariant),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: kMinInteractiveDimension,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: TripMeansGrid._tilePadding,
+                vertical: 10,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 22, color: foreground),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: labelStyle(context)?.copyWith(color: foreground),
+                  ),
+                ],
+              ),
+            ),
           ),
-      ],
+        ),
+      ),
     );
   }
 }
@@ -111,7 +253,7 @@ class TripMeansNote extends StatelessWidget {
   }
 }
 
-/// The chips in a sheet, from the results; a change searches again.
+/// The tiles in a sheet, from the results; a change searches again.
 abstract final class TripMeansSheet {
   static Future<void> show(BuildContext context) => showModalBottomSheet<void>(
     context: context,
@@ -121,7 +263,8 @@ abstract final class TripMeansSheet {
     builder: (sheet) => BlocProvider.value(
       value: context.read<ExcludedMeansCubit>(),
       child: SafeArea(
-        child: Padding(
+        // Scrolls on a short screen or at a large text size.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -129,7 +272,7 @@ abstract final class TripMeansSheet {
             children: [
               Heading(AppLocalizations.of(sheet).tripMeansTitle),
               const SizedBox(height: 12),
-              const TripMeansChips(),
+              const TripMeansGrid(),
             ],
           ),
         ),
