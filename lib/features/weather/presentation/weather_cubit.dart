@@ -60,13 +60,26 @@ final class WeatherUnavailable extends WeatherState {
 /// location permission by itself: only [tap] does, when the user taps the
 /// chip that asks for it.
 class WeatherCubit extends Cubit<WeatherState> {
-  WeatherCubit(this._weather, this._location, {DateTime Function()? now})
-    : _now = now ?? DateTime.now,
-      super(const WeatherLoading());
+  WeatherCubit(
+    this._weather,
+    this._location, {
+    DateTime Function()? now,
+    bool Function()? isOnline,
+  }) : _now = now ?? DateTime.now,
+       _isOnline = isOnline ?? _alwaysOnline,
+       super(const WeatherLoading());
 
   final WeatherRepository _weather;
   final LocationSource _location;
   final DateTime Function() _now;
+
+  /// Whether the phone is online, as the system reports it.
+  final bool Function() _isOnline;
+  static bool _alwaysOnline() => true;
+
+  /// Counts attempts, so one given up by [wentOffline] cannot overwrite
+  /// the state when it finally ends.
+  int _attempt = 0;
 
   /// The sky to show behind the planner's header. Stays during a refresh,
   /// so the background does not blink; gone once there is no weather.
@@ -120,9 +133,28 @@ class WeatherCubit extends Cubit<WeatherState> {
     }
   }
 
+  /// The phone lost its connection: a weather still loading cannot arrive,
+  /// so the chip says so now instead of after the location's time limit.
+  /// Coming back online loads again (see the chip).
+  void wentOffline() {
+    if (state is! WeatherLoading) return;
+    _attempt++;
+    _emit(const WeatherUnavailable(WeatherProblem.offline));
+  }
+
   Future<void> _locateAndFetch() async {
+    // Offline the weather cannot load; without the network a position
+    // can also take the whole time limit indoors, and the chip would then
+    // blame the location.
+    if (!_isOnline()) {
+      _emit(const WeatherUnavailable(WeatherProblem.offline));
+      return;
+    }
+    final attempt = ++_attempt;
     _emit(const WeatherLoading());
-    switch (await _location.currentLocation()) {
+    final location = await _location.currentLocation();
+    if (attempt != _attempt) return;
+    switch (location) {
       case LocationOff():
         _emit(const WeatherLocationOff());
       case LocationPermissionDenied(:final permanently):
@@ -134,6 +166,7 @@ class WeatherCubit extends Cubit<WeatherState> {
           latitude: latitude,
           longitude: longitude,
         );
+        if (attempt != _attempt) return;
         _emit(switch (result) {
           Ok(:final value) => WeatherShown(value, fetchedAt: _now()),
           Err(failure: NetworkFailure() || TimeoutFailure()) =>

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -123,6 +125,62 @@ void main() {
       now = now.add(const Duration(minutes: 1));
       await weatherCubit.resumed();
       expect(weather.points, hasLength(2));
+    });
+
+    test(
+      'offline, says so at once instead of looking for a position',
+      () async {
+        location.permissionGranted = true;
+        final weatherCubit = WeatherCubit(
+          weather,
+          location,
+          now: () => now,
+          isOnline: () => false,
+        );
+        await weatherCubit.load();
+
+        expect(
+          weatherCubit.state,
+          isA<WeatherUnavailable>().having(
+            (s) => s.problem,
+            'problem',
+            WeatherProblem.offline,
+          ),
+        );
+        expect(location.calls, 0);
+      },
+    );
+
+    test('losing the connection while loading says offline now', () async {
+      location
+        ..permissionGranted = true
+        ..pending = Completer();
+      final weatherCubit = cubit();
+      final loading = weatherCubit.load();
+      await Future<void>.delayed(Duration.zero);
+      expect(weatherCubit.state, isA<WeatherLoading>());
+
+      weatherCubit.wentOffline();
+      expect(
+        weatherCubit.state,
+        isA<WeatherUnavailable>().having(
+          (s) => s.problem,
+          'problem',
+          WeatherProblem.offline,
+        ),
+      );
+
+      // The search given up ends late; it does not replace "offline".
+      location.pending!.complete(const LocationTimeout());
+      await loading;
+      expect(
+        weatherCubit.state,
+        isA<WeatherUnavailable>().having(
+          (s) => s.problem,
+          'problem',
+          WeatherProblem.offline,
+        ),
+      );
     });
 
     test('names what went wrong', () async {
