@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ruhr_transit/core/connectivity/connectivity.dart';
 import 'package:ruhr_transit/core/connectivity/offline_banner.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
+import 'package:ruhr_transit/core/widgets/optional_provider.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/location_source.dart';
 import 'package:ruhr_transit/features/weather/domain/weather.dart';
 import 'package:ruhr_transit/features/weather/domain/weather_repository.dart';
@@ -21,9 +23,11 @@ class WeatherScope extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-    create: (_) =>
-        WeatherCubit(getIt<WeatherRepository>(), getIt<LocationSource>())
-          ..load(),
+    create: (context) => WeatherCubit(
+      getIt<WeatherRepository>(),
+      getIt<LocationSource>(),
+      isOnline: () => context.maybeRead<ConnectivityCubit>()?.state ?? true,
+    )..load(),
     child: child,
   );
 }
@@ -58,19 +62,28 @@ class _WeatherChipState extends State<WeatherChip> {
     super.dispose();
   }
 
-  /// Retries what failed when the phone is back online.
+  /// Says "offline" as soon as the connection goes, and retries when the
+  /// phone is back online.
   @override
-  Widget build(BuildContext context) => OnReconnect(
-    onReconnect: () {
-      final cubit = context.read<WeatherCubit>();
-      if (cubit.state case WeatherUnavailable(
-        problem: WeatherProblem.offline,
-      )) {
-        unawaited(cubit.load());
-      }
-    },
-    child: Builder(builder: _build),
-  );
+  Widget build(BuildContext context) {
+    final chip = OnReconnect(
+      onReconnect: () {
+        final cubit = context.read<WeatherCubit>();
+        if (cubit.state case WeatherUnavailable(
+          problem: WeatherProblem.offline,
+        )) {
+          unawaited(cubit.load());
+        }
+      },
+      child: Builder(builder: _build),
+    );
+    if (context.maybeRead<ConnectivityCubit>() == null) return chip;
+    return BlocListener<ConnectivityCubit, bool>(
+      listenWhen: (wasOnline, online) => wasOnline && !online,
+      listener: (context, _) => context.read<WeatherCubit>().wentOffline(),
+      child: chip,
+    );
+  }
 
   Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
