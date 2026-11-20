@@ -61,3 +61,15 @@ class Departure {
   @override
   String toString() => 'Departure($line → $destination, $plannedTime)';
 }
+
+/// [departures] in the order they actually leave: by [Departure.time], so a
+/// train 3 hours late comes after the S-Bahn leaving now. EFA sends them by
+/// planned time. Equal times keep their order.
+List<Departure> inDepartureOrder(Iterable<Departure> departures) {
+  final indexed = departures.indexed.toList()
+    ..sort((a, b) {
+      final byTime = a.$2.time.compareTo(b.$2.time);
+      return byTime != 0 ? byTime : a.$1.compareTo(b.$1);
+    });
+  return [for (final (_, departure) in indexed) departure];
+}

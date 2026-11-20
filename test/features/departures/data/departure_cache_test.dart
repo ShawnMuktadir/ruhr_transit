@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
 import 'package:ruhr_transit/features/departures/data/departure_json.dart';
+import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -37,6 +38,31 @@ void main() {
         final json = departureToJson(departure);
         expect(departureToJson(departureFromJson(json)), json);
       }
+    });
+
+    test('a board saved in EFA order reads in the order they leave', () {
+      final late = departureToJson(
+        Departure(
+          line: 'ICE 203',
+          destination: 'Basel SBB',
+          plannedTime: DateTime.utc(2026, 11, 20, 16, 48),
+          estimatedTime: DateTime.utc(2026, 11, 20, 19, 42),
+        ),
+      );
+      final soon = departureToJson(
+        Departure(
+          line: 'S1',
+          destination: 'Dortmund',
+          plannedTime: DateTime.utc(2026, 11, 20, 19, 13),
+        ),
+      );
+
+      final board = boardFromJson({
+        'fetchedAt': '2026-11-20T19:11:00.000Z',
+        'departures': [late, soon],
+      });
+
+      expect([for (final d in board.departures) d.line], ['S1', 'ICE 203']);
     });
 
     test('reads times as UTC and modes by name', () {

@@ -15,6 +15,7 @@ import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/now_builder.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
+import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
@@ -424,15 +425,13 @@ class _NextDeparturesState extends State<_NextDepartures> {
           // Counts down while the page stays open; departed ones drop off.
           return NowBuilder(
             builder: (context, now) {
-              // EFA lists by planned time; a late train can come first
-              // though it leaves later (ICE 940, 93 min late, before an S1
-              // "now").
-              final next =
-                  (board.departures
-                          .where((d) => !d.isCancelled && !d.time.isBefore(now))
-                          .toList()
-                        ..sort((a, b) => a.time.compareTo(b.time)))
-                      .take(2);
+              // In the order they leave: a late train listed first can
+              // leave after the S1 "now" (ICE 940, 93 min late).
+              final next = inDepartureOrder(
+                board.departures.where(
+                  (d) => !d.isCancelled && !d.time.isBefore(now),
+                ),
+              ).take(2);
               if (next.isEmpty) return const SizedBox.shrink();
               return Text(
                 [

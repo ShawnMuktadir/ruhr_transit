@@ -18,8 +18,7 @@ const maxWidgetDepartures = 10;
 /// Departures are sorted by when they actually leave, so the widget can
 /// skip the ones that have left and show the next 3.
 String encodeWidgetBoard(Stop stop, DepartureBoard? board) {
-  final departures = [...?board?.departures]
-    ..sort((a, b) => _leaves(a).compareTo(_leaves(b)));
+  final departures = inDepartureOrder([...?board?.departures]);
   return jsonEncode({
     'stop': stopToJson(stop),
     'fetchedAt': board?.fetchedAt.millisecondsSinceEpoch,
@@ -49,6 +48,3 @@ Stop? widgetStopFromJson(String? raw) {
     return null;
   }
 }
-
-DateTime _leaves(Departure departure) =>
-    departure.estimatedTime ?? departure.plannedTime;

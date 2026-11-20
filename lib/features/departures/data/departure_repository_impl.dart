@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/network/request_result.dart';
 import 'package:ruhr_transit/features/departures/data/departure_cache.dart';
 import 'package:ruhr_transit/features/departures/data/departure_mapper.dart';
 import 'package:ruhr_transit/features/departures/data/efa_departure_remote_source.dart';
+import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_board.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 
@@ -33,8 +34,10 @@ class DepartureRepositoryImpl implements DepartureRepository {
   Future<Result<DepartureBoard>> departuresAt(String stopId) => _latest.run(
     (cancelToken) => requestResult(() async {
       final json = await _remote.departuresAt(stopId, cancelToken: cancelToken);
+      // In the order they leave: EFA's puts a train 3 hours late at the
+      // top of the board.
       final board = DepartureBoard(
-        mapDepartureMonitorResponse(json),
+        inDepartureOrder(mapDepartureMonitorResponse(json)),
         fetchedAt: _now().toUtc(),
       );
       // Not awaited: the board should not wait for storage, and a full or
