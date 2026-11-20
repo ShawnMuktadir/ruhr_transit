@@ -8,6 +8,7 @@ import 'package:ruhr_transit/core/di/injection.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/features/departures/domain/departure.dart';
 import 'package:ruhr_transit/features/departures/domain/departure_repository.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
@@ -38,8 +39,13 @@ void main() {
   tearDown(getIt.reset);
 
   /// [start] opens the page like the app does (NearbyStopsCubit.start);
-  /// otherwise it locates right away.
-  Future<void> pumpPage(WidgetTester tester, {bool start = false}) async {
+  /// otherwise it locates right away. [departures] shows each stop's next
+  /// departures.
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    bool start = false,
+    DepartureRepository Function()? departures,
+  }) async {
     final favourites = FakeFavouritesRepository();
     await tester.pumpWidget(
       BlocProvider(
@@ -54,7 +60,7 @@ void main() {
               unawaited(start ? cubit.start() : cubit.load());
               return cubit;
             },
-            child: const NearbyStopsView(),
+            child: NearbyStopsView(departures: departures),
           ),
         ),
       ),
@@ -84,6 +90,34 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DeparturesPage), findsOneWidget);
+  });
+
+  testWidgets('the next departures come in the order they leave', (
+    tester,
+  ) async {
+    // EFA lists by planned time: the very late ICE first, though the S1
+    // leaves before it.
+    final now = DateTime.now();
+    await pumpPage(
+      tester,
+      departures: () => FakeDepartureRepository()
+        ..autoReply = Ok([
+          Departure(
+            line: 'ICE 940',
+            destination: 'Berlin',
+            plannedTime: now.subtract(const Duration(minutes: 60)),
+            estimatedTime: now.add(const Duration(minutes: 26, seconds: 30)),
+          ),
+          Departure(
+            line: 'S1',
+            destination: 'Dortmund',
+            plannedTime: now.add(const Duration(seconds: 30)),
+          ),
+        ]),
+    );
+    await tester.pump();
+
+    expect(find.text('S1 now · ICE 940 in 26 min'), findsWidgets);
   });
 
   testWidgets('TalkBack offers the departures on the row itself', (

@@ -97,6 +97,8 @@ Future<void> chooseReminder(
   final messenger = ScaffoldMessenger.of(context);
   final lead = await showModalBottomSheet<Duration>(
     context: context,
+    // Over the whole screen, tab bar included, like the app's other sheets.
+    useRootNavigator: true,
     showDragHandle: true,
     // At large text the choices need more than half the screen.
     isScrollControlled: true,

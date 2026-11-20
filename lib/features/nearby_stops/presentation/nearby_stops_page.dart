@@ -421,9 +421,14 @@ class _NextDeparturesState extends State<_NextDepartures> {
       builder: (context, snapshot) {
         if (snapshot.data case Ok(value: final board)) {
           final now = DateTime.now();
-          final next = board.departures
-              .where((d) => !d.isCancelled && !d.time.isBefore(now))
-              .take(2);
+          // EFA lists by planned time; a late train can come first though
+          // it leaves later (ICE 940, 93 min late, before an S1 "now").
+          final next =
+              (board.departures
+                      .where((d) => !d.isCancelled && !d.time.isBefore(now))
+                      .toList()
+                    ..sort((a, b) => a.time.compareTo(b.time)))
+                  .take(2);
           if (next.isNotEmpty) {
             return Text(
               [

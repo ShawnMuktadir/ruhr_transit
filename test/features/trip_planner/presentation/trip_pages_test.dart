@@ -557,6 +557,16 @@ void main() {
       expect(find.text('2 stops in between'), findsNothing);
     });
 
+    testWidgets('where the user gets off, the arrival shows', (tester) async {
+      await pumpAt(tester, at(7, 20));
+
+      // Bochum Hbf: arrives 07:31, leaves for the next stop at 07:32.
+      expect(find.text(localTime(at(7, 31))), findsOneWidget);
+      expect(find.text(localTime(at(7, 32))), findsNothing);
+      // Boarding still shows the departure (also in the summary).
+      expect(find.text(localTime(at(7, 21))), findsWidgets);
+    });
+
     testWidgets('standing at a stop', (tester) async {
       await pumpAt(tester, at(7, 22));
 
@@ -774,7 +784,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('Gleis 3 (U)'), findsOneWidget);
+      expect(find.text('Platform 3 (U)'), findsOneWidget);
       expect(find.text('Walk 4 min (183 m)'), findsOneWidget);
       // 4 minutes between the rides, all of them walking.
       expect(find.text('4 min to change · Short connection'), findsOneWidget);

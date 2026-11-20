@@ -278,6 +278,9 @@ class RunTimeline extends StatelessWidget {
         _ when i == alight => AppLocalizations.of(context).runAlight,
         _ => null,
       },
+      // Where the user gets off, the arrival matters, not the departure
+      // onwards (ICE 9 arrives in Freiburg 3 min before it leaves).
+      arrives: i == alight,
       // Outside the ride: muted, so the user's part stands out.
       muted: i < board || i > alight,
       compact: i != board && i != alight,
@@ -416,11 +419,13 @@ class _TimelineStop extends StatelessWidget {
     required this.dot,
     required this.muted,
     required this.compact,
+    this.arrives = false,
     this.tag,
     this.mode,
   });
 
   final RunStop stop;
+  final bool arrives;
   final bool? topPassed;
   final bool? bottomPassed;
   final _Dot dot;
@@ -443,7 +448,7 @@ class _TimelineStop extends StatelessWidget {
           ),
           Expanded(
             child: StopRow(
-              _asTripStop(stop),
+              _asTripStop(stop, arrives: arrives),
               mode: mode,
               compact: compact,
               muted: muted,
@@ -455,10 +460,12 @@ class _TimelineStop extends StatelessWidget {
     );
   }
 
-  /// The time a passenger cares about: the departure, at the last stop
-  /// the arrival.
-  static TripStop _asTripStop(RunStop stop) {
-    final departs = stop.departurePlanned != null;
+  /// The time a passenger cares about: the departure, but the arrival
+  /// where they get off ([arrives]) and at the last stop.
+  static TripStop _asTripStop(RunStop stop, {required bool arrives}) {
+    final departs =
+        stop.departurePlanned != null &&
+        (!arrives || stop.arrivalPlanned == null);
     return TripStop(
       name: stop.name,
       plannedTime: departs ? stop.departurePlanned! : stop.arrivalPlanned!,

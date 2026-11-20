@@ -127,7 +127,7 @@ void main() {
     expect(cancelledTime.style?.decoration, TextDecoration.lineThrough);
     expect(
       find.bySemanticsLabel(
-        RegExp(r'Platform change: Gleis 3 \(U\) instead of Gleis 4 \(U\)'),
+        RegExp(r'Platform change: Platform 3 \(U\) instead of 4 \(U\)'),
       ),
       findsOneWidget,
     );
