@@ -170,16 +170,7 @@ class TripFormView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   _TimeChooser(state.time),
-                  if (context.maybeRead<ExcludedMeansCubit>() != null) ...[
-                    const SizedBox(height: 16),
-                    Heading(
-                      l10n.tripMeansTitle,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    const TripMeansChips(),
-                  ],
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   if (state.isSameStop)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -191,7 +182,13 @@ class TripFormView extends StatelessWidget {
                         ),
                       ),
                     ),
+                  // Right after what it searches for, so it is on screen
+                  // without scrolling; the filter below is optional.
                   FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52),
+                      textStyle: Theme.of(context).textTheme.titleMedium,
+                    ),
                     icon: const Icon(Icons.search),
                     label: Text(l10n.tripSearch),
                     onPressed: switch (state.query) {
@@ -203,6 +200,15 @@ class TripFormView extends StatelessWidget {
                       null => null,
                     },
                   ),
+                  if (context.maybeRead<ExcludedMeansCubit>() != null) ...[
+                    const SizedBox(height: 24),
+                    Heading(
+                      l10n.tripMeansTitle,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    const TripMeansGrid(),
+                  ],
                 ],
               ),
             ),

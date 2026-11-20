@@ -12,8 +12,10 @@ String formatTripDuration(AppLocalizations l10n, Duration duration) {
       : l10n.tripHoursMinutes(minutes ~/ 60, minutes % 60);
 }
 
-/// Planned time with the delay next to it (`17:14 +3`), like the departure
-/// board: the planned time is what timetables and station boards show.
+/// The expected time, with the timetable's crossed out before it when they
+/// differ (~~17:14~~ 17:17), as in DB Navigator. Not "17:14 +3" like the
+/// departure board: in a trip a big delay could make the arrival read
+/// earlier than the departure ("7:44 → 7:37 +53" for 8:30).
 class TripTimeText extends StatelessWidget {
   const TripTimeText(this.stop, {this.style, super.key});
 
@@ -22,31 +24,50 @@ class TripTimeText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final base = style ?? theme.textTheme.titleMedium;
     final delayMinutes = stop.delay?.inMinutes ?? 0;
-    // A Wrap, so the delay moves under the time when space runs out, e.g.
-    // at large font sizes.
-    return Wrap(
-      spacing: 4,
-      children: [
-        Text(formatClockTime(context, stop.plannedTime), style: base),
-        if (delayMinutes != 0) ...[
+    final planned = formatClockTime(context, stop.plannedTime);
+    if (delayMinutes == 0) return Text(planned, style: base);
+    return Semantics(
+      label: tripTimeLabel(context, stop),
+      excludeSemantics: true,
+      // A Wrap, so the new time moves under the old one when space runs
+      // out, e.g. at large font sizes.
+      child: Wrap(
+        spacing: 6,
+        children: [
           Text(
-            delayMinutes > 0 ? '+$delayMinutes' : '$delayMinutes',
-            semanticsLabel: delayMinutes > 0
-                ? l10n.departureLate(delayMinutes)
-                : l10n.departureEarly(-delayMinutes),
+            planned,
+            style: base?.copyWith(
+              decoration: TextDecoration.lineThrough,
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            formatClockTime(context, stop.time),
             style: base?.copyWith(
               color: delayMinutes > 0 ? theme.colorScheme.error : null,
               fontWeight: FontWeight.bold,
             ),
           ),
         ],
-      ],
+      ),
     );
   }
+}
+
+/// "8:30 PM, 53 min late": the time the user should go by, then how far it
+/// is off the timetable. For screen readers and shared text.
+String tripTimeLabel(BuildContext context, TripStop stop) {
+  final l10n = AppLocalizations.of(context);
+  final time = formatClockTime(context, stop.time);
+  return switch (stop.delay?.inMinutes ?? 0) {
+    > 0 && final delay => '$time, ${l10n.departureLate(delay)}',
+    < 0 && final delay => '$time, ${l10n.departureEarly(-delay)}',
+    _ => time,
+  };
 }
 
 /// The rides of a journey as small badges, with a walking icon for walks.
@@ -105,7 +126,7 @@ class JourneyDate extends StatelessWidget {
   }
 }
 
-/// `16:06 +8 → 16:28 +11`, wrapping onto a second line when it does not
+/// ~~16:06~~ 16:14 → ~~16:28~~ 16:39, wrapping onto a second line when it does not
 /// fit, e.g. at large font sizes.
 class JourneyTimes extends StatelessWidget {
   const JourneyTimes(this.journey, {super.key});
@@ -128,20 +149,10 @@ class JourneyTimes extends StatelessWidget {
   }
 }
 
-/// One sentence for screen readers, e.g. "Departs 16:06, arrives 16:28,
+/// One sentence for screen readers, e.g. "Departs 16:06, arrives 16:36,
 /// 8 min late, 30 min, 1 change, 378, S1", instead of the card's pieces.
 String journeySummary(BuildContext context, Journey journey) {
   final l10n = AppLocalizations.of(context);
-
-  String timeOf(TripStop stop) {
-    final time = formatClockTime(context, stop.plannedTime);
-    final delay = stop.delay?.inMinutes ?? 0;
-    return switch (delay) {
-      > 0 => '$time, ${l10n.departureLate(delay)}',
-      < 0 => '$time, ${l10n.departureEarly(-delay)}',
-      _ => time,
-    };
-  }
 
   final transfers = journey.transfers;
   final details = [
@@ -160,8 +171,8 @@ String journeySummary(BuildContext context, Journey journey) {
     if (journey.isTimetableOnly) l10n.tripTimetableOnly,
   ].join(', ');
   return l10n.tripSummary(
-    timeOf(journey.departure),
-    timeOf(journey.arrival),
+    tripTimeLabel(context, journey.departure),
+    tripTimeLabel(context, journey.arrival),
     details,
   );
 }

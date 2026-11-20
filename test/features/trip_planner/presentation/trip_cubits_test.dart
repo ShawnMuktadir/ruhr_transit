@@ -155,11 +155,63 @@ void main() {
       expect((cubit.state as TripResultsLoaded).journeys, hasLength(2));
     });
 
-    test('a chosen departure time keeps every journey', () async {
+    test('a chosen departure time keeps the journeys after it', () async {
+      // Looking back on purpose: both leave after 07:00, though now is
+      // later.
       now = DateTime.utc(2026, 11, 2, 9);
       cubit = TripResultsCubit(
         repository,
-        query.withTime(DepartAt(DateTime(2026, 11, 2, 7))),
+        query.withTime(DepartAt(DateTime.utc(2026, 11, 2, 7))),
+        now: () => now,
+      );
+
+      await cubit.load();
+
+      expect((cubit.state as TripResultsLoaded).journeys, hasLength(2));
+    });
+
+    test('a chosen departure time drops journeys leaving before it', () async {
+      // Seen live: asked for 8:50 tomorrow, EFA also sent a Flixtrain that
+      // had left at 15:01 today. directS1 leaves 07:17, withWalk 07:21.
+      cubit = TripResultsCubit(
+        repository,
+        query.withTime(DepartAt(DateTime.utc(2026, 11, 2, 7, 19))),
+        now: () => now,
+      );
+
+      await cubit.load();
+
+      expect(
+        cubit.state,
+        isA<TripResultsLoaded>().having((s) => s.journeys, 'journeys', [
+          withWalk,
+        ]),
+      );
+    });
+
+    test('arriving by a later time drops journeys that already left', () async {
+      now = DateTime.utc(2026, 11, 2, 7, 19);
+      cubit = TripResultsCubit(
+        repository,
+        query.withTime(ArriveBy(DateTime.utc(2026, 11, 2, 8))),
+        now: () => now,
+      );
+
+      await cubit.load();
+
+      expect(
+        cubit.state,
+        isA<TripResultsLoaded>().having((s) => s.journeys, 'journeys', [
+          withWalk,
+        ]),
+      );
+    });
+
+    test('arriving by a past time keeps every journey', () async {
+      now = DateTime.utc(2026, 11, 2, 9);
+      cubit = TripResultsCubit(
+        repository,
+        query.withTime(ArriveBy(DateTime.utc(2026, 11, 2, 8))),
         now: () => now,
       );
 

@@ -126,11 +126,22 @@ class TripResultsCubit extends Cubit<TripResultsState> {
     }
   }
 
-  /// For "leave now", EFA also returns journeys that left minutes ago (seen
-  /// live: one 14 minutes earlier). Nobody can take them any more.
+  /// EFA also returns journeys leaving before the time asked for: for
+  /// "leave now" ones that left minutes ago (seen live: 14 minutes), for
+  /// "depart at 8:50 tomorrow" a Flixtrain that left at 15:01 today (seen
+  /// live 2026-11-20). Nobody can take those; a delayed train counts by
+  /// when it actually leaves. An arrive-by search for a past time keeps
+  /// everything: the user is looking back on purpose.
   List<Journey> _withoutDeparted(List<Journey> journeys) {
-    if (query.time is! LeaveNow) return journeys;
-    final earliest = _now().subtract(_clockTolerance);
+    final now = _now();
+    final from = switch (query.time) {
+      LeaveNow() => now,
+      DepartAt(:final time) => time,
+      ArriveBy(:final time) when time.isAfter(now) => now,
+      ArriveBy() => null,
+    };
+    if (from == null) return journeys;
+    final earliest = from.subtract(_clockTolerance);
     return [
       for (final journey in journeys)
         if (!journey.departure.time.isBefore(earliest)) journey,

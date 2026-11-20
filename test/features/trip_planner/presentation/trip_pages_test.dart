@@ -393,9 +393,14 @@ void main() {
       // The whole route, with towns.
       expect(find.text('Bochum, Hbf'), findsOneWidget);
       expect(find.text('→ Dortmund, Hbf'), findsOneWidget);
-      expect(find.text(localTime(directS1.departure.plannedTime)), findsOne);
-      expect(find.text('+3'), findsOneWidget);
-      expect(find.text('+2'), findsOneWidget);
+      // The timetable's time crossed out, the expected one after it.
+      final planned = tester.widget<Text>(
+        find.text(localTime(directS1.departure.plannedTime)),
+      );
+      expect(planned.style?.decoration, TextDecoration.lineThrough);
+      expect(find.text(localTime(directS1.departure.time)), findsOne);
+      expect(find.text(localTime(directS1.arrival.time)), findsOne);
+      expect(find.text('+3'), findsNothing);
       // 07:17 to 07:39 as expected, not 07:14 to 07:37 as planned.
       expect(find.text('22 min'), findsOneWidget);
       expect(find.text('Direct'), findsOneWidget);
@@ -415,8 +420,9 @@ void main() {
       final semantics = tester.ensureSemantics();
       await pumpResults(tester);
 
-      final dep = localTime(directS1.departure.plannedTime);
-      final arr = localTime(directS1.arrival.plannedTime);
+      // The times to go by, then how late they are.
+      final dep = localTime(directS1.departure.time);
+      final arr = localTime(directS1.arrival.time);
       expect(
         find.bySemanticsLabel(
           'Departs $dep, 3 min late, arrives $arr, 2 min late, '

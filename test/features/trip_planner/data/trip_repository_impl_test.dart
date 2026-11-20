@@ -171,10 +171,15 @@ void main() {
 
   test('every means of transport stands for its product classes', () {
     expect(TripMeans.regionalTrain.productClasses, {0, 13});
-    expect(TripMeans.intercity.productClasses, {14, 15});
+    expect(TripMeans.intercity.productClasses, {15});
+    expect(TripMeans.flixtrain.productClasses, {14});
+    expect(TripMeans.ferry.productClasses, {9});
+    expect(TripMeans.onDemand.productClasses, {10});
     // Each class belongs to one means only.
     final all = [for (final m in TripMeans.values) ...m.productClasses];
     expect(all.toSet(), hasLength(all.length));
+    // And every class EFA has belongs to one: none slips past the filter.
+    expect(all.toSet(), {for (var c = 0; c <= 17; c++) c});
   });
 
   test('an EFA error message becomes ServerFailure', () async {

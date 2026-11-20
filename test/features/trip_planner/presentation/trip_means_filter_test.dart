@@ -75,7 +75,7 @@ void main() {
     });
   });
 
-  testWidgets('the trip form has a chip per means of transport', (
+  testWidgets('the trip form has a tile per means of transport', (
     tester,
   ) async {
     tester.view
@@ -93,29 +93,102 @@ void main() {
       ),
     );
 
-    expect(find.byType(FilterChip), findsNWidgets(TripMeans.values.length));
+    expect(find.byType(TripMeansTile), findsNWidgets(TripMeans.values.length));
     for (final label in [
       'Regional train',
       'S-Bahn',
       'U-Bahn',
       'Tram',
       'Bus',
+      'On-demand bus',
       'ICE',
       'IC/EC',
+      'Flixtrain',
+      'Ferry',
       'Others',
     ]) {
-      expect(find.widgetWithText(FilterChip, label), findsOneWidget);
+      expect(find.widgetWithText(TripMeansTile, label), findsOneWidget);
     }
 
-    await tester.tap(find.widgetWithText(FilterChip, 'ICE'));
+    await tester.tap(find.widgetWithText(TripMeansTile, 'ICE'));
     await tester.pump();
     expect(means.state, {TripMeans.ice});
     expect(
       tester
-          .widget<FilterChip>(find.widgetWithText(FilterChip, 'ICE'))
+          .widget<TripMeansTile>(find.widgetWithText(TripMeansTile, 'ICE'))
           .selected,
       isFalse,
     );
+  });
+
+  group('the form layout', () {
+    Future<void> pumpForm(
+      WidgetTester tester, {
+      required double width,
+      double textScale = 1,
+    }) async {
+      tester.view
+        ..physicalSize = Size(width * 3, 6000)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(textScale)),
+              child: BlocProvider(
+                create: (_) => TripFormCubit(),
+                child: TripFormView(
+                  pickStop: (context, {required title}) async => null,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    /// How many tiles share the first row.
+    int firstRow(WidgetTester tester) {
+      final tops = [
+        for (final element in find.byType(TripMeansTile).evaluate())
+          tester.getTopLeft(find.byWidget(element.widget)).dy,
+      ];
+      return tops.where((top) => top == tops.first).length;
+    }
+
+    testWidgets('three tiles a row, of the same width', (tester) async {
+      // The test font is wider than a phone's, so a wide screen stands in
+      // for a phone here.
+      await pumpForm(tester, width: 800);
+
+      expect(firstRow(tester), 3);
+      final widths = {
+        for (final element in find.byType(TripMeansTile).evaluate())
+          tester.getSize(find.byWidget(element.widget)).width,
+      };
+      expect(widths, hasLength(1));
+    });
+
+    testWidgets('fewer a row when a word would not fit, never cut', (
+      tester,
+    ) async {
+      await pumpForm(tester, width: 360, textScale: 2);
+
+      expect(firstRow(tester), lessThan(3));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Search comes before the means of transport', (tester) async {
+      await pumpForm(tester, width: 411);
+
+      expect(
+        tester.getTopLeft(find.text('Search')).dy,
+        lessThan(tester.getTopLeft(find.text('Means of transport')).dy),
+      );
+    });
   });
 
   group('trip results', () {
@@ -143,7 +216,7 @@ void main() {
 
       await tester.tap(find.byTooltip('Choose means of transport'));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilterChip, 'Bus'));
+      await tester.tap(find.widgetWithText(TripMeansTile, 'Bus'));
       await tester.pumpAndSettle();
 
       expect(repository.queries.last.excluded, {TripMeans.bus});

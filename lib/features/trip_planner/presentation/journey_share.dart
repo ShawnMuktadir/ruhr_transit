@@ -30,7 +30,7 @@ import 'package:ruhr_transit/features/trip_planner/presentation/trip_widgets.dar
 /// Shared from RuhrTransit
 /// ```
 ///
-/// Times are the timetable's, with the delay next to them, like on screen.
+/// Times are the expected ones, with how late they are, like on screen.
 /// The link needs the searched stops, so there is none without [query].
 String journeyShareText(
   BuildContext context,
@@ -40,7 +40,7 @@ String journeyShareText(
   final l10n = AppLocalizations.of(context);
 
   String clock(TripStop stop) {
-    final time = formatClockTime(context, stop.plannedTime);
+    final time = formatClockTime(context, stop.time);
     final delay = stop.delay?.inMinutes ?? 0;
     return switch (delay) {
       > 0 => '$time (${l10n.departureLate(delay)})',
