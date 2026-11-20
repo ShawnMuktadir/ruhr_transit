@@ -224,10 +224,12 @@ void main() {
 
     Result<Weather> sky(WeatherSky sky) => Ok(cloudyWithRain.withSky(sky));
 
-    /// How far the sky moves in one second.
+    /// How far the sky moves in one second. The current sky is the last:
+    /// the one by the clock may still be fading out under it, e.g. in a
+    /// hidden tab, where the fade waits.
     Future<double> movedInASecond(WidgetTester tester) async {
       final backdrop = tester.state<WeatherBackdropState>(
-        find.byType(WeatherBackdrop),
+        find.byType(WeatherBackdrop).last,
       );
       final before = backdrop.seconds;
       await tester.pump(const Duration(seconds: 1));
@@ -285,10 +287,18 @@ void main() {
       });
     }
 
-    testWidgets('no weather, no background', (tester) async {
+    testWidgets('no weather: a sky by the clock that still moves', (
+      tester,
+    ) async {
+      // Offline, no location or a slow answer: partly cloudy by day or by
+      // night, never a plain header.
       await pumpPlanner(tester, const Err(NetworkFailure()));
-      expect(find.byType(WeatherBackdrop), findsNothing);
-      expect(tester.binding.hasScheduledFrame, isFalse);
+      expect(find.byType(WeatherBackdrop), findsOneWidget);
+      expect(
+        tester.widget<WeatherBackdrop>(find.byType(WeatherBackdrop)).look.scene,
+        anyOf(WeatherScene.sunAndClouds, WeatherScene.starsAndClouds),
+      );
+      expect(await movedInASecond(tester), greaterThan(0.8));
     });
 
     testWidgets('TalkBack reads greeting, chip and credit one by one', (
