@@ -7,9 +7,20 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 /// of a bare platform number.
 final _namesItself = RegExp('[A-Za-zÄÖÜäöüß]{3}');
 
+/// EFA's German word in front of the number, as in "Gleis 2 (U)" or
+/// "Steig 1": translated like a bare number, so English does not show
+/// "Gleis".
+final _germanWord = RegExp(r'^(Gleis|Steig)\s+(\S.*)$');
+
+/// The number without EFA's German word, for "(was 1 (U))".
+String _number(String platform) =>
+    _germanWord.firstMatch(platform.trim())?.group(2) ?? platform.trim();
+
 /// The platform as it should be shown: "Gleis 5" / "Platform 5" for a bare
-/// number, "Steig 03" / "Bay 03" for a bus, and EFA's text unchanged when it
-/// already says what it is. Null when there is no platform.
+/// number, "Steig 03" / "Bay 03" for a bus, "Gleis 2 (U)" / "Platform 2 (U)"
+/// for EFA's own German word, and EFA's text unchanged when it otherwise
+/// says what it is ("U-Bahn Gleis 2", "Bus"). Null when there is no
+/// platform.
 String? platformLabel(
   AppLocalizations l10n,
   String? platform, {
@@ -17,6 +28,11 @@ String? platformLabel(
 }) {
   final value = platform?.trim();
   if (value == null || value.isEmpty) return null;
+  if (_germanWord.firstMatch(value) case final match?) {
+    return match.group(1) == 'Steig'
+        ? l10n.platformLabelBus(match.group(2)!)
+        : l10n.platformLabel(match.group(2)!);
+  }
   if (_namesItself.hasMatch(value)) return value;
   return mode == TransportMode.bus
       ? l10n.platformLabelBus(value)
@@ -35,7 +51,7 @@ String? platformText(
   final label = platformLabel(l10n, platform, mode: mode);
   if (label == null) return null;
   return _isChanged(platform, plannedPlatform)
-      ? l10n.platformChangedHint(label, plannedPlatform!.trim())
+      ? l10n.platformChangedHint(label, _number(plannedPlatform!))
       : label;
 }
 
@@ -50,7 +66,7 @@ String? platformSpokenLabel(
   final label = platformLabel(l10n, platform, mode: mode);
   if (label == null) return null;
   return _isChanged(platform, plannedPlatform)
-      ? l10n.departurePlatformChanged(label, plannedPlatform!.trim())
+      ? l10n.departurePlatformChanged(label, _number(plannedPlatform!))
       : label;
 }
 

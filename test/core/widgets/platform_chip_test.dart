@@ -80,6 +80,24 @@ void main() {
       }
     });
 
+    testWidgets("translates EFA's German word in English", (tester) async {
+      // Bochum Hbf's U-Bahn and tram platforms, live 2026-11-20.
+      await pumpChip(tester, const PlatformChip(platform: 'Gleis 2 (U)'));
+      expect(find.text('Platform 2 (U)'), findsOneWidget);
+
+      await pumpChip(tester, const PlatformChip(platform: 'Steig 1'));
+      expect(find.text('Bay 1'), findsOneWidget);
+
+      await pumpChip(
+        tester,
+        const PlatformChip(
+          platform: 'Gleis 2 (U)',
+          plannedPlatform: 'Gleis 1 (U)',
+        ),
+      );
+      expect(find.text('Platform 2 (U) (was 1 (U))'), findsOneWidget);
+    });
+
     testWidgets('shows nothing without a platform', (tester) async {
       for (final value in [null, '', '  ']) {
         await pumpChip(tester, PlatformChip(platform: value));

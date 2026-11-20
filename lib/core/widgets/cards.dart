@@ -47,6 +47,9 @@ class GroupCard extends StatelessWidget {
     clipBehavior: Clip.antiAlias,
     child: Column(
       mainAxisSize: MainAxisSize.min,
+      // Full width, so a short text starts at the edge like the rows
+      // instead of standing centred.
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (index, child) in children.indexed) ...[
           if (index > 0) const Divider(height: 1, indent: 16, endIndent: 16),
