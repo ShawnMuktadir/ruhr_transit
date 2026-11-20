@@ -67,3 +67,26 @@ class Stop {
   @override
   String toString() => 'Stop($id, $fullName)';
 }
+
+/// EFA's short name of some stops repeats the town ("Bochum Hbf/Boulevard"
+/// in Bochum), while that of others does not ("Hbf"). Next to the town the
+/// app shows the short name, so it drops the town there: "Hbf/Boulevard".
+/// Only a whole word, so "Bochum-Langendreer" stays as it is.
+({String name, String fullName}) withoutRepeatedTown(
+  String name,
+  String fullName,
+  String? locality,
+) {
+  if (locality == null) return (name: name, fullName: fullName);
+  String strip(String text, String prefix) =>
+      text.length > prefix.length && text.startsWith(prefix)
+      ? text.substring(prefix.length)
+      : text;
+  return (
+    name: strip(name, '$locality '),
+    // "Bochum, Bochum Hbf/Boulevard" -> "Bochum, Hbf/Boulevard".
+    fullName: fullName.startsWith('$locality, $locality ')
+        ? '$locality, ${strip(fullName.substring(locality.length + 2), '$locality ')}'
+        : fullName,
+  );
+}

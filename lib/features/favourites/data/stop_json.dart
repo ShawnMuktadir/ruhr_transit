@@ -24,14 +24,17 @@ Stop stopFromJson(Object? json) {
     'latitude': final num latitude,
     'longitude': final num longitude,
   }) {
+    final locality = switch (json['locality']) {
+      final String locality => locality,
+      _ => null,
+    };
+    // Saved before the app dropped the repeated town.
+    final names = withoutRepeatedTown(name, fullName, locality);
     return Stop(
       id: id,
-      name: name,
-      fullName: fullName,
-      locality: switch (json['locality']) {
-        final String locality => locality,
-        _ => null,
-      },
+      name: names.name,
+      fullName: names.fullName,
+      locality: locality,
       latitude: latitude.toDouble(),
       longitude: longitude.toDouble(),
       modes: switch (json['modes']) {

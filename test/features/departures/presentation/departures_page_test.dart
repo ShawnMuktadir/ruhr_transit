@@ -10,6 +10,7 @@ import 'package:ruhr_transit/features/departures/presentation/departures_cubit.d
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/favourites/presentation/favourites_cubit.dart';
 
+import '../../../helpers/board_title.dart';
 import '../../../helpers/fake_departure_repository.dart';
 import '../../../helpers/fake_favourites_repository.dart';
 import '../../../helpers/fake_stop_repository.dart';
@@ -102,7 +103,7 @@ void main() {
     await pumpPage(tester);
 
     expect(repository.stopIds, [bochumHbf.id]);
-    expect(find.text('Bochum, Hbf'), findsOneWidget);
+    expect(findBoardTitle('Bochum, Hbf'), findsOneWidget);
     expect(find.textContaining('RE16', findRichText: true), findsOneWidget);
     expect(find.text('Essen Hauptbahnhof'), findsOneWidget);
     expect(find.text(localTime(delayedRe16.plannedTime)), findsOneWidget);
@@ -111,6 +112,24 @@ void main() {
     expect(find.textContaining('All information without guarantee'), findsOne);
     expect(find.text('Updated ${localTime(boardTime)}'), findsOneWidget);
     expect(find.byIcon(Icons.cloud_off), findsNothing);
+  });
+
+  testWidgets('the title is the stop over its town, also at large text', (
+    tester,
+  ) async {
+    repository.autoReply = Ok([delayedRe16]);
+    await pumpPage(tester, textScale: 2);
+
+    final title = find.descendant(
+      of: find.byType(AppBar),
+      matching: find.text(bochumHbf.name),
+    );
+    expect(title, findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('Bochum')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('marks cancelled departures and platform changes', (

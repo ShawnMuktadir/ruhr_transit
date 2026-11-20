@@ -133,20 +133,25 @@ Stop mapEfaStop(
     _ => null,
   };
 
-  final String name;
-  final String fullName;
+  final String efaName;
+  final String efaFullName;
   if (nameIncludesLocality) {
-    fullName = rawName;
-    name = switch (json['disassembledName']) {
+    efaFullName = rawName;
+    efaName = switch (json['disassembledName']) {
       final String short when short.isNotEmpty => short,
       _ => rawName,
     };
   } else {
-    name = rawName;
+    efaName = rawName;
     // The stop finder's format, also when the name repeats the town:
     // "Bochum, Bochum Hbf/Boulevard".
-    fullName = locality == null ? rawName : '$locality, $rawName';
+    efaFullName = locality == null ? rawName : '$locality, $rawName';
   }
+  final (:name, :fullName) = withoutRepeatedTown(
+    efaName,
+    efaFullName,
+    locality,
+  );
 
   // With coordOutputFormat=WGS84 EFA sends [latitude, longitude].
   final coord = json['coord'];

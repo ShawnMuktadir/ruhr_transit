@@ -36,7 +36,7 @@ VehicleRun mapRunResponse(Map<String, Object?> json) {
 /// should not cost the whole run.
 RunStop? _mapStop(Map<String, Object?> json) {
   final id = readNonEmptyString(json['id']);
-  final name = readEfaStopName(json['name']);
+  final name = readEfaTripStopName(json);
   final arrivalPlanned = readEfaTime(json['arrivalTimePlanned']);
   final departurePlanned = readEfaTime(json['departureTimePlanned']);
   if (id == null ||
