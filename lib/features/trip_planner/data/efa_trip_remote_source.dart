@@ -49,7 +49,9 @@ class EfaTripRemoteSource {
   }
 
   /// A trip with every means of transport excluded: EFA answers with a
-  /// single walk (verified live). Product classes as in `efa_product.dart`.
+  /// single walk (verified live). All classes, as the tiles cover them:
+  /// with only 0 to 11 off, Bochum Hbf to Essen Hbf came back as rail
+  /// replacement buses (17) and no walk (live, 2026-11-20).
   Future<Map<String, Object?>> walk({
     required String fromId,
     required String toId,
@@ -63,7 +65,10 @@ class EfaTripRemoteSource {
         'name_destination': toId,
         'coordOutputFormat': 'WGS84[dd.ddddd]',
         'excludedMeans': 'checkbox',
-        for (var means = 0; means <= 11; means++) 'exclMOT_$means': '1',
+        for (final productClass in TripMeans.excludedClasses(
+          TripMeans.values.toSet(),
+        ))
+          'exclMOT_$productClass': '1',
       },
     );
     return decodeEfaJson(response.data);

@@ -320,6 +320,42 @@
   "@tripResultsEmpty": {
     "description": "No journeys were found."
   },
+  "tripResultsEmptyOnly": "Keine Verbindungen nur mit {means}. Eine Verbindung nutzt nur die eingeschalteten Verkehrsmittel, auch auf dem Weg zum Bahnhof.",
+  "@tripResultsEmptyOnly": {
+    "description": "No journeys while only a few means of transport are on.",
+    "placeholders": {
+      "means": {
+        "type": "String",
+        "example": "Flixtrain, Andere"
+      }
+    }
+  },
+  "tripResultsEmptyWithout": "Keine Verbindungen ohne {means}. Eine Verbindung nutzt nur die eingeschalteten Verkehrsmittel, auch auf dem Weg zum Bahnhof.",
+  "@tripResultsEmptyWithout": {
+    "description": "No journeys while some means of transport are off.",
+    "placeholders": {
+      "means": {
+        "type": "String",
+        "example": "ICE, Bus"
+      }
+    }
+  },
+  "tripSearchLater": "Eine Stunde später suchen",
+  "@tripSearchLater": {
+    "description": "Button when no trips were found: searches again from an hour later."
+  },
+  "tripSearchEarlier": "Eine Stunde früher suchen",
+  "@tripSearchEarlier": {
+    "description": "Button when no trips were found for an arrival time: an hour earlier."
+  },
+  "tripMeansAll": "Mit allen Verkehrsmitteln suchen",
+  "@tripMeansAll": {
+    "description": "Button: turns every means of transport on and searches again."
+  },
+  "tripMeansChange": "Filter ändern",
+  "@tripMeansChange": {
+    "description": "Button: opens the means-of-transport tiles."
+  },
   "tripLater": "Spätere Verbindungen",
   "@tripLater": {
     "description": "Button that loads trips after the last one shown."

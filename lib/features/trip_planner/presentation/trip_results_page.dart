@@ -113,7 +113,28 @@ class TripResultsView extends StatelessWidget {
               onRetry: cubit.load,
             ),
             TripResultsLoaded(:final journeys) when journeys.isEmpty =>
-              CenteredMessage(l10n.tripResultsEmpty),
+              switch (context.maybeRead<ExcludedMeansCubit>()) {
+                // The filter, not the route, may be why: say so, with
+                // the way out.
+                final means? when cubit.query.excluded.isNotEmpty =>
+                  _FilteredEmpty(cubit.query.excluded, means),
+                _ => CenteredMessage(
+                  l10n.tripResultsEmpty,
+                  action: OutlinedButton.icon(
+                    icon: Icon(
+                      cubit.query.time is ArriveBy
+                          ? Icons.history
+                          : Icons.update,
+                    ),
+                    label: Text(
+                      cubit.query.time is ArriveBy
+                          ? l10n.tripSearchEarlier
+                          : l10n.tripSearchLater,
+                    ),
+                    onPressed: cubit.searchShifted,
+                  ),
+                ),
+              },
             TripResultsLoaded(:final journeys, :final isLoadingLater) =>
               ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -251,6 +272,51 @@ class _JourneyCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// No trips while some means of transport are off. Names what is on when
+/// that is short ("only Flixtrain, Others"), else what is off, and offers
+/// to search with all of them or to change the filter. No search without
+/// the filter by itself: VRR allows only queries the user starts.
+class _FilteredEmpty extends StatelessWidget {
+  const _FilteredEmpty(this.excluded, this.means);
+
+  final Set<TripMeans> excluded;
+  final ExcludedMeansCubit means;
+
+  /// Up to this many means on are listed by name.
+  static const _maxListed = 3;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    String names(bool Function(TripMeans) where) => [
+      for (final m in TripMeans.values)
+        if (where(m)) tripMeansLabel(l10n, m),
+    ].join(', ');
+    final on = TripMeans.values.length - excluded.length;
+    return CenteredMessage(
+      on <= _maxListed
+          ? l10n.tripResultsEmptyOnly(names((m) => !excluded.contains(m)))
+          : l10n.tripResultsEmptyWithout(names(excluded.contains)),
+      icon: Icons.filter_alt_off_outlined,
+      action: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Turning them on searches again (the page listens).
+          FilledButton.tonal(
+            onPressed: () => means.set(const {}),
+            child: Text(l10n.tripMeansAll, textAlign: TextAlign.center),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () => TripMeansSheet.show(context),
+            child: Text(l10n.tripMeansChange),
+          ),
+        ],
       ),
     );
   }

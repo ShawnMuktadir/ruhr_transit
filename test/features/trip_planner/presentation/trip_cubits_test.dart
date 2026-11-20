@@ -220,6 +220,46 @@ void main() {
       expect((cubit.state as TripResultsLoaded).journeys, hasLength(2));
     });
 
+    test('nothing found: searching an hour later or earlier', () async {
+      // Seen live: Sunday 08:00 found nothing, the first bus left 09:54.
+      final at8 = DateTime(2026, 11, 22, 8);
+      cubit = TripResultsCubit(
+        repository,
+        query.withTime(DepartAt(at8)),
+        now: () => now,
+      );
+      // The first request after it; more may follow to fill the list.
+      var asked = repository.queries.length;
+      await cubit.searchShifted();
+      expect(
+        (repository.queries[asked].time as DepartAt).time,
+        DateTime(2026, 11, 22, 9),
+      );
+
+      cubit = TripResultsCubit(
+        repository,
+        query.withTime(ArriveBy(at8)),
+        now: () => now,
+      );
+      asked = repository.queries.length;
+      await cubit.searchShifted();
+      expect(
+        (repository.queries[asked].time as ArriveBy).time,
+        DateTime(2026, 11, 22, 7),
+      );
+
+      // Leaving now becomes an hour from now.
+      await cubit.close();
+      cubit = TripResultsCubit(repository, query, now: () => now);
+      asked = repository.queries.length;
+      await cubit.searchShifted();
+      expect(
+        (repository.queries[asked].time as DepartAt).time,
+        now.toLocal().add(const Duration(hours: 1)),
+      );
+      expect(cubit.query.time, isA<DepartAt>());
+    });
+
     test('no journeys is loaded, not an error', () async {
       repository.replies = [const Ok([])];
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruhr_transit/core/di/injection.dart';
+import 'package:ruhr_transit/core/error/result.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
@@ -207,6 +208,72 @@ void main() {
 
       expect(repository.queries.first.excluded, {TripMeans.ice});
       expect(find.text('Without ICE'), findsOneWidget);
+    });
+
+    testWidgets('no trips with a filter says so and offers all means', (
+      tester,
+    ) async {
+      // Seen on the phone: Bochum → Passau with only Flixtrain and Others.
+      for (final m in TripMeans.values) {
+        if (m != TripMeans.flixtrain && m != TripMeans.other) {
+          await means.toggle(m);
+        }
+      }
+      repository.replies = [
+        const Ok([]),
+        Ok([directS1]),
+      ];
+      await tester.pumpWidget(app(const TripResultsPage(query: _query)));
+      await tester.pump();
+
+      expect(
+        find.textContaining('No trips using only Flixtrain, Others.'),
+        findsOneWidget,
+      );
+      expect(find.text('Change filter'), findsOneWidget);
+
+      await tester.tap(find.text('Search with all means of transport'));
+      await tester.pumpAndSettle();
+
+      expect(means.state, isEmpty);
+      expect(repository.queries.last.excluded, isEmpty);
+      // Searched again without the filter, so neither hint nor note.
+      expect(find.text('Search with all means of transport'), findsNothing);
+      expect(find.textContaining('Without'), findsNothing);
+    });
+
+    testWidgets('with most means on, names the ones that are off', (
+      tester,
+    ) async {
+      await means.toggle(TripMeans.ice);
+      repository.replies = [const Ok([])];
+      await tester.pumpWidget(app(const TripResultsPage(query: _query)));
+      await tester.pump();
+
+      expect(find.textContaining('No trips without ICE.'), findsOneWidget);
+
+      await tester.tap(find.text('Change filter'));
+      await tester.pumpAndSettle();
+      expect(
+        find.byType(TripMeansTile),
+        findsNWidgets(TripMeans.values.length),
+      );
+    });
+
+    testWidgets('no trips without a filter offers to search later', (
+      tester,
+    ) async {
+      repository.replies = [const Ok([])];
+      await tester.pumpWidget(app(const TripResultsPage(query: _query)));
+      await tester.pump();
+
+      expect(find.text('No trips found between these stops.'), findsOneWidget);
+      expect(find.text('Search with all means of transport'), findsNothing);
+
+      await tester.tap(find.text('Search an hour later'));
+      await tester.pump();
+      expect(repository.queries, hasLength(2));
+      expect(repository.queries.last.time, isA<DepartAt>());
     });
 
     testWidgets('a change in the filter sheet searches again', (tester) async {
