@@ -20,6 +20,7 @@ import 'package:ruhr_transit/features/trip_planner/presentation/stop_actions.dar
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_form_cubit.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_means_filter.dart';
 import 'package:ruhr_transit/features/trip_planner/presentation/trip_results_page.dart';
+import 'package:ruhr_transit/features/weather/domain/daylight.dart';
 import 'package:ruhr_transit/features/weather/presentation/weather_backdrop.dart';
 import 'package:ruhr_transit/features/weather/presentation/weather_chip.dart';
 import 'package:ruhr_transit/features/weather/presentation/weather_cubit.dart';
@@ -52,9 +53,12 @@ class TripFormView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<TripFormCubit>();
+    // Without weather (loading, offline, no location) a sky by the clock,
+    // so the header does not fall back to a plain page.
     final look = showWeather
         ? WeatherLook.of(
-            context.select((WeatherCubit weather) => weather.sky),
+            context.select((WeatherCubit weather) => weather.sky) ??
+                skyWithoutWeather(now()),
             Theme.of(context).brightness,
           )
         : null;
@@ -220,7 +224,7 @@ class TripFormView extends StatelessWidget {
   }
 }
 
-/// The greeting and the weather, on the sky when there is weather to show.
+/// The greeting and the weather, on the sky.
 class _Header extends StatelessWidget {
   const _Header({
     required this.look,
