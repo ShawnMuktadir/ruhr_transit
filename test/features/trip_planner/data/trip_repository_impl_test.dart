@@ -169,6 +169,22 @@ void main() {
     });
   });
 
+  test('a walk turns off every means of transport', () async {
+    // With only 0 to 11 off, VRR answered a long walk with rail
+    // replacement buses (17) and the app showed no walk.
+    final repository = repositoryAnswering(
+      (_) async => textResponse(readEfaFixture('trip_bochum_dortmund')),
+    );
+
+    await repository.walkRoute(from: bochumHbf, to: dortmundHbf);
+
+    final params = adapter.requests.single.uri.queryParameters;
+    expect(params['excludedMeans'], 'checkbox');
+    for (var productClass = 0; productClass <= 17; productClass++) {
+      expect(params['exclMOT_$productClass'], '1', reason: '$productClass');
+    }
+  });
+
   test('every means of transport stands for its product classes', () {
     expect(TripMeans.regionalTrain.productClasses, {0, 13});
     expect(TripMeans.intercity.productClasses, {15});

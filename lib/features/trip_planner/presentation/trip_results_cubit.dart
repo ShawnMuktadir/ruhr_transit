@@ -64,6 +64,22 @@ class TripResultsCubit extends Cubit<TripResultsState> {
     }
   }
 
+  /// Searches again an hour later (or, arriving by a time, earlier), after
+  /// nothing was found. EFA looks only a while ahead: on a Sunday morning
+  /// Bochum to Hattingen found nothing from 08:00 but buses from 09:54 when
+  /// asked from 10:00 (live, 2026-11-20). Only when the user asks.
+  Future<void> searchShifted() async {
+    final time = switch (_query.time) {
+      LeaveNow() => DepartAt(_now().toLocal().add(_shift)),
+      DepartAt(:final time) => DepartAt(time.toLocal().add(_shift)),
+      ArriveBy(:final time) => ArriveBy(time.toLocal().subtract(_shift)),
+    };
+    _query = _query.withTime(time);
+    await load();
+  }
+
+  static const _shift = Duration(hours: 1);
+
   /// Fetches later journeys until [minimumJourneys] are shown, EFA finds no
   /// new ones, or [_maxFillRequests] were made. The list shows meanwhile.
   ///
