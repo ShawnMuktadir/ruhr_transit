@@ -1,51 +1,104 @@
-> **Draft – review before publishing.** This text is a draft, not legal advice. Add the postal address and have the text checked.
+> **Draft, last updated 22 November 2026.** This text is a draft and not legal advice. It has not been checked by a lawyer yet.
 
 # Privacy policy
 
-Last updated: November 10, 2026
+## Who is responsible
 
-## Controller
+Md Muktadir, email: mmuktadir778@gmail.com. The postal address is in the legal notice (Impressum).
 
-Md Muktadir, email: mmuktadir778@gmail.com
+In data protection law this person is the "controller": the one who decides why and how personal data is processed in this app.
 
 ## Overview
 
-RuhrTransit shows departures and stops in the area of the Verkehrsverbund Rhein-Ruhr (VRR) and connections across Germany, with data from the VRR timetable service. The app has **no user account**, **no ads** and **no analytics or tracking tools**. There are no servers of its own; the app stores nothing outside your device.
+RuhrTransit shows departures, stops and trips in the area of the Verkehrsverbund Rhein-Ruhr (VRR) and across Germany.
 
-## What is sent, and to whom
+- The app has **no user accounts**, **no ads**, and **no analytics or tracking**.
+- The app has **no server of its own**. I, the developer, receive no data from the app.
+- To show timetables, weather and maps, the app connects directly to the services listed below. These services receive what the app sends them.
+- Everything else stays on your device.
 
-For every query the app connects to the VRR timetable service (openservice.vrr.de) and sends:
+## What the app sends, and to whom
 
-- **Search terms** for stops and, under "From" and "To", also for **addresses and places**: what you type there, such as the street and house number of your home, is sent to VRR.
-- **IDs** of the chosen stops, addresses and places for departures and trips, and the **chosen time** of a trip search.
-- **Location**, only when you tap "Use my location" under "Stops near me" and allow location access: the coordinates are read once and sent to VRR to find stops within 1 km. Likewise when you tap "Use current location as start" next to "From" or "Walk to …" on a trip: the coordinates, rounded to about 10 m, are sent to VRR, which returns the address there as the start. This start is not saved in the search history. For the weather, see below. The app never reads the location in the background and does not store it.
-- As with any internet request, VRR's server receives your **IP address**.
+### VRR timetable service
 
-VRR's own privacy policy applies to its processing: https://www.vrr.de/de/datenschutz/.
+For timetable information the app connects to the timetable service of the Verkehrsverbund Rhein-Ruhr AöR (openservice.vrr.de). It sends:
 
-**Weather:** If the app may use your location, opening "Plan trip" sends your coordinates, rounded to about 1 km, to Bright Sky (api.brightsky.dev), a service providing Deutscher Wetterdienst data, to show the weather near you. Without location access the app only asks when you tap the weather display. Bright Sky also receives your IP address. Bright Sky is an open-source project; information and contact: https://brightsky.dev. The Deutscher Wetterdienst's terms of use apply to the weather data.
+- **What you type in a search**, for stops and, under "From" and "To", also for addresses and places. If you type your home address, VRR receives it.
+- **The stops, addresses and places you choose**, and the **time** of a trip search.
+- **Your location for "Stops near me"**: the app reads your location and sends the coordinates to find stops within 1 km. The first time, this only happens after you tap "Use my location". Once you have allowed location access, the app does this every time you open "Stops near me".
+- **Your location for "Use current location as start"** next to "From", and for **"Walk to ..."** in a trip: only when you tap. The coordinates are rounded to about 10 m. VRR returns the address there, and the trip is planned from that address.
+- **Reminders** (Android only): when a reminder you have set is due, the app asks VRR about the delay of that ride. It sends the line, the trip and the stop. This also happens while the app is closed.
 
-The legal basis is Art. 6(1)(b) GDPR (providing the information you request); for location additionally your consent through the Android permission, which you can withdraw at any time in the system settings.
+### Bright Sky (weather)
 
-**Reminders:** If you have set a reminder, the app asks VRR about the ride's delay when the reminder is due, sending the line, trip and stop. This also happens while the app is closed.
+If you have allowed location access, the app shows the weather where you are. It sends your coordinates, **rounded to about 1 km**, to Bright Sky (api.brightsky.dev), a free service that provides data of the Deutscher Wetterdienst. This happens when you open "Plan trip", and again when you come back to the app after 30 minutes or more. Without location access the app only asks when you tap the weather display. Bright Sky does not publish a privacy policy of its own. Information: https://brightsky.dev
 
-**Maps:** When you open a map (a trip on the map, stops near me as a map), the app loads the map images for the area shown from basemap.de at the German Federal Agency for Cartography and Geodesy (BKG, sgx.geodatenzentrum.de). BKG receives your IP address and which area is loaded – for "Stops near me" roughly where you are. BKG's privacy policy applies: https://www.bkg.bund.de/datenschutz
+### basemap.de (maps)
 
-**Translation:** VRR's notices and delay reasons are in German. If the app is in another language and you tap "Translate" next to such a text, the app opens it in Google Translate: in the Google Translate app if installed, otherwise in your browser. Google then receives that VRR text, which contains nothing about you, and your IP address. Google's privacy policy applies: https://policies.google.com/privacy. The app sends nothing to Google otherwise.
+When a map is shown, the app loads the map images for the area on screen from basemap.de, a service of the Federal Agency for Cartography and Geodesy (BKG, sgx.geodatenzentrum.de). BKG learns which area is shown. On the "Stops near me" map, this is roughly where you are. Privacy policy of BKG: https://www.bkg.bund.de/datenschutz
 
-## Data on your device
+### Google Translate (only when you tap)
 
-Stored on your device only:
+Notices and delay reasons from VRR are in German. If the app is in another language and you tap "Translate", the app opens the text in Google Translate, in the Google Translate app or in your browser. Google receives the VRR text, which contains nothing about you. Google may process data outside the EU. Privacy policy of Google: https://policies.google.com/privacy
 
-- Your favourites: stops and saved journeys, with the labels you give them. The start and destination of a saved journey can be addresses.
-- Your search history: the stops, addresses and places you last chose for "From" and "To", at most 10. You can delete it, entirely or one by one, in the stop picker.
-- Map images you have viewed: cached, at most 100 MB, so maps load faster. They show which areas you looked at; "Clear cache" in the app's Android settings deletes them.
-- Your reminders: the ride, stop and time, until the ride has left.
-- The last fetched departures of up to 10 stops, so they stay visible without an internet connection, and the data of the home-screen widget.
-- Your settings: language, appearance and, if you enter one, your display name.
+### Your IP address
 
-This data is not sent anywhere. It may be included in your Google account's Android backup if you have it turned on. Uninstalling the app deletes it.
+Like any internet connection, every request shows your **IP address** to the service you contact: VRR, Bright Sky, BKG, and Google for "Translate". The app cannot prevent this.
+
+### Location on Android
+
+On Android, the app gets your location from Google Play services on your phone. How Google handles location data depends on the location settings of your phone and your Google account. The app itself sends your location only to the services named above.
+
+## Who decides about the data at these services
+
+VRR, Bright Sky, BKG and Google process the data they receive under their own responsibility. They are not acting on my behalf. Their own privacy policies apply.
+
+## Data stored on your device
+
+The app stores the following **only on your device**:
+
+- **Favourites**: stops and saved journeys, with the names you give them. A saved journey can start or end at an address. If you save a journey that starts at your current location, the address near you is saved with it.
+- **Search history**: the last 10 stops, addresses and places you chose for "From" and "To". You can delete it in the stop picker, all at once or one by one.
+- **Reminders**: the ride, stop and time, until the ride has left.
+- **Saved departures**: the last departures of up to 10 stops, so they stay visible without internet, and the data of the home-screen widget.
+- **Map images** you have viewed, up to 100 MB, so maps load faster. They show which areas you looked at.
+- **Settings**: language, appearance, means of transport, and your display name if you enter one.
+
+The app does not store your coordinates. It does not read your location in the background.
+
+On Android, this data can be part of your Google account's backup if you have turned backup on in your phone's settings.
+
+## Why the app may do this (legal bases)
+
+- Sending searches, stops and times to VRR, and loading maps: this is needed to give you the information you ask for in the app (Art. 6(1)(b) GDPR).
+- Using your location: you decide by allowing location access in your phone's settings (consent, Art. 6(1)(a) GDPR). You can withdraw it at any time in the settings. Without it, all features work except those that need your location.
+- If you email me: I use your message only to answer you (Art. 6(1)(b) or (f) GDPR).
+
+## How long data is kept
+
+- I, the developer, receive no data from the app, so I keep none. Emails are deleted when they are no longer needed.
+- Data on your device stays until you delete it in the app, clear the app's storage, or uninstall the app.
+- How long VRR, Bright Sky, BKG and Google keep data is described in their own policies.
+
+## How to delete your data
+
+- In the app: remove favourites and saved journeys, delete the search history in the stop picker, and delete reminders.
+- Android: Settings, Apps, RuhrTransit, Storage, "Clear storage". This deletes everything the app stored.
+- iPhone: delete the app.
+- To stop location use: turn off location access for RuhrTransit in your phone's settings.
 
 ## Your rights
 
-You have the right of access, rectification, erasure, restriction of processing, data portability and objection, and the right to lodge a complaint with a data protection supervisory authority. As the app itself stores no personal data outside your device, please contact VRR about data held by VRR.
+Under the GDPR you have the right to access, correction, deletion, restriction of processing, data portability, and to object. You can withdraw a consent at any time. You can also complain to a data protection supervisory authority, for example the one where you live.
+
+Please note that I hold no data about you from the app. For data that VRR, Bright Sky, BKG or Google have received, please contact them.
+
+Contact: mmuktadir778@gmail.com
+
+## Children
+
+The app is not directed at children under 16. It does not knowingly collect data from children.
+
+## Changes
+
+I will update this policy when the app changes. The date at the top shows the last change. The current version is in the app under Settings, Legal, and online.

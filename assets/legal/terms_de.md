@@ -1,35 +1,63 @@
-> **Entwurf – vor der Veröffentlichung prüfen.** Dieser Text ist ein Entwurf und keine Rechtsberatung. Die Anschrift ergänzen und den Text rechtlich prüfen lassen.
+> **Entwurf, Stand 22. November 2026.** Dieser Text ist ein Entwurf und keine Rechtsberatung. Er wurde noch nicht anwaltlich geprüft.
 
 # Nutzungsbedingungen
 
-Stand: 10. November 2026
+## Wer die App anbietet
 
-## Anbieter
+RuhrTransit wird angeboten von Md Muktadir, E-Mail: mmuktadir778@gmail.com. Die Postanschrift steht im Impressum. RuhrTransit ist ein kostenloses privates Projekt.
 
-RuhrTransit wird angeboten von Md Muktadir, E-Mail: mmuktadir778@gmail.com.
+## Was die App macht
 
-## Leistung
+RuhrTransit zeigt Abfahrten, Haltestellen und Verbindungen im Gebiet des Verkehrsverbunds Rhein-Ruhr (VRR) und in ganz Deutschland. Sie zeigt auch das Wetter und Karten.
 
-RuhrTransit ist eine kostenlose App für Fahrplanauskünfte im Gebiet des Verkehrsverbunds Rhein-Ruhr (VRR): Abfahrten, Verbindungen und Haltestellen in der Nähe. Die App verkauft keine Fahrkarten und ersetzt keine Fahrkarte.
+- Die App ist kostenlos. Sie verkauft keine Fahrkarten und ist keine Fahrkarte.
+- Sie brauchen kein Benutzerkonto.
 
-RuhrTransit ist **keine App des VRR** und wird vom VRR weder betrieben noch geprüft.
+## Keine Verbindung zu Verkehrsunternehmen
 
-## Fahrplandaten
+RuhrTransit ist **keine App des VRR** und keines Verkehrsunternehmens. Sie wird von ihnen weder betrieben noch geprüft noch empfohlen.
 
-Die Fahrplanauskünfte stammen vom Verkehrsverbund Rhein-Ruhr (VRR, www.vrr.de). Sie werden so angezeigt, wie der VRR sie liefert, und können unvollständig, verspätet oder falsch sein, etwa bei kurzfristigen Änderungen. **Alle Angaben ohne Gewähr.** Bitte achten Sie auch auf Aushänge und Durchsagen vor Ort.
+Namen von Verkehrsverbünden, Unternehmen und Diensten, etwa VRR, Deutsche Bahn oder FlixTrain, werden nur verwendet, um zu beschreiben, was die App zeigt. Sie sind Marken ihrer Inhaber.
 
-## Verfügbarkeit
+## Woher die Daten kommen
 
-Die App benötigt für aktuelle Auskünfte eine Internetverbindung und den Dienst des VRR. Ein Anspruch auf ständige Verfügbarkeit besteht nicht. Funktionen können geändert oder eingestellt werden.
+- **Fahrpläne und Echtzeitdaten**: Verkehrsverbund Rhein-Ruhr (VRR, www.vrr.de), über seine offene Fahrplanauskunft.
+- **Wetter**: Deutscher Wetterdienst, über Bright Sky (brightsky.dev).
+- **Karten**: basemap.de, © GeoBasis-DE / BKG, Lizenz CC BY 4.0.
 
-## Haftung
+Die App zeigt diese Daten so, wie sie geliefert werden. Ich prüfe oder ändere sie nicht.
 
-Für Schäden aus der Nutzung der App wird nur bei Vorsatz und grober Fahrlässigkeit gehaftet, außerdem bei Verletzung von Leben, Körper oder Gesundheit sowie nach zwingenden gesetzlichen Vorschriften. Insbesondere wird nicht gehaftet für verpasste Verbindungen aufgrund unzutreffender Fahrplandaten.
+## Keine Gewähr
+
+- **Alle Angaben ohne Gewähr.** Abfahrten, Verspätungen, Gleise und Verbindungen können unvollständig, verspätet oder falsch sein, zum Beispiel nach kurzfristigen Änderungen.
+- Bitte beachten Sie auch Aushänge und Durchsagen an der Haltestelle und im Fahrzeug.
+- Die App braucht eine Internetverbindung und die oben genannten Dienste. Diese können langsam oder nicht erreichbar sein. Es gibt keinen Anspruch darauf, dass die App oder ihre Daten jederzeit verfügbar sind.
+- Funktionen können sich jederzeit ändern oder wegfallen.
+
+## Nutzung auf eigene Gefahr
+
+Sie nutzen die App auf eigene Gefahr. Ich hafte unbeschränkt bei Vorsatz und grober Fahrlässigkeit, bei Verletzung von Leben, Körper oder Gesundheit und soweit das Gesetz es zwingend vorschreibt. Im Übrigen hafte ich nicht. Insbesondere hafte ich nicht für verpasste Anschlüsse oder Kosten durch falsche oder fehlende Daten.
+
+## Faire Nutzung
+
+- Nutzen Sie die App nur für Ihre eigene Reiseauskunft.
+- Nutzen Sie die App nicht für automatische oder massenhafte Abfragen bei den oben genannten Diensten, und umgehen Sie nicht deren Grenzen. Die Fahrplanauskunft des VRR darf nur für Abfragen genutzt werden, die eine Person selbst auslöst.
+- Nutzen Sie die App nicht so, dass Sie gegen Gesetze verstoßen oder anderen schaden.
+
+## Rechte und Lizenzen
+
+- Die App, ihre Gestaltung und ihre Texte gehören mir.
+- Die App nutzt Open-Source-Software. Diese Teile stehen unter ihren eigenen Lizenzen. Die Liste finden Sie in der App unter Einstellungen, Über die App, "Open-Source-Lizenzen".
+- Die Daten in der App gehören den oben genannten Anbietern, zu deren Bedingungen.
 
 ## Datenschutz
 
 Welche Daten die App verarbeitet, steht in der Datenschutzerklärung.
 
-## Schlussbestimmungen
+## Änderungen
 
-Es gilt das Recht der Bundesrepublik Deutschland. Sollte eine Bestimmung unwirksam sein, bleiben die übrigen wirksam.
+Ich kann diese Bedingungen ändern, wenn sich die App ändert. Das Datum oben zeigt die letzte Änderung. Die aktuelle Fassung steht in der App unter Einstellungen, Rechtliches, und online.
+
+## Recht
+
+Es gilt das Recht der Bundesrepublik Deutschland. Wenn Sie Verbraucher sind, gelten zusätzlich die zwingenden Verbraucherschutzregeln des Landes, in dem Sie leben. Ist ein Teil dieser Bedingungen unwirksam, bleibt der Rest gültig.

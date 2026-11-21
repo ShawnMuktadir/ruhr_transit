@@ -77,11 +77,35 @@ Last.
           expect(text, contains('Md Muktadir'), reason: reason);
           expect(text, contains('mmuktadir778@gmail.com'), reason: reason);
           expect(text, contains('2026'), reason: reason);
+          // Only the Impressum waits for the postal address; it marks
+          // what is missing so it cannot be overlooked.
+          final placeholder = RegExp(r'\[(PLATZHALTER|PLACEHOLDER):');
           expect(
-            RegExp(r'\[[A-ZÄÖÜ -]+\]').hasMatch(text),
-            isFalse,
+            placeholder.hasMatch(text),
+            document == LegalDocument.impressum,
             reason: reason,
           );
+          expect(RegExp(r'\[[A-ZÄÖÜ -]+\]').hasMatch(text), isFalse);
+          // Plain hyphens and commas only.
+          expect(text, isNot(contains('–')), reason: reason);
+          expect(text, isNot(contains('—')), reason: reason);
+        }
+      }
+    });
+
+    test('link to the same text online', () {
+      String online(LegalDocument document, String code) =>
+          document.onlineFor(AppLanguages.byCode(code)!).toString();
+      const base = 'https://shawnmuktadir.github.io/ruhr_transit';
+      expect(online(LegalDocument.privacy, 'de'), '$base/privacy-de.html');
+      expect(online(LegalDocument.terms, 'en'), '$base/terms-en.html');
+      expect(online(LegalDocument.impressum, 'de'), '$base/impressum.html');
+      expect(online(LegalDocument.impressum, 'en'), '$base/impressum-en.html');
+      // Each of them exists in docs/.
+      for (final document in LegalDocument.values) {
+        for (final language in AppLanguages.all) {
+          final file = document.onlineFor(language).pathSegments.last;
+          expect(File('docs/$file').existsSync(), isTrue, reason: file);
         }
       }
     });
@@ -127,7 +151,7 @@ Last.
       await pumpPage(tester, LegalDocument.privacy);
 
       expect(find.text('Privacy policy'), findsWidgets);
-      expect(find.textContaining('Draft – review before'), findsOneWidget);
+      expect(find.textContaining('Draft, last updated'), findsOneWidget);
       expect(find.textContaining('no user account'), findsOneWidget);
     });
 
@@ -135,7 +159,7 @@ Last.
       await pumpPage(tester, LegalDocument.terms, locale: 'de');
 
       expect(find.text('Nutzungsbedingungen'), findsWidgets);
-      expect(find.textContaining('keine App des VRR'), findsOneWidget);
+      expect(find.textContaining('kostenloses privates Projekt'), findsOneWidget);
     });
 
     testWidgets('explains a loading error and retries', (tester) async {

@@ -1,35 +1,63 @@
-> **Draft – review before publishing.** This text is a draft, not legal advice. Add the postal address and have the text checked.
+> **Draft, last updated 22 November 2026.** This text is a draft and not legal advice. It has not been checked by a lawyer yet.
 
 # Terms and conditions
 
-Last updated: November 10, 2026
+## Who provides the app
 
-## Provider
+RuhrTransit is provided by Md Muktadir, email: mmuktadir778@gmail.com. The postal address is in the legal notice (Impressum). RuhrTransit is a free hobby project.
 
-RuhrTransit is provided by Md Muktadir, email: mmuktadir778@gmail.com.
+## What the app does
 
-## Service
+RuhrTransit shows departures, stops and trips in the area of the Verkehrsverbund Rhein-Ruhr (VRR) and across Germany. It also shows the weather and maps.
 
-RuhrTransit is a free app for timetable information in the area of the Verkehrsverbund Rhein-Ruhr (VRR): departures, trips and nearby stops. The app does not sell tickets and is not a ticket.
+- The app is free. It does not sell tickets and is not a ticket.
+- You do not need an account.
 
-RuhrTransit is **not an app of VRR** and is neither operated nor checked by VRR.
+## No connection to transport companies
 
-## Timetable data
+RuhrTransit is **not an app of VRR** or of any transport company. It is not run, checked or endorsed by them.
 
-Timetable information is provided by Verkehrsverbund Rhein-Ruhr (VRR, www.vrr.de). It is shown as VRR delivers it and may be incomplete, late or wrong, for example after short-notice changes. **All information without guarantee.** Please also pay attention to notices and announcements at the stop.
+Names of transport associations, companies and services, such as VRR, Deutsche Bahn or FlixTrain, are used only to describe what the app shows. They are trademarks of their owners.
 
-## Availability
+## Where the data comes from
 
-Current information needs an internet connection and VRR's service. There is no right to uninterrupted availability. Features may change or be discontinued.
+- **Timetables and live data**: Verkehrsverbund Rhein-Ruhr (VRR, www.vrr.de), through its open timetable service.
+- **Weather**: Deutscher Wetterdienst, through Bright Sky (brightsky.dev).
+- **Maps**: basemap.de, © GeoBasis-DE / BKG, licence CC BY 4.0.
 
-## Liability
+The app shows this data as it is delivered. I do not check or change it.
 
-Liability for damage from using the app is limited to intent and gross negligence, injury to life, body or health, and mandatory statutory provisions. In particular, there is no liability for missed connections due to inaccurate timetable data.
+## No guarantee
+
+- **All information without guarantee.** Departures, delays, platforms and trips can be incomplete, late or wrong, for example after short-notice changes.
+- Please also follow notices and announcements at the stop and in the vehicle.
+- The app needs an internet connection and the services above. They can be slow or unavailable. There is no right to have the app or its data available at all times.
+- Features can change or end at any time.
+
+## Use at your own risk
+
+You use the app at your own risk. I am liable without limit for intent and gross negligence, for injury to life, body or health, and where the law requires it. Otherwise I am not liable. In particular, I am not liable for missed connections or costs caused by wrong or missing data.
+
+## Fair use
+
+- Use the app only for your own travel information.
+- Do not use the app to make automated or mass requests to the services above, and do not try to get around their limits. The VRR service may only be used for live requests by a person.
+- Do not use the app in a way that breaks the law or harms others.
+
+## Rights and licences
+
+- The app, its design and its texts belong to me.
+- The app uses open source software. Those parts are under their own licences. You can find the list in the app under Settings, About, "Open source licences".
+- The data in the app belongs to its providers named above, under their terms.
 
 ## Privacy
 
-Which data the app processes is described in the privacy policy.
+What data the app processes is described in the privacy policy.
 
-## Final provisions
+## Changes
 
-The law of the Federal Republic of Germany applies. If a provision is invalid, the others remain valid.
+I may change these terms when the app changes. The date at the top shows the last change. The current version is in the app under Settings, Legal, and online.
+
+## Law
+
+The law of the Federal Republic of Germany applies. If you are a consumer, the mandatory consumer protection rules of the country where you live also apply. If one part of these terms is invalid, the rest stays valid.

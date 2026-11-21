@@ -1,18 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
+import 'package:ruhr_transit/core/platform/open_link.dart';
 import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
+import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/legal/presentation/markdown_view.dart';
 
 /// The legal texts, one Markdown file per language in `assets/legal/`.
+/// The website in `docs/` is built from the same files
+/// (`tool/build_legal_site.dart`).
 enum LegalDocument {
   privacy,
-  terms;
+  terms,
+  impressum;
 
   /// e.g. `assets/legal/privacy_de.md`.
   String assetFor(AppLanguage language) =>
       'assets/legal/${name}_${language.code}.md';
+
+  /// The same text on the website (GitHub Pages), e.g. `.../privacy-de.html`.
+  Uri onlineFor(AppLanguage language) => Uri.https(
+    'shawnmuktadir.github.io',
+    '/ruhr_transit/${switch ((this, language.code)) {
+      (impressum, 'de') => 'impressum',
+      (impressum, _) => 'impressum-en',
+      (_, final code) => '$name-$code',
+    }}.html',
+  );
 }
 
 /// A legal text in the app's current language.
@@ -33,15 +50,25 @@ class _LegalPageState extends State<LegalPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Reloads when the language changes while the page is open.
-    final language =
-        AppLanguages.byCode(Localizations.localeOf(context).languageCode) ??
-        AppLanguages.fallback;
-    final asset = widget.document.assetFor(language);
+    final asset = widget.document.assetFor(_language(context));
     if (asset != _asset) {
       _asset = asset;
       _load();
     }
   }
+
+  Future<void> _openOnline(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final link = widget.document.onlineFor(_language(context));
+    if (!await openLink(link)) {
+      messenger.showMessage(l10n.legalOpenOnlineFailed);
+    }
+  }
+
+  static AppLanguage _language(BuildContext context) =>
+      AppLanguages.byCode(Localizations.localeOf(context).languageCode) ??
+      AppLanguages.fallback;
 
   void _load() {
     _text = DefaultAssetBundle.of(context).loadString(_asset!, cache: false);
@@ -55,7 +82,15 @@ class _LegalPageState extends State<LegalPage> {
         title: Text(switch (widget.document) {
           LegalDocument.privacy => l10n.privacyPolicy,
           LegalDocument.terms => l10n.termsOfUse,
+          LegalDocument.impressum => l10n.impressum,
         }),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.open_in_new),
+            tooltip: l10n.legalOpenOnline,
+            onPressed: () => unawaited(_openOnline(context)),
+          ),
+        ],
       ),
       body: FutureBuilder<String>(
         future: _text,

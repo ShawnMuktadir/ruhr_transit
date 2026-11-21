@@ -129,6 +129,12 @@ class SettingsPage extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => open(const LegalPage(LegalDocument.terms)),
               ),
+              ListTile(
+                leading: const Icon(Icons.badge_outlined),
+                title: Text(l10n.impressum),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => open(const LegalPage(LegalDocument.impressum)),
+              ),
             ],
           ),
           _SectionHeader(l10n.settingsAbout),
