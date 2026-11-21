@@ -238,13 +238,13 @@ void main() {
     await tester.tap(find.text('Privacy policy'));
     await tester.pumpAndSettle();
     expect(find.byType(LegalPage), findsOneWidget);
-    expect(find.textContaining('Draft – review before'), findsOneWidget);
+    expect(find.textContaining('Draft, last updated'), findsOneWidget);
 
     await tester.pageBack();
     await tester.pumpAndSettle();
     await tester.tap(find.text('Terms and conditions'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('not an app of VRR'), findsOneWidget);
+    expect(find.textContaining('free hobby project'), findsOneWidget);
   });
 
   testWidgets('about shows the version, attribution and licences', (

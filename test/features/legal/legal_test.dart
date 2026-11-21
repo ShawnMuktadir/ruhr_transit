@@ -127,7 +127,7 @@ Last.
       await pumpPage(tester, LegalDocument.privacy);
 
       expect(find.text('Privacy policy'), findsWidgets);
-      expect(find.textContaining('Draft – review before'), findsOneWidget);
+      expect(find.textContaining('Draft, last updated'), findsOneWidget);
       expect(find.textContaining('no user account'), findsOneWidget);
     });
 
@@ -135,7 +135,7 @@ Last.
       await pumpPage(tester, LegalDocument.terms, locale: 'de');
 
       expect(find.text('Nutzungsbedingungen'), findsWidgets);
-      expect(find.textContaining('keine App des VRR'), findsOneWidget);
+      expect(find.textContaining('kostenloses privates Projekt'), findsOneWidget);
     });
 
     testWidgets('explains a loading error and retries', (tester) async {
