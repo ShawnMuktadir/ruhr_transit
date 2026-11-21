@@ -2,7 +2,7 @@ name: TestFlight
 
 # Builds a signed iPhone app and uploads it to App Store Connect, from
 # where TestFlight installs it. Started by hand: Actions > TestFlight >
-# Run workflow. The secrets are described in docs/testflight.md.
+# Run workflow. The secrets are described in docs-notes/testflight.md.
 on:
   workflow_dispatch:
 

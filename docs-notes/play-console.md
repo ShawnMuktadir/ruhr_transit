@@ -19,10 +19,10 @@ current Play Console wording before submitting; the forms change.
    debug-signed:
    `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`
    must show your upload certificate, not `CN=Android Debug`.
-6. **Privacy policy** (`docs/privacy-policy.md`, texts in `assets/legal/`):
+6. **Privacy policy** (`docs-notes/privacy-policy.md`, texts in `assets/legal/`):
    add the postal address, host it, enter the URL under App content ›
    Privacy policy.
-7. Store listing texts and graphics: `docs/store-listing.md`.
+7. Store listing texts and graphics: `docs-notes/store-listing.md`.
 8. Start with an **internal testing** track, install from Play on a real
    phone, then go through the manual checks from the phase PRs (offline
    board, widget, location permission, trip planner, German texts).

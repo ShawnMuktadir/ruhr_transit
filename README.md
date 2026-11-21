@@ -64,7 +64,7 @@ flutter test
 
 The tests include accessibility checks of every screen, in light and dark, at
 100, 130 and 200 % text size. Manual checks before a release are in
-[docs/accessibility.md](docs/accessibility.md).
+[docs-notes/accessibility.md](docs-notes/accessibility.md).
 
 ### Project layout
 
@@ -74,7 +74,8 @@ lib/
   features/   one folder per feature, split into data, domain and presentation
 android/      Android code for the widget, connectivity and app language
 assets/legal/ privacy policy and terms, one file per language
-docs/         release checklist, store texts, privacy and accessibility notes
+docs/         public website (GitHub Pages): privacy policy, terms, Impressum
+docs-notes/   release checklist, store texts, privacy and accessibility notes
 tool/         scripts, see below
 ```
 
@@ -136,7 +137,7 @@ The app has no accounts and no analytics.
   saved departures, widget data, map images (at most 100 MB) and settings.
 
 The full texts are in `assets/legal/`, shown in the app under Settings › Legal.
-They are still drafts, see [docs/privacy-policy.md](docs/privacy-policy.md).
+They are still drafts, see [docs-notes/privacy-policy.md](docs-notes/privacy-policy.md).
 
 ## Known limits
 
@@ -159,9 +160,9 @@ They are still drafts, see [docs/privacy-policy.md](docs/privacy-policy.md).
 ## Release
 
 The full checklist, including VRR production access, is in
-[docs/play-console.md](docs/play-console.md). Store texts are in
-[docs/store-listing.md](docs/store-listing.md). iPhone builds go to TestFlight
-through GitHub Actions, no Mac needed: see [docs/testflight.md](docs/testflight.md).
+[docs-notes/play-console.md](docs-notes/play-console.md). Store texts are in
+[docs-notes/store-listing.md](docs-notes/store-listing.md). iPhone builds go to TestFlight
+through GitHub Actions, no Mac needed: see [docs-notes/testflight.md](docs-notes/testflight.md).
 
 Create the upload key once. Keep the file and passwords outside the repository,
 and back them up:
