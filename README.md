@@ -122,22 +122,30 @@ flutter run --dart-define=BRIGHT_SKY_BASE_URL=<url>
 
 ## Privacy
 
-The app has no accounts and no analytics.
+Privacy policy: https://shawnmuktadir.github.io/ruhr_transit/privacy-en.html
+(German: [privacy-de.html](https://shawnmuktadir.github.io/ruhr_transit/privacy-de.html)).
+Terms and Impressum are linked from
+[the site's start page](https://shawnmuktadir.github.io/ruhr_transit/).
+
+The app has no accounts, no ads and no analytics.
 
 - **Sent to VRR:** search terms, which can include a home address, the chosen
-  stops and times, your coordinates when you ask for stops near you or start
-  from your location, and the ride's details for a reminder.
+  stops and times, your coordinates for "Stops near me" (each time the tab
+  opens once location is allowed) and when you start from your location, and
+  the ride's details for a reminder.
 - **Sent to Bright Sky:** your coordinates, rounded to about 1 km, for the
-  weather.
+  weather, when the planner opens and location is allowed.
 - **Sent to basemap.de:** the map area shown, through the map images requested.
 - **Opened in Google Translate:** a VRR notice or delay reason (German), only
   when the app is in another language and you tap "Translate". It opens in the
   Translate app or the browser; nothing about you is in the text.
 - **Stored on the device only:** favourites, search history (last 10), reminders,
-  saved departures, widget data, map images (at most 100 MB) and settings.
+  saved departures, widget data, map images (at most 100 MB), settings and the
+  optional display name. Android's backup may include them.
 
-The full texts are in `assets/legal/`, shown in the app under Settings › Legal.
-They are still drafts, see [docs-notes/privacy-policy.md](docs-notes/privacy-policy.md).
+The texts are in `assets/legal/` (shown in the app under Settings › Legal) and
+built into the website in `docs/`; see
+[docs-notes/privacy-policy.md](docs-notes/privacy-policy.md). They are drafts.
 
 ## Known limits
 
