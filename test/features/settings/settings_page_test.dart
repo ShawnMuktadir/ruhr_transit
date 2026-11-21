@@ -230,7 +230,9 @@ void main() {
     expect(find.text('Log out'), findsOneWidget);
   });
 
-  testWidgets('opens the privacy policy and the terms', (tester) async {
+  testWidgets('opens the privacy policy, the terms and the Impressum', (
+    tester,
+  ) async {
     await pumpSettings(tester);
 
     await tester.ensureVisible(find.text('Privacy policy'));
@@ -245,6 +247,15 @@ void main() {
     await tester.tap(find.text('Terms and conditions'));
     await tester.pumpAndSettle();
     expect(find.textContaining('free hobby project'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Legal notice (Impressum)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Legal notice (Impressum)'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('PLACEHOLDER'), findsWidgets);
+    expect(find.byTooltip('Open online version'), findsOneWidget);
   });
 
   testWidgets('about shows the version, attribution and licences', (
