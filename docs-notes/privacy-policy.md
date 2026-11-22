@@ -18,14 +18,13 @@ dart run tool/build_legal_site.dart
 
 **Before publishing:**
 
-1. Fill in the Impressum placeholders (postal address, phone if
-   required). Check whether you need an Impressum and which address you
+1. Fill in the Impressum placeholders (postal address). Contact is by
+   email only, no phone number. Check whether you need an Impressum and which address you
    are comfortable publishing; the repository and the website are public.
-2. Have the texts checked. They are drafts that describe what the app
-   does, not legal advice.
-3. Set the real date and remove the draft note (the `>` block at the top of
-   each file), then adjust `test/features/legal/legal_test.dart` and the
-   draft checks in `test/legal_site_test.dart`. Remove
+2. Have the texts checked. They describe what the app does; they are not
+   legal advice and have not been checked by a lawyer.
+3. Update the date under the title ("Last updated" / "Stand") in the
+   privacy policy and the terms after each change. Remove
    `<meta name="robots" content="noindex">` in `tool/build_legal_site.dart`
    if the pages may be found by search engines.
 4. Rebuild `docs/` and check the facts again after every feature that

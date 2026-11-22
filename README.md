@@ -145,7 +145,7 @@ The app has no accounts, no ads and no analytics.
 
 The texts are in `assets/legal/` (shown in the app under Settings › Legal) and
 built into the website in `docs/`; see
-[docs-notes/privacy-policy.md](docs-notes/privacy-policy.md). They are drafts.
+[docs-notes/privacy-policy.md](docs-notes/privacy-policy.md).
 
 ## Known limits
 

@@ -53,18 +53,14 @@ Last.
 
   group('legal texts', () {
     // Adding a language must not leave the legal pages without a text.
-    test('exist for every language, marked as drafts', () {
+    test('exist for every language, starting with the title', () {
       for (final document in LegalDocument.values) {
         for (final language in AppLanguages.all) {
           final file = File(document.assetFor(language));
           expect(file.existsSync(), isTrue, reason: file.path);
-          final first = parseMarkdown(file.readAsStringSync()).first;
-          expect(first, isA<MarkdownCallout>(), reason: file.path);
-          expect(
-            first.text,
-            matches(RegExp('Entwurf|Draft')),
-            reason: file.path,
-          );
+          final blocks = parseMarkdown(file.readAsStringSync());
+          expect(blocks.first, isA<MarkdownHeading>(), reason: file.path);
+          expect(blocks.whereType<MarkdownCallout>(), isEmpty);
         }
       }
     });
@@ -76,7 +72,14 @@ Last.
           final reason = document.assetFor(language);
           expect(text, contains('Md Muktadir'), reason: reason);
           expect(text, contains('mmuktadir778@gmail.com'), reason: reason);
-          expect(text, contains('2026'), reason: reason);
+          // The privacy policy and the terms refer to "the date at the top".
+          if (document != LegalDocument.impressum) {
+            expect(
+              parseMarkdown(text)[1].text,
+              matches(RegExp(r'^(Last updated|Stand): \d')),
+              reason: reason,
+            );
+          }
           // Only the Impressum waits for the postal address; it marks
           // what is missing so it cannot be overlooked.
           final placeholder = RegExp(r'\[(PLATZHALTER|PLACEHOLDER):');
@@ -145,13 +148,13 @@ Last.
       await tester.pumpAndSettle();
     }
 
-    testWidgets('shows the privacy policy in English with the draft note', (
+    testWidgets('shows the privacy policy in English with its date', (
       tester,
     ) async {
       await pumpPage(tester, LegalDocument.privacy);
 
       expect(find.text('Privacy policy'), findsWidgets);
-      expect(find.textContaining('Draft, last updated'), findsOneWidget);
+      expect(find.textContaining('Last updated'), findsOneWidget);
       expect(find.textContaining('no user account'), findsOneWidget);
     });
 

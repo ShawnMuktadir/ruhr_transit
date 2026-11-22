@@ -1,6 +1,6 @@
-> **Entwurf, Stand 22. November 2026.** Dieser Text ist ein Entwurf und keine Rechtsberatung. Er wurde noch nicht anwaltlich geprüft.
-
 # Nutzungsbedingungen
+
+Stand: 22. November 2026
 
 ## Wer die App anbietet
 

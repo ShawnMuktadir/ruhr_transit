@@ -1,6 +1,6 @@
-> **Draft, last updated 22 November 2026.** This text is a draft and not legal advice. It has not been checked by a lawyer yet.
-
 # Terms and conditions
+
+Last updated: 22 November 2026
 
 ## Who provides the app
 

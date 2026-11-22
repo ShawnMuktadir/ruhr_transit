@@ -1,5 +1,3 @@
-> **Entwurf, Stand 22. November 2026.** Dieser Text ist ein Entwurf und keine Rechtsberatung. Die markierten Platzhalter müssen noch ausgefüllt werden.
-
 # Impressum
 
 ## Angaben gemäß § 5 DDG
@@ -15,8 +13,6 @@ Deutschland
 ## Kontakt
 
 E-Mail: mmuktadir778@gmail.com
-
-Telefon: [PLATZHALTER: Telefonnummer, falls erforderlich]
 
 ## Hinweis
 
