@@ -289,5 +289,9 @@
   "nearbyNextNow": "{line} now",
   "reminderBeforeDeparture": "{minutes} min before it leaves",
   "reminderOnDeparture": "Remind me of this departure",
-  "reminderOnDepartureSet": "Reminder set"
+  "reminderOnDepartureSet": "Reminder set",
+  "settingsGeneral": "General",
+  "settingsPersonal": "Personal",
+  "accessibilityFollows": "What the app follows",
+  "legalEnglishOnly": "This text is available in German and English only. It is shown in English."
 }

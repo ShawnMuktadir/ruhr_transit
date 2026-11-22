@@ -204,8 +204,11 @@ class _RuhrTransitAppState extends State<RuhrTransitApp>
           darkTheme: AppTheme.dark,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           // German is listed first, so it is the fallback for any device locale
-          // we don't support. English devices get English.
-          supportedLocales: AppLocalizations.supportedLocales,
+          // we don't support. English devices get English. Not the generated
+          // list: that one is alphabetical and starts with Arabic.
+          supportedLocales: [
+            for (final language in AppLanguages.all) language.locale,
+          ],
           debugShowCheckedModeBanner: false,
           // Above every page and dialog route.
           builder: (context, child) => OfflineBanner(child: child!),

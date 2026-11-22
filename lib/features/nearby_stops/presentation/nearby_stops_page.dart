@@ -146,7 +146,7 @@ class _StopList extends StatelessWidget {
           ColoredBox(
             color: theme.colorScheme.secondaryContainer,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 8, 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

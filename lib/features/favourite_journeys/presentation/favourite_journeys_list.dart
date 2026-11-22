@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/dismiss_background.dart';
+import 'package:ruhr_transit/core/widgets/place_name.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/features/favourite_journeys/domain/favourite_journey.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journeys_cubit.dart';
@@ -70,7 +71,9 @@ class _JourneyTile extends StatelessWidget {
           child: ListTile(
             leading: const Icon(Icons.bookmark),
             title: Text(
-              '${journey.from.fullName} → ${journey.to.fullName}',
+              '${journey.from.fullName.isolatedIn(context)} '
+              '${routeArrow(context)} '
+              '${journey.to.fullName.isolatedIn(context)}',
               semanticsLabel: l10n.journeyRoute(
                 journey.from.fullName,
                 journey.to.fullName,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
+import 'package:ruhr_transit/core/widgets/place_name.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -57,15 +58,15 @@ class StopTile extends StatelessWidget {
                   isFavourite ? Icons.star : Icons.place_outlined,
               },
         ),
-        title: Text(stop.name),
+        title: Text(stop.name.isolatedIn(context)),
         // "Adresse · Bochum": the kind first, so a street is not taken for a
         // stop of the same name. The modes follow the text, not the row's
         // end, so a big station's five icons leave the text its width; they
         // move to their own line when they do not fit.
         subtitle: switch ([
           if ([
-                if ([?kind, ?stop.locality, ?detail] case final parts
-                    when parts.isNotEmpty)
+                if ([?kind, ?stop.locality?.isolatedIn(context), ?detail]
+                    case final parts when parts.isNotEmpty)
                   Text(parts.join(' · ')),
                 if (stop.modes.isNotEmpty) _ModeIcons(stop.modes),
               ]

@@ -47,7 +47,7 @@ abstract final class BaseMap {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     return Align(
-      alignment: Alignment.bottomRight,
+      alignment: AlignmentDirectional.bottomEnd,
       child: ColoredBox(
         // Readable on the light and the dark map alike.
         color: colors.surface.withValues(alpha: 0.85),

@@ -5,7 +5,7 @@ import 'package:ruhr_transit/core/l10n/app_language.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/platform/system_settings.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
-import 'package:ruhr_transit/features/language/presentation/language_options.dart';
+import 'package:ruhr_transit/core/widgets/choice_tile.dart';
 import 'package:ruhr_transit/features/language/presentation/locale_cubit.dart';
 import 'package:ruhr_transit/features/legal/presentation/legal_page.dart';
 import 'package:ruhr_transit/features/profile/domain/auth_repository.dart';
@@ -15,7 +15,8 @@ import 'package:ruhr_transit/features/reminders/presentation/reminders_page.dart
 import 'package:ruhr_transit/features/settings/presentation/accessibility_section.dart';
 import 'package:ruhr_transit/features/settings/presentation/theme_cubit.dart';
 
-/// Appearance, language, accessibility, profile, legal texts and about.
+/// General (appearance and language, as dropdown rows), accessibility,
+/// personal (profile and reminders), legal texts and about.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
     this.packageInfo = PackageInfo.fromPlatform,
@@ -49,39 +50,35 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 16),
         children: [
-          _SectionHeader(l10n.settingsAppearance),
+          _SectionHeader(l10n.settingsGeneral),
           GroupCard(
             children: [
-              RadioGroup<ThemeMode>(
-                groupValue: themeMode,
-                onChanged: (mode) {
-                  if (mode != null) context.read<ThemeCubit>().select(mode);
-                },
-                child: Column(
-                  children: [
-                    for (final (mode, label) in [
-                      (ThemeMode.system, l10n.themeSystem),
-                      (ThemeMode.light, l10n.themeLight),
-                      (ThemeMode.dark, l10n.themeDark),
-                    ])
-                      RadioListTile<ThemeMode>(value: mode, title: Text(label)),
-                  ],
-                ),
+              ChoiceTile<ThemeMode>(
+                icon: Icons.brightness_6_outlined,
+                title: l10n.settingsAppearance,
+                value: themeMode,
+                options: [
+                  (ThemeMode.system, l10n.themeSystem),
+                  (ThemeMode.light, l10n.themeLight),
+                  (ThemeMode.dark, l10n.themeDark),
+                ],
+                onChanged: context.read<ThemeCubit>().select,
               ),
-            ],
-          ),
-          _SectionHeader(l10n.settingsLanguage),
-          GroupCard(
-            children: [
-              LanguageOptions(
-                selected: language,
-                onSelected: context.read<LocaleCubit>().select,
+              ChoiceTile<AppLanguage>(
+                icon: Icons.language,
+                title: l10n.settingsLanguage,
+                value: language,
+                options: [
+                  for (final language in AppLanguages.all)
+                    (language, language.nativeName),
+                ],
+                onChanged: context.read<LocaleCubit>().select,
               ),
             ],
           ),
           _SectionHeader(l10n.settingsAccessibility),
           AccessibilitySection(openSettings: openAccessibility),
-          _SectionHeader(l10n.settingsProfile),
+          _SectionHeader(l10n.settingsPersonal),
           GroupCard(
             children: [
               ListTile(
@@ -101,11 +98,6 @@ class SettingsPage extends StatelessWidget {
                   title: Text(l10n.logOut),
                   onTap: context.read<ProfileCubit>().signOut,
                 ),
-            ],
-          ),
-          _SectionHeader(l10n.remindersTitle),
-          GroupCard(
-            children: [
               ListTile(
                 leading: const Icon(Icons.notifications_outlined),
                 title: Text(l10n.remindersTitle),

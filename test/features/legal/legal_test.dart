@@ -93,6 +93,20 @@ Last.
       }
     });
 
+    test('only German and English exist; other languages get English', () {
+      final spanish = AppLanguages.byCode('es')!;
+      expect(LegalDocument.isTranslated(spanish), isFalse);
+      expect(
+        LegalDocument.privacy.assetFor(spanish),
+        'assets/legal/privacy_en.md',
+      );
+      expect(
+        LegalDocument.terms.onlineFor(spanish).path,
+        '/ruhr_transit/terms-en.html',
+      );
+      expect(LegalDocument.isTranslated(AppLanguages.byCode('de')!), isTrue);
+    });
+
     test('link to the same text online', () {
       String online(LegalDocument document, String code) =>
           document.onlineFor(AppLanguages.byCode(code)!).toString();
@@ -152,6 +166,22 @@ Last.
       expect(find.textContaining('Last updated'), findsOneWidget);
       expect(find.textContaining('no user account'), findsOneWidget);
     });
+
+    testWidgets(
+      'in Arabic shows the English text, left to right, with a note',
+      (tester) async {
+        await pumpPage(tester, LegalDocument.privacy, locale: 'ar');
+
+        expect(find.text('سياسة الخصوصية'), findsWidgets);
+        expect(
+          find.textContaining('الألمانية والإنجليزية فقط'),
+          findsOneWidget,
+        );
+        final english = find.textContaining('Last updated');
+        expect(english, findsOneWidget);
+        expect(Directionality.of(tester.element(english)), TextDirection.ltr);
+      },
+    );
 
     testWidgets('shows the terms in German', (tester) async {
       await pumpPage(tester, LegalDocument.terms, locale: 'de');

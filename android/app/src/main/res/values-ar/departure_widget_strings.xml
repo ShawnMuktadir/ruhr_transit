@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">المغادرات القادمة من محطة واحدة</string>
+    <string name="widget_choose_stop">اختر محطة في التطبيق: افتح مغادراتها ثم القائمة</string>
+    <string name="widget_open_app">لا توجد مغادرات حالية. افتح التطبيق للتحديث.</string>
+    <string name="widget_updated_at">آخر تحديث %1$s</string>
+    <string name="widget_cancelled">ملغاة</string>
+</resources>

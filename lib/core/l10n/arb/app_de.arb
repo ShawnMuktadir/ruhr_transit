@@ -1595,5 +1595,21 @@
   "reminderOnDepartureSet": "Erinnerung gesetzt",
   "@reminderOnDepartureSet": {
     "description": "TalkBack: this departure has a reminder."
+  },
+  "settingsGeneral": "Allgemein",
+  "@settingsGeneral": {
+    "description": "Settings section heading: appearance and language."
+  },
+  "settingsPersonal": "Persönlich",
+  "@settingsPersonal": {
+    "description": "Settings section heading: profile and reminders."
+  },
+  "accessibilityFollows": "Was die App berücksichtigt",
+  "@accessibilityFollows": {
+    "description": "Expandable row in the accessibility settings: the phone settings the app follows."
+  },
+  "legalEnglishOnly": "Dieser Text liegt nur auf Deutsch und Englisch vor. Er wird auf Englisch angezeigt.",
+  "@legalEnglishOnly": {
+    "description": "Above a legal text when the app language has no translation of it."
   }
 }

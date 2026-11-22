@@ -6,6 +6,7 @@ import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
+import 'package:ruhr_transit/core/widgets/place_name.dart';
 import 'package:ruhr_transit/features/reminders/domain/reminder.dart';
 import 'package:ruhr_transit/features/reminders/presentation/reminders_cubit.dart';
 
@@ -33,7 +34,7 @@ class RemindersPage extends StatelessWidget {
                       title: Text(
                         l10n.reminderNotifyBody(
                           reminder.line,
-                          reminder.stopName,
+                          reminder.stopName.isolatedIn(context),
                           formatClockTime(context, reminder.departure),
                         ),
                       ),

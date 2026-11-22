@@ -54,5 +54,34 @@ void main() {
         unorderedEquals(codes),
       );
     });
+
+    // The texts outside Flutter: iOS asks for the location in the phone's
+    // language, and the Android widget is drawn by Android.
+    test('has the iOS and Android texts in every language', () {
+      final codes = [for (final language in AppLanguages.all) language.code];
+      final plist = File('ios/Runner/Info.plist').readAsStringSync();
+      final project = File(
+        'ios/Runner.xcodeproj/project.pbxproj',
+      ).readAsStringSync();
+      for (final code in codes) {
+        expect(plist, contains('<string>$code</string>'), reason: code);
+        expect(
+          project,
+          contains('path = $code.lproj/InfoPlist.strings'),
+          reason: code,
+        );
+        expect(
+          File('ios/Runner/$code.lproj/InfoPlist.strings').readAsStringSync(),
+          contains('NSLocationWhenInUseUsageDescription'),
+          reason: code,
+        );
+        // German is Android's default (values/), the others have their own.
+        final widget = File(
+          'android/app/src/main/res/values${code == 'de' ? '' : '-$code'}'
+          '/departure_widget_strings.xml',
+        );
+        expect(widget.existsSync(), isTrue, reason: widget.path);
+      }
+    });
   });
 }
