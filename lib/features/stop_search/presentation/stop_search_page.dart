@@ -278,7 +278,7 @@ class _RecentStops extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 0),
           // Side by side while they fit; at large text "Verlauf löschen"
           // moves below the heading instead of overflowing.
           child: Wrap(

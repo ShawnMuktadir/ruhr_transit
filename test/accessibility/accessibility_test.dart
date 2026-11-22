@@ -455,121 +455,148 @@ void main() {
       name.startsWith('journey details') ||
       name.startsWith('trip details');
 
+  /// One screen at one size, brightness and text scale, in [locale]: no
+  /// overflow (an overflow fails the test), and the tap target, label and
+  /// contrast guidelines.
+  void checkScreen(
+    String name,
+    Widget Function() build, {
+    required double pixelRatio,
+    required Brightness brightness,
+    required double textScale,
+    String locale = 'de',
+  }) {
+    final width = (1080 / pixelRatio).round();
+    testWidgets(
+      '$name${locale == 'de' ? '' : ' in $locale'}, ${brightness.name}, '
+      'text ×$textScale, $width dp',
+      (tester) async {
+        tester.view
+          ..physicalSize = const Size(1080, 2400)
+          ..devicePixelRatio = pixelRatio;
+        addTearDown(tester.view.reset);
+        final semantics = tester.ensureSemantics();
+        final favourites = FakeFavouritesRepository(
+          name.contains('with favourites') ? [bochumHbf, dortmundHbf] : [],
+        );
+        // The picker test shows Dortmund as a favourite only.
+        if (name.contains('history')) favourites.saved = [dortmundHbf];
+
+        await tester.pumpWidget(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) =>
+                    FavouritesCubit(favourites, initial: favourites.saved),
+              ),
+              BlocProvider(
+                create: (_) => RecentStopsCubit(
+                  FakeRecentStopsRepository(),
+                  initial: name.contains('history')
+                      ? [
+                          bochumHbf,
+                          const Stop(
+                            id: 'de:05913:131',
+                            name: 'Hbf',
+                            fullName: 'Dortmund, Hbf',
+                            locality: 'Dortmund',
+                            latitude: 51.5,
+                            longitude: 7.4,
+                          ),
+                        ]
+                      : const [],
+                ),
+              ),
+              BlocProvider(
+                create: (_) => FavouriteJourneysCubit(
+                  FakeFavouriteJourneysRepository([
+                    if (name.contains('saved journeys') &&
+                        !name.contains('no saved')) ...[
+                      FavouriteJourney(
+                        from: bochumHbf,
+                        to: dortmundHbf,
+                        savedAt: DateTime.utc(2026, 11, 2),
+                        label: 'Work, RE1 at 7:40',
+                      ),
+                      FavouriteJourney(
+                        from: dortmundHbf,
+                        to: bochumHbf,
+                        savedAt: DateTime.utc(2026, 11, 2),
+                      ),
+                    ],
+                  ]),
+                ),
+              ),
+              // The planner greets with the profile's name.
+              BlocProvider(
+                create: (_) => ProfileCubit(
+                  FakeProfileRepository('Shawn'),
+                  FakeAuthRepository(),
+                ),
+              ),
+            ],
+            child: MaterialApp(
+              locale: Locale(locale),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: brightness == Brightness.dark
+                  ? ThemeMode.dark
+                  : ThemeMode.light,
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(textScale),
+                  // A still picture, as the sky's movement never settles.
+                  disableAnimations: true,
+                ),
+                child: child!,
+              ),
+              home: build(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await reach[name]?.call(tester);
+
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        semantics.dispose();
+      },
+    );
+  }
+
   for (final MapEntry(key: name, value: build) in screens.entries) {
     for (final pixelRatio in [2.625, if (narrowToo(name)) 3.0]) {
       for (final brightness in Brightness.values) {
         for (final textScale in [1.0, 1.3, 2.0]) {
-          final width = (1080 / pixelRatio).round();
-          testWidgets(
-            '$name, ${brightness.name}, text ×$textScale, $width dp',
-            (tester) async {
-              tester.view
-                ..physicalSize = const Size(1080, 2400)
-                ..devicePixelRatio = pixelRatio;
-              addTearDown(tester.view.reset);
-              final semantics = tester.ensureSemantics();
-              final favourites = FakeFavouritesRepository(
-                name.contains('with favourites')
-                    ? [bochumHbf, dortmundHbf]
-                    : [],
-              );
-              // The picker test shows Dortmund as a favourite only.
-              if (name.contains('history')) favourites.saved = [dortmundHbf];
-
-              await tester.pumpWidget(
-                MultiBlocProvider(
-                  providers: [
-                    BlocProvider(
-                      create: (_) => FavouritesCubit(
-                        favourites,
-                        initial: favourites.saved,
-                      ),
-                    ),
-                    BlocProvider(
-                      create: (_) => RecentStopsCubit(
-                        FakeRecentStopsRepository(),
-                        initial: name.contains('history')
-                            ? [
-                                bochumHbf,
-                                const Stop(
-                                  id: 'de:05913:131',
-                                  name: 'Hbf',
-                                  fullName: 'Dortmund, Hbf',
-                                  locality: 'Dortmund',
-                                  latitude: 51.5,
-                                  longitude: 7.4,
-                                ),
-                              ]
-                            : const [],
-                      ),
-                    ),
-                    BlocProvider(
-                      create: (_) => FavouriteJourneysCubit(
-                        FakeFavouriteJourneysRepository([
-                          if (name.contains('saved journeys') &&
-                              !name.contains('no saved')) ...[
-                            FavouriteJourney(
-                              from: bochumHbf,
-                              to: dortmundHbf,
-                              savedAt: DateTime.utc(2026, 11, 2),
-                              label: 'Work, RE1 at 7:40',
-                            ),
-                            FavouriteJourney(
-                              from: dortmundHbf,
-                              to: bochumHbf,
-                              savedAt: DateTime.utc(2026, 11, 2),
-                            ),
-                          ],
-                        ]),
-                      ),
-                    ),
-                    // The planner greets with the profile's name.
-                    BlocProvider(
-                      create: (_) => ProfileCubit(
-                        FakeProfileRepository('Shawn'),
-                        FakeAuthRepository(),
-                      ),
-                    ),
-                  ],
-                  child: MaterialApp(
-                    locale: const Locale('de'),
-                    localizationsDelegates:
-                        AppLocalizations.localizationsDelegates,
-                    supportedLocales: AppLocalizations.supportedLocales,
-                    theme: AppTheme.light,
-                    darkTheme: AppTheme.dark,
-                    themeMode: brightness == Brightness.dark
-                        ? ThemeMode.dark
-                        : ThemeMode.light,
-                    builder: (context, child) => MediaQuery(
-                      data: MediaQuery.of(context).copyWith(
-                        textScaler: TextScaler.linear(textScale),
-                        // A still picture, as the sky's movement never settles.
-                        disableAnimations: true,
-                      ),
-                      child: child!,
-                    ),
-                    home: build(),
-                  ),
-                ),
-              );
-              await tester.pumpAndSettle();
-              await reach[name]?.call(tester);
-
-              await expectLater(
-                tester,
-                meetsGuideline(androidTapTargetGuideline),
-              );
-              await expectLater(
-                tester,
-                meetsGuideline(labeledTapTargetGuideline),
-              );
-              await expectLater(tester, meetsGuideline(textContrastGuideline));
-              semantics.dispose();
-            },
+          checkScreen(
+            name,
+            build,
+            pixelRatio: pixelRatio,
+            brightness: brightness,
+            textScale: textScale,
           );
         }
       }
+    }
+  }
+
+  // Spanish and Ukrainian run longer than German, Arabic runs right to
+  // left: every screen at its tightest, 360 dp and text ×2. Screens reached
+  // by tapping German labels are covered in German above.
+  for (final locale in ['ar', 'es', 'uk']) {
+    for (final MapEntry(key: name, value: build) in screens.entries) {
+      if (reach.containsKey(name)) continue;
+      checkScreen(
+        name,
+        build,
+        pixelRatio: 3,
+        brightness: Brightness.light,
+        textScale: 2,
+        locale: locale,
+      );
     }
   }
 }

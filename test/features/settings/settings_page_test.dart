@@ -75,6 +75,10 @@ void main() {
     testWidgets('says what the app follows, TalkBack included', (tester) async {
       await pumpSettings(tester);
       expect(find.text('Accessibility'), findsOneWidget);
+      // Folded into one row, so the settings stay short.
+      expect(find.text('Larger text'), findsNothing);
+      await tester.tap(find.text('What the app follows'));
+      await tester.pumpAndSettle();
       expect(find.text('Larger text'), findsOneWidget);
       expect(find.text('Remove animations'), findsOneWidget);
       expect(find.text('TalkBack'), findsOneWidget);
@@ -87,6 +91,8 @@ void main() {
       (tester) async {
         var opened = 0;
         await pumpSettings(tester, openAccessibility: () async => opened++);
+        await tester.tap(find.text('What the app follows'));
+        await tester.pumpAndSettle();
         expect(find.text('VoiceOver'), findsOneWidget);
         expect(find.text('Reduce Motion'), findsOneWidget);
         expect(find.text('TalkBack'), findsNothing);
@@ -139,20 +145,58 @@ void main() {
     });
   });
 
-  testWidgets('the theme applies at once and is saved', (tester) async {
+  testWidgets('the theme is a dropdown row; it applies at once and is saved', (
+    tester,
+  ) async {
     await pumpSettings(tester);
     expect(brightness(tester), Brightness.light);
+    expect(find.text('System default'), findsOneWidget);
+    expect(find.text('Dark'), findsNothing);
 
+    await tester.tap(find.text('Appearance'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Dark'));
     await tester.pumpAndSettle();
 
     expect(brightness(tester), Brightness.dark);
     expect(theme.saved, 'dark');
+    expect(find.text('Dark'), findsOneWidget, reason: 'shown as the value');
+  });
+
+  testWidgets('the language menu offers all five languages', (tester) async {
+    await pumpSettings(tester);
+    expect(find.text('English'), findsOneWidget);
+
+    await tester.tap(find.text('Language'));
+    await tester.pumpAndSettle();
+
+    for (final name in ['Deutsch', 'العربية', 'Español', 'Українська']) {
+      expect(find.text(name), findsOneWidget, reason: name);
+    }
+    expect(find.text('English'), findsNWidgets(2), reason: 'value and item');
+  });
+
+  testWidgets('Arabic turns the layout right to left', (tester) async {
+    await pumpSettings(tester);
+
+    await tester.tap(find.text('Language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('العربية'));
+    await tester.pumpAndSettle();
+
+    expect(language.saved, 'ar');
+    expect(find.text('اللغة'), findsOneWidget);
+    expect(
+      Directionality.of(tester.element(find.byType(SettingsPage))),
+      TextDirection.rtl,
+    );
   });
 
   testWidgets('the language applies at once and is saved', (tester) async {
     await pumpSettings(tester);
 
+    await tester.tap(find.text('Language'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Deutsch'));
     await tester.pumpAndSettle();
 

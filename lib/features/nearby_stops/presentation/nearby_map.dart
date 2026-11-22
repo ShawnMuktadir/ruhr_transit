@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:ruhr_transit/core/domain/geo_point.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/map/base_map.dart';
+import 'package:ruhr_transit/core/widgets/place_name.dart';
 import 'package:ruhr_transit/features/departures/presentation/departures_page.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stop.dart';
 import 'package:ruhr_transit/features/nearby_stops/domain/nearby_stops_repository.dart';
@@ -208,10 +209,13 @@ class _ChosenStopCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(stop.name, style: theme.textTheme.titleMedium),
+            Text(
+              stop.name.isolatedIn(context),
+              style: theme.textTheme.titleMedium,
+            ),
             Text(
               [
-                ?stop.locality,
+                ?stop.locality?.isolatedIn(context),
                 l10n.nearbyDistance(nearby.distanceMeters),
               ].join(' · '),
               style: theme.textTheme.bodyMedium?.copyWith(

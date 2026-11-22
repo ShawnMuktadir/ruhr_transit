@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Найближчі відправлення з однієї зупинки</string>
+    <string name="widget_choose_stop">Виберіть зупинку в застосунку: відкрийте її відправлення, потім меню</string>
+    <string name="widget_open_app">Немає актуальних відправлень. Відкрийте застосунок, щоб оновити.</string>
+    <string name="widget_updated_at">Оновлено %1$s</string>
+    <string name="widget_cancelled">Скасовано</string>
+</resources>

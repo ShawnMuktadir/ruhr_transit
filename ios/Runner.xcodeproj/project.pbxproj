@@ -64,6 +64,9 @@
 		525400000000000000000004 /* ConnectivityStreamHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityStreamHandler.swift; sourceTree = "<group>"; };
 		525400000000000000000007 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		525400000000000000000008 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		525400000000000000000009 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		52540000000000000000000A /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		52540000000000000000000B /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +204,9 @@
 			knownRegions = (
 				en,
 				de,
+				ar,
+				es,
+				uk,
 				Base,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
@@ -307,6 +313,9 @@
 			children = (
 				525400000000000000000007 /* en */,
 				525400000000000000000008 /* de */,
+				525400000000000000000009 /* ar */,
+				52540000000000000000000A /* es */,
+				52540000000000000000000B /* uk */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

@@ -23,9 +23,13 @@ class AppLanguage {
 /// checks that all three agree.
 abstract final class AppLanguages {
   /// German first: it is the fallback for unsupported device languages.
+  /// Arabic is written right to left; Flutter mirrors the layout for it.
   static const all = [
     AppLanguage('de', 'Deutsch'),
     AppLanguage('en', 'English'),
+    AppLanguage('ar', 'العربية'),
+    AppLanguage('es', 'Español'),
+    AppLanguage('uk', 'Українська'),
   ];
 
   static AppLanguage get fallback => all.first;

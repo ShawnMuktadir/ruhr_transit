@@ -7,6 +7,7 @@ import 'package:ruhr_transit/core/domain/transport_mode.dart';
 import 'package:ruhr_transit/core/error/failure.dart';
 import 'package:ruhr_transit/core/l10n/gen/app_localizations.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
+import 'package:ruhr_transit/core/widgets/place_name.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/core/widgets/transport_mode_icon.dart';
 import 'package:ruhr_transit/features/trip_planner/domain/journey.dart';
@@ -714,7 +715,7 @@ class StopRow extends StatelessWidget {
               maxWidth: MediaQuery.sizeOf(context).width * 0.35,
             ),
             child: Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsetsDirectional.only(end: 8),
               child: TripTimeText(stop, style: style),
             ),
           ),
@@ -732,7 +733,7 @@ class StopRow extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                Text(stop.name, style: style),
+                Text(stop.name.isolatedIn(context), style: style),
                 if (stop.platform != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),

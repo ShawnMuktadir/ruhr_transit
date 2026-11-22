@@ -93,16 +93,20 @@ TextSpan inlineSpans(String text, TextStyle? style) {
 
 /// Renders [source] as a scrollable page.
 class MarkdownView extends StatelessWidget {
-  const MarkdownView(this.source, {super.key});
+  const MarkdownView(this.source, {this.textDirection, super.key});
 
   final String source;
+
+  /// The text's own direction when it differs from the app's, e.g. an
+  /// English text while the app is in Arabic.
+  final TextDirection? textDirection;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
     final blocks = parseMarkdown(source);
-    return ListView(
+    final page = ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
         for (final block in blocks)
@@ -126,7 +130,7 @@ class MarkdownView extends StatelessWidget {
               child: Text.rich(inlineSpans(value, text.bodyLarge)),
             ),
             MarkdownBullet(text: final value) => Padding(
-              padding: const EdgeInsets.only(left: 8, bottom: 8),
+              padding: const EdgeInsetsDirectional.only(start: 8, bottom: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -156,5 +160,9 @@ class MarkdownView extends StatelessWidget {
           },
       ],
     );
+    return switch (textDirection) {
+      final direction? => Directionality(textDirection: direction, child: page),
+      null => page,
+    };
   }
 }

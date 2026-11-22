@@ -8,6 +8,7 @@ import 'package:ruhr_transit/core/widgets/app_loader.dart';
 import 'package:ruhr_transit/core/widgets/cards.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
+import 'package:ruhr_transit/core/widgets/place_name.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/core/widgets/translate.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
@@ -320,7 +321,10 @@ class _WalkTile extends StatelessWidget {
         final meters? => l10n.tripWalkDistance(minutes, meters),
         null => l10n.tripWalk(minutes),
       }),
-      subtitle: Text('${leg.origin.name} → ${leg.destination.name}'),
+      subtitle: Text(
+        '${leg.origin.name.isolatedIn(context)} ${routeArrow(context)} '
+        '${leg.destination.name.isolatedIn(context)}',
+      ),
     );
     if (leg.steps.isEmpty) return tile;
     return Column(
@@ -328,7 +332,7 @@ class _WalkTile extends StatelessWidget {
       children: [
         tile,
         Padding(
-          padding: const EdgeInsets.fromLTRB(56, 0, 16, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(56, 0, 16, 4),
           child: WalkDirections(
             steps: leg.steps,
             paths: leg.stationPaths,
@@ -381,7 +385,7 @@ class _ChangeTile extends StatelessWidget {
       children: [
         tile,
         Padding(
-          padding: const EdgeInsets.fromLTRB(56, 0, 16, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(56, 0, 16, 4),
           child: WalkDirections(steps: steps, paths: paths),
         ),
       ],

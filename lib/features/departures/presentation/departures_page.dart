@@ -15,6 +15,7 @@ import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
 import 'package:ruhr_transit/core/widgets/now_builder.dart';
 import 'package:ruhr_transit/core/widgets/optional_provider.dart';
+import 'package:ruhr_transit/core/widgets/place_name.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
 import 'package:ruhr_transit/core/widgets/translate.dart';
@@ -96,8 +97,8 @@ class DeparturesView extends StatelessWidget {
       // "Bochum, Hbf/Boulevard" off after a few letters.
       appBar: TwoLineTitle.appBar(
         context,
-        title: stop.name,
-        subtitle: stop.locality,
+        title: stop.name.isolatedIn(context),
+        subtitle: stop.locality?.isolatedIn(context),
         semanticsLabel: stop.fullName,
         actions: [
           FavouriteStopButton(stop),
@@ -422,7 +423,7 @@ class _DepartureTile extends StatelessWidget {
         // Three lines: a German name can be one long word
         // ("Knappschafts-Krankenhaus").
         Text(
-          departure.destination,
+          departure.destination.isolatedIn(context),
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.bodyLarge?.copyWith(
@@ -479,7 +480,16 @@ class _DepartureTile extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          LineBadge(departure.line, mode: departure.mode),
+                          // Flexible: "Autobús 354" or "Трамвай 310" at
+                          // large text is wider than half a phone; the
+                          // badge then wraps instead of pushing the time
+                          // off screen.
+                          Flexible(
+                            child: LineBadge(
+                              departure.line,
+                              mode: departure.mode,
+                            ),
+                          ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: _TimeAndPlatform(

@@ -9,6 +9,7 @@ import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/heading.dart';
 import 'package:ruhr_transit/core/widgets/optional_provider.dart';
+import 'package:ruhr_transit/core/widgets/place_name.dart';
 import 'package:ruhr_transit/features/favourite_journeys/presentation/favourite_journey_button.dart';
 import 'package:ruhr_transit/features/profile/presentation/profile_cubit.dart';
 import 'package:ruhr_transit/features/stop_search/domain/stop.dart';
@@ -328,7 +329,7 @@ class _StopField extends StatelessWidget {
       ),
       trailing: trailing,
       subtitle: Text(
-        stop?.fullName ?? placeholder,
+        stop?.fullName.isolatedIn(context) ?? placeholder,
         // Two lines, so names stay readable at large font sizes.
         maxLines: 2,
         overflow: TextOverflow.ellipsis,

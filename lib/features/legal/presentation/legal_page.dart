@@ -12,18 +12,31 @@ import 'package:ruhr_transit/features/legal/presentation/markdown_view.dart';
 /// The legal texts, one Markdown file per language in `assets/legal/`.
 /// The website in `docs/` is built from the same files
 /// (`tool/build_legal_site.dart`).
+///
+/// Only German and English exist: a legal translation needs a legal check.
+/// The other app languages show the English text, with a note.
 enum LegalDocument {
   privacy,
   terms;
 
+  /// The languages the legal texts are written in.
+  static const languages = {'de', 'en'};
+
+  /// Whether the texts exist in [language]; otherwise English is shown.
+  static bool isTranslated(AppLanguage language) =>
+      languages.contains(language.code);
+
+  static String _code(AppLanguage language) =>
+      isTranslated(language) ? language.code : 'en';
+
   /// e.g. `assets/legal/privacy_de.md`.
   String assetFor(AppLanguage language) =>
-      'assets/legal/${name}_${language.code}.md';
+      'assets/legal/${name}_${_code(language)}.md';
 
   /// The same text on the website (GitHub Pages), e.g. `.../privacy-de.html`.
   Uri onlineFor(AppLanguage language) => Uri.https(
     'shawnmuktadir.github.io',
-    '/ruhr_transit/$name-${language.code}.html',
+    '/ruhr_transit/$name-${_code(language)}.html',
   );
 }
 
@@ -89,7 +102,25 @@ class _LegalPageState extends State<LegalPage> {
       body: FutureBuilder<String>(
         future: _text,
         builder: (context, snapshot) => switch (snapshot) {
-          AsyncSnapshot(:final data?) => MarkdownView(data),
+          AsyncSnapshot(:final data?) =>
+            LegalDocument.isTranslated(_language(context))
+                ? MarkdownView(data)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MaterialBanner(
+                        leading: const Icon(Icons.translate),
+                        content: Text(l10n.legalEnglishOnly),
+                        actions: const [SizedBox.shrink()],
+                      ),
+                      Expanded(
+                        child: MarkdownView(
+                          data,
+                          textDirection: TextDirection.ltr,
+                        ),
+                      ),
+                    ],
+                  ),
           AsyncSnapshot(hasError: true) => CenteredMessage.retry(
             l10n.legalLoadFailed,
             onRetry: () => setState(_load),

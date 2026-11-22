@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Próximas salidas de una parada</string>
+    <string name="widget_choose_stop">Elige una parada en la app: abre sus salidas y luego el menú</string>
+    <string name="widget_open_app">No hay salidas actuales. Abre la app para actualizar.</string>
+    <string name="widget_updated_at">Actualizado %1$s</string>
+    <string name="widget_cancelled">Cancelado</string>
+</resources>
