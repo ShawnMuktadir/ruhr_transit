@@ -417,60 +417,48 @@ class _DepartureTile extends StatelessWidget {
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
-        child: Stack(
-          children: [
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 64),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: stacked
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              LineBadge(departure.line, mode: departure.mode),
-                              const SizedBox(width: 16),
-                              Expanded(child: _TimeAndPlatform(departure)),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          destination,
-                        ],
-                      )
-                    : Row(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 64),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: stacked
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           LineBadge(departure.line, mode: departure.mode),
                           const SizedBox(width: 16),
-                          Expanded(child: destination),
-                          const SizedBox(width: 16),
-                          // Bounded, so the delay can move under the time instead
-                          // of pushing the row off screen.
-                          ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.sizeOf(context).width * 0.3,
+                          Expanded(
+                            child: _TimeAndPlatform(
+                              departure,
+                              reminderSet: isSet,
                             ),
-                            child: _TimeAndPlatform(departure),
                           ),
                         ],
                       ),
-              ),
-            ),
-            if (isSet)
-              PositionedDirectional(
-                top: 4,
-                end: 6,
-                child: Icon(
-                  Icons.notifications_active,
-                  size: 16,
-                  color: colors.primary,
-                ),
-              ),
-          ],
+                      const SizedBox(height: 4),
+                      destination,
+                    ],
+                  )
+                : Row(
+                    children: [
+                      LineBadge(departure.line, mode: departure.mode),
+                      const SizedBox(width: 16),
+                      Expanded(child: destination),
+                      const SizedBox(width: 16),
+                      // Bounded, so the delay can move under the time instead
+                      // of pushing the row off screen.
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.sizeOf(context).width * 0.3,
+                        ),
+                        child: _TimeAndPlatform(departure, reminderSet: isSet),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
@@ -507,10 +495,13 @@ String _departureSummary(BuildContext context, Departure departure) {
 
 /// Planned time with the delay next to it (`17:13 +12`), and the platform
 /// below. Absolute times stay correct however long the board is open.
+/// A bell before the time marks a set reminder; it sits in the row, so it
+/// never covers the time.
 class _TimeAndPlatform extends StatelessWidget {
-  const _TimeAndPlatform(this.departure);
+  const _TimeAndPlatform(this.departure, {this.reminderSet = false});
 
   final Departure departure;
+  final bool reminderSet;
 
   @override
   Widget build(BuildContext context) {
@@ -523,8 +514,15 @@ class _TimeAndPlatform extends StatelessWidget {
       children: [
         Wrap(
           alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 4,
           children: [
+            if (reminderSet)
+              Icon(
+                Icons.notifications_active,
+                size: 18,
+                color: theme.colorScheme.primary,
+              ),
             Text(
               formatClockTime(context, departure.plannedTime),
               style: theme.textTheme.titleMedium?.copyWith(

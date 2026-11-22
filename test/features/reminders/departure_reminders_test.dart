@@ -154,7 +154,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(reminders.saved.single.lead, const Duration(minutes: 5));
-      expect(find.byIcon(Icons.notifications_active), findsOneWidget);
+      final bell = find.byIcon(Icons.notifications_active);
+      expect(bell, findsOneWidget);
+      // Seen on the phone: the bell sat on the tile's corner, over the time.
+      // It now sits in the time's row, beside it.
+      final time = find.descendant(
+        of: find.ancestor(of: bell, matching: find.byType(Wrap)),
+        matching: find.byType(Text),
+      );
+      expect(
+        tester.getRect(bell).overlaps(tester.getRect(time.first)),
+        isFalse,
+      );
     });
 
     testWidgets('a second tap can remove it', (tester) async {
