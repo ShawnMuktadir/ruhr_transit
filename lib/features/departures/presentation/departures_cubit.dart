@@ -10,8 +10,10 @@ import 'package:ruhr_transit/features/widget_sync/domain/widget_sync.dart';
 
 /// The departure board of one stop.
 ///
-/// Loads only when asked to, on opening and on user refresh: the VRR terms
-/// allow user-triggered queries, so there is no automatic polling.
+/// Loads only when asked to: on opening, on user refresh, and when the user
+/// comes back to a board that is no longer fresh ([revisited]). The VRR
+/// terms allow user-triggered queries, so there is no polling while the
+/// board stays on screen; instead [stillToCome] hides what has left.
 ///
 /// When loading fails, the board shown before, or else the one saved on the
 /// device, stays visible with the failure attached.
@@ -35,6 +37,15 @@ class DeparturesCubit extends Cubit<DeparturesState> {
   /// Global ID of the stop, e.g. `de:05911:5194`.
   final String stopId;
 
+  /// A board older than this is loaded again when the user comes back to
+  /// it (to the app, its tab, or from a page on top).
+  static const maxAge = Duration(minutes: 2);
+
+  /// How long a departure stays on the board after its time, and how old a
+  /// board must be before anything is hidden: a phone clock running a
+  /// little ahead must not hide live departures.
+  static const leftGrace = Duration(minutes: 1);
+
   /// Counts fetches, so a fetch that was overtaken while reading the saved
   /// board does not overwrite the newer state.
   int _fetchCount = 0;
@@ -52,6 +63,25 @@ class DeparturesCubit extends Cubit<DeparturesState> {
   Future<void> refresh() async {
     if (state is! DeparturesLoaded) return load();
     await _fetch();
+  }
+
+  /// The user is back at the board: loads it again if it is older than
+  /// [maxAge]. A failed board is left to Retry and [OnReconnect].
+  Future<void> revisited() async {
+    if (state case DeparturesLoaded(
+      :final fetchedAt,
+    ) when _now().difference(fetchedAt) >= maxAge) {
+      await refresh();
+    }
+  }
+
+  /// [state]'s departures without those that left more than [leftGrace]
+  /// ago, so a board left open (or kept in a hidden tab) does not show
+  /// departures that are long gone. Uses only the clock, loads nothing.
+  List<Departure> stillToCome(DeparturesLoaded state) {
+    final now = _now();
+    if (now.difference(state.fetchedAt) < leftGrace) return state.departures;
+    return _leavingFrom(state.departures, now.subtract(leftGrace));
   }
 
   /// Whether this phone has the home-screen widget.
@@ -117,12 +147,16 @@ class DeparturesCubit extends Cubit<DeparturesState> {
   /// Old boards only. Fresh boards are shown as the server sent them: a
   /// device clock that runs a few minutes ahead must not hide live
   /// departures.
-  List<Departure> _notYetDeparted(List<Departure> departures) {
-    final now = _now();
-    return [
-      for (final departure in departures)
-        if (!(departure.estimatedTime ?? departure.plannedTime).isBefore(now))
-          departure,
-    ];
-  }
+  List<Departure> _notYetDeparted(List<Departure> departures) =>
+      _leavingFrom(departures, _now());
+
+  /// [departures] that leave at [time] or later, by estimate.
+  static List<Departure> _leavingFrom(
+    List<Departure> departures,
+    DateTime time,
+  ) => [
+    for (final departure in departures)
+      if (!(departure.estimatedTime ?? departure.plannedTime).isBefore(time))
+        departure,
+  ];
 }
