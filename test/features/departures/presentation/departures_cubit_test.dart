@@ -308,6 +308,72 @@ void main() {
     });
   });
 
+  // Seen on the phone: a board kept in the Favourites tab still showed
+  // "Updated 20:36" and its departures at 21:29.
+  group('a board left open', () {
+    // delayedRe16 leaves at 17:25 (planned 17:13), movedU35 at 17:35.
+    Future<DeparturesLoaded> loaded() async {
+      repository.autoReply = Ok([delayedRe16, movedU35]);
+      await cubit.load();
+      return cubit.state as DeparturesLoaded;
+    }
+
+    test('hides departures that left over a minute ago, by estimate', () async {
+      final board = await loaded();
+
+      now = DateTime.utc(2026, 10, 25, 17, 26); // RE16 left a minute ago
+      expect(cubit.stillToCome(board), [delayedRe16, movedU35]);
+
+      now = DateTime.utc(2026, 10, 25, 17, 26, 1);
+      expect(cubit.stillToCome(board), [movedU35]);
+
+      now = DateTime.utc(2026, 10, 25, 18);
+      expect(cubit.stillToCome(board), isEmpty);
+      expect(repository.stopIds, hasLength(1), reason: 'loads nothing');
+    });
+
+    test('shows a fresh board as sent, even if the clock is ahead', () async {
+      // The clock is 30 min ahead: everything looks gone, but the board
+      // was just fetched, so it is shown in full.
+      repository.fetchedAt = DateTime.utc(2026, 10, 25, 18);
+      now = DateTime.utc(2026, 10, 25, 18, 0, 59);
+      final board = await loaded();
+
+      expect(cubit.stillToCome(board), [delayedRe16, movedU35]);
+    });
+
+    test('loads again on coming back once older than two minutes', () async {
+      await loaded();
+
+      now = boardTime.add(const Duration(minutes: 1, seconds: 59));
+      await cubit.revisited();
+      expect(repository.stopIds, hasLength(1));
+
+      now = boardTime.add(DeparturesCubit.maxAge);
+      repository.autoReply = Ok([movedU35]);
+      await cubit.revisited();
+      expect(repository.stopIds, hasLength(2));
+      expect(
+        cubit.state,
+        isA<DeparturesLoaded>().having((s) => s.departures, 'departures', [
+          movedU35,
+        ]),
+      );
+    });
+
+    test('coming back to an error or a first load loads nothing', () async {
+      now = boardTime.add(const Duration(hours: 1));
+      await cubit.revisited();
+      expect(repository.stopIds, isEmpty);
+
+      repository.autoReply = const Err(NetworkFailure());
+      await cubit.load();
+      expect(cubit.state, isA<DeparturesFailed>());
+      await cubit.revisited();
+      expect(repository.stopIds, hasLength(1));
+    });
+  });
+
   group('home-screen widget', () {
     test('shows the stop with the board on screen', () async {
       final widgetSync = FakeWidgetSync()..canAdd = true;

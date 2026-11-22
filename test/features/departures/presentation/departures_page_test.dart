@@ -20,14 +20,31 @@ void main() {
   late FakeDepartureRepository repository;
   late FakeFavouritesRepository favourites;
   late FakeWidgetSync widgetSync;
+  late DateTime now;
 
   setUp(() {
+    now = boardTime;
     repository = FakeDepartureRepository();
     favourites = FakeFavouritesRepository();
     widgetSync = FakeWidgetSync();
   });
 
-  Future<void> pumpPage(WidgetTester tester, {double textScale = 1}) async {
+  /// [visible] stands for the board's tab or page being shown; false is a
+  /// hidden tab or a page covered by another.
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    double textScale = 1,
+    ValueNotifier<bool>? visible,
+  }) async {
+    final board = BlocProvider(
+      create: (_) => DeparturesCubit(
+        repository,
+        bochumHbf.id,
+        now: () => now,
+        widgetSync: widgetSync,
+      )..load(),
+      child: const DeparturesView(stop: bochumHbf),
+    );
     await tester.pumpWidget(
       BlocProvider(
         create: (_) => FavouritesCubit(favourites, initial: favourites.saved),
@@ -44,15 +61,14 @@ void main() {
             ),
             child: child!,
           ),
-          home: BlocProvider(
-            create: (_) => DeparturesCubit(
-              repository,
-              bochumHbf.id,
-              now: () => boardTime,
-              widgetSync: widgetSync,
-            )..load(),
-            child: const DeparturesView(stop: bochumHbf),
-          ),
+          home: visible == null
+              ? board
+              : ValueListenableBuilder(
+                  valueListenable: visible,
+                  builder: (_, shown, child) =>
+                      TickerMode(enabled: shown, child: child!),
+                  child: board,
+                ),
         ),
       ),
     );
@@ -182,6 +198,83 @@ void main() {
       findsOneWidget,
     );
     semantics.dispose();
+  });
+
+  // Seen on the phone: a board kept in the Favourites tab still showed
+  // "Updated 20:36" and its departures at 21:29.
+  group('a board left open', () {
+    testWidgets('drops a departure once it has left, without loading', (
+      tester,
+    ) async {
+      repository.autoReply = Ok([delayedRe16, movedU35]);
+      await pumpPage(tester);
+      await tester.pump();
+      expect(find.text(delayedRe16.destination), findsOneWidget);
+
+      // RE16 leaves at 17:25 by estimate.
+      now = DateTime.utc(2026, 10, 25, 17, 27);
+      await tester.pump(const Duration(seconds: 30));
+
+      expect(find.text(delayedRe16.destination), findsNothing);
+      expect(find.text(movedU35.destination), findsOneWidget);
+      expect(repository.stopIds, hasLength(1));
+    });
+
+    testWidgets('loads again when shown again after two minutes', (
+      tester,
+    ) async {
+      final visible = ValueNotifier(true);
+      addTearDown(visible.dispose);
+      repository.autoReply = Ok([delayedRe16]);
+      await pumpPage(tester, visible: visible);
+      await tester.pump();
+
+      // Another tab after a minute: still fresh, nothing to load.
+      visible.value = false;
+      await tester.pump();
+      now = boardTime.add(const Duration(minutes: 1));
+      visible.value = true;
+      await tester.pump();
+      expect(repository.stopIds, hasLength(1));
+
+      visible.value = false;
+      await tester.pump();
+      now = boardTime.add(const Duration(minutes: 5));
+      repository.autoReply = Ok([movedU35]);
+      visible.value = true;
+      await tester.pump();
+      await tester.pump();
+
+      expect(repository.stopIds, hasLength(2));
+      expect(find.text(movedU35.destination), findsOneWidget);
+    });
+
+    testWidgets('loads again when the app comes back after a while', (
+      tester,
+    ) async {
+      repository.autoReply = Ok([delayedRe16]);
+      await pumpPage(tester);
+      await tester.pump();
+
+      for (final state in [
+        AppLifecycleState.inactive,
+        AppLifecycleState.hidden,
+        AppLifecycleState.paused,
+      ]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      now = boardTime.add(const Duration(minutes: 10));
+      for (final state in [
+        AppLifecycleState.hidden,
+        AppLifecycleState.inactive,
+        AppLifecycleState.resumed,
+      ]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pump();
+
+      expect(repository.stopIds, hasLength(2));
+    });
   });
 
   testWidgets('shows the empty board', (tester) async {

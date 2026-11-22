@@ -13,6 +13,7 @@ import 'package:ruhr_transit/core/widgets/centered_message.dart';
 import 'package:ruhr_transit/core/widgets/clock_time.dart';
 import 'package:ruhr_transit/core/widgets/data_attribution.dart';
 import 'package:ruhr_transit/core/widgets/line_badge.dart';
+import 'package:ruhr_transit/core/widgets/now_builder.dart';
 import 'package:ruhr_transit/core/widgets/optional_provider.dart';
 import 'package:ruhr_transit/core/widgets/platform_chip.dart';
 import 'package:ruhr_transit/core/widgets/show_message.dart';
@@ -82,7 +83,7 @@ class DeparturesView extends StatelessWidget {
         case _:
       }
     },
-    child: Builder(builder: _build),
+    child: _ReloadWhenBack(child: Builder(builder: _build)),
   );
 
   Widget _build(BuildContext context) {
@@ -149,23 +150,27 @@ class DeparturesView extends StatelessWidget {
                   failureMessage(l10n, failure),
                   onRetry: cubit.load,
                 ),
-                DeparturesLoaded(:final departures) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _UpdatedAt(state),
-                    ..._shown(
-                      context,
-                      departures,
-                      showCancelled: showCancelled?.state ?? true,
-                      board: (shown) => Expanded(
-                        child: _Board(
-                          shown,
-                          stop: stop,
-                          onRefresh: cubit.refresh,
+                // Checks every 30 s which departures have left; loads nothing.
+                DeparturesLoaded() => NowBuilder(
+                  every: const Duration(seconds: 30),
+                  builder: (context, _) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _UpdatedAt(state),
+                      ..._shown(
+                        context,
+                        cubit.stillToCome(state),
+                        showCancelled: showCancelled?.state ?? true,
+                        board: (shown) => Expanded(
+                          child: _Board(
+                            shown,
+                            stop: stop,
+                            onRefresh: cubit.refresh,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               },
             ),
@@ -175,6 +180,52 @@ class DeparturesView extends StatelessWidget {
       bottomNavigationBar: const DataAttribution(),
     );
   }
+}
+
+/// Loads the board again when the user comes back to it after a while: to
+/// the app, to its tab, or from a page opened on top of it. Hidden tabs and
+/// covered pages have their tickers off, which tells when it shows again.
+class _ReloadWhenBack extends StatefulWidget {
+  const _ReloadWhenBack({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ReloadWhenBack> createState() => _ReloadWhenBackState();
+}
+
+class _ReloadWhenBackState extends State<_ReloadWhenBack> {
+  late final AppLifecycleListener _lifecycle;
+  bool _visible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        if (_visible) _back();
+      },
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final visible = TickerMode.valuesOf(context).enabled;
+    if (visible && !_visible) _back();
+    _visible = visible;
+  }
+
+  void _back() => unawaited(context.read<DeparturesCubit>().revisited());
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// [board] with the departures to show, and how many cancelled ones are
