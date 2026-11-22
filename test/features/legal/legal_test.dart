@@ -159,7 +159,10 @@ Last.
       await pumpPage(tester, LegalDocument.terms, locale: 'de');
 
       expect(find.text('Nutzungsbedingungen'), findsWidgets);
-      expect(find.textContaining('kostenloses privates Projekt'), findsOneWidget);
+      expect(
+        find.textContaining('kostenloses privates Projekt'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('explains a loading error and retries', (tester) async {
