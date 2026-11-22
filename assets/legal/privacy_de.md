@@ -4,7 +4,7 @@ Stand: 22. November 2026
 
 ## Verantwortlicher
 
-Md Muktadir, E-Mail: mmuktadir778@gmail.com. Die Postanschrift steht im Impressum.
+Md Muktadir, E-Mail: mmuktadir778@gmail.com.
 
 Im Datenschutzrecht heißt diese Person "Verantwortlicher": Sie entscheidet, warum und wie in dieser App personenbezogene Daten verarbeitet werden.
 

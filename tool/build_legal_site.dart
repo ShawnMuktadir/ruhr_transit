@@ -26,8 +26,6 @@ const pages = [
   SitePage('privacy_de.md', 'privacy-de.html', 'de', 'privacy-en.html'),
   SitePage('terms_en.md', 'terms-en.html', 'en', 'terms-de.html'),
   SitePage('terms_de.md', 'terms-de.html', 'de', 'terms-en.html'),
-  SitePage('impressum_de.md', 'impressum.html', 'de', 'impressum-en.html'),
-  SitePage('impressum_en.md', 'impressum-en.html', 'en', 'impressum.html'),
 ];
 
 /// Every file of the site, by name, built from [readAsset].
@@ -59,13 +57,8 @@ String _page(SitePage page, String markdown) {
       ? [
           ('privacy-de.html', 'Datenschutz'),
           ('terms-de.html', 'Nutzungsbedingungen'),
-          ('impressum.html', 'Impressum'),
         ]
-      : [
-          ('privacy-en.html', 'Privacy'),
-          ('terms-en.html', 'Terms'),
-          ('impressum-en.html', 'Legal notice'),
-        ];
+      : [('privacy-en.html', 'Privacy'), ('terms-en.html', 'Terms')];
   return _document(
     language: page.language,
     title: '$title - RuhrTransit',
@@ -96,7 +89,6 @@ String _index() => _document(
 <ul>
 <li><a href="privacy-en.html">Privacy policy</a></li>
 <li><a href="terms-en.html">Terms and conditions</a></li>
-<li><a href="impressum-en.html">Legal notice (Impressum)</a></li>
 </ul>
 </section>
 <section lang="de">
@@ -105,7 +97,6 @@ String _index() => _document(
 <ul>
 <li><a href="privacy-de.html">Datenschutzerklärung</a></li>
 <li><a href="terms-de.html">Nutzungsbedingungen</a></li>
-<li><a href="impressum.html">Impressum</a></li>
 </ul>
 </section>
 </main>''',
@@ -193,11 +184,6 @@ String _inline(String text) {
     RegExp(r'[\w.+-]+@[\w-]+\.[\w.]+[\w]'),
     (m) => '<a href="mailto:${m[0]}">${m[0]}</a>',
   );
-  // Placeholders the owner still has to fill in, easy to spot.
-  html = html.replaceAllMapped(
-    RegExp(r'\[(PLATZHALTER|PLACEHOLDER):[^\]]*\]'),
-    (m) => '<mark>${m[0]}</mark>',
-  );
   return html;
 }
 
@@ -257,7 +243,6 @@ li { margin: 0.4rem 0; }
   padding: 12px 16px;
   border-radius: 8px;
 }
-mark { background: var(--draft); color: var(--text); padding: 0 4px; border: 1px dashed var(--draft-border); }
 footer { padding-top: 24px; padding-bottom: 32px; color: var(--muted); }
 footer nav { border-top: 1px solid var(--card); padding-top: 16px; }
 ''';

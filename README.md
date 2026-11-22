@@ -74,7 +74,7 @@ lib/
   features/   one folder per feature, split into data, domain and presentation
 android/      Android code for the widget, connectivity and app language
 assets/legal/ privacy policy and terms, one file per language
-docs/         public website (GitHub Pages): privacy policy, terms, Impressum
+docs/         public website (GitHub Pages): privacy policy and terms
 docs-notes/   release checklist, store texts, privacy and accessibility notes
 tool/         scripts, see below
 ```
@@ -124,7 +124,7 @@ flutter run --dart-define=BRIGHT_SKY_BASE_URL=<url>
 
 Privacy policy: https://shawnmuktadir.github.io/ruhr_transit/privacy-en.html
 (German: [privacy-de.html](https://shawnmuktadir.github.io/ruhr_transit/privacy-de.html)).
-Terms and Impressum are linked from
+The terms are linked from
 [the site's start page](https://shawnmuktadir.github.io/ruhr_transit/).
 
 The app has no accounts, no ads and no analytics.

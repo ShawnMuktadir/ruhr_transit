@@ -29,5 +29,6 @@ sync or any backend ship, update at least:
   user IDs, possibly app activity, deletion mechanism "Yes"), Apple App
   Privacy (contact info, identifiers, linked to the user), Sign in with
   Apple if other social logins are offered.
-- **Impressum**: unchanged unless the project becomes commercial.
+- **Impressum**: none so far; needed (with a postal address) if the
+  project becomes commercial.
 - Rebuild the website: `dart run tool/build_legal_site.dart`.

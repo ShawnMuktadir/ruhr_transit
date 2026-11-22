@@ -47,6 +47,5 @@ li { margin: 0.4rem 0; }
   padding: 12px 16px;
   border-radius: 8px;
 }
-mark { background: var(--draft); color: var(--text); padding: 0 4px; border: 1px dashed var(--draft-border); }
 footer { padding-top: 24px; padding-bottom: 32px; color: var(--muted); }
 footer nav { border-top: 1px solid var(--card); padding-top: 16px; }

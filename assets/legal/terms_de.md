@@ -4,7 +4,7 @@ Stand: 22. November 2026
 
 ## Wer die App anbietet
 
-RuhrTransit wird angeboten von Md Muktadir, E-Mail: mmuktadir778@gmail.com. Die Postanschrift steht im Impressum. RuhrTransit ist ein kostenloses privates Projekt.
+RuhrTransit wird angeboten von Md Muktadir, E-Mail: mmuktadir778@gmail.com. RuhrTransit ist ein kostenloses privates Projekt.
 
 ## Was die App macht
 
