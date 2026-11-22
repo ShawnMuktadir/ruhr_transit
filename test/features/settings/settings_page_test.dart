@@ -240,7 +240,7 @@ void main() {
     await tester.tap(find.text('Privacy policy'));
     await tester.pumpAndSettle();
     expect(find.byType(LegalPage), findsOneWidget);
-    expect(find.textContaining('Draft, last updated'), findsOneWidget);
+    expect(find.textContaining('Last updated'), findsOneWidget);
 
     await tester.pageBack();
     await tester.pumpAndSettle();

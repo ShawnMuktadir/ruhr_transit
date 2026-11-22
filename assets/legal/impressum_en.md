@@ -1,5 +1,3 @@
-> **Draft, last updated 22 November 2026.** This text is a draft and not legal advice. The marked placeholders still have to be filled in.
-
 # Legal notice (Impressum)
 
 ## Information under § 5 DDG (German Digital Services Act)
@@ -15,8 +13,6 @@ Germany
 ## Contact
 
 Email: mmuktadir778@gmail.com
-
-Phone: [PLACEHOLDER: phone number, if required]
 
 ## Note
 

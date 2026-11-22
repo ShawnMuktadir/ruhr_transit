@@ -39,10 +39,11 @@ void main() {
     }
   });
 
-  test('every page says it is a draft and links the other language', () {
+  test('no page has a draft note, every page links the other language', () {
     for (final page in pages) {
       final html = File('docs/${page.file}').readAsStringSync();
-      expect(html, contains('class="draft"'), reason: page.file);
+      expect(html, isNot(contains('class="draft"')), reason: page.file);
+      expect(html, isNot(matches(RegExp('Draft|Entwurf'))), reason: page.file);
       expect(html, contains('href="${page.counterpart}"'), reason: page.file);
     }
   });
