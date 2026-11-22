@@ -72,20 +72,17 @@ Last.
           final reason = document.assetFor(language);
           expect(text, contains('Md Muktadir'), reason: reason);
           expect(text, contains('mmuktadir778@gmail.com'), reason: reason);
-          // The privacy policy and the terms refer to "the date at the top".
-          if (document != LegalDocument.impressum) {
-            expect(
-              parseMarkdown(text)[1].text,
-              matches(RegExp(r'^(Last updated|Stand): \d')),
-              reason: reason,
-            );
-          }
-          // Only the Impressum waits for the postal address; it marks
-          // what is missing so it cannot be overlooked.
-          final placeholder = RegExp(r'\[(PLATZHALTER|PLACEHOLDER):');
+          // Both texts refer to "the date at the top".
           expect(
-            placeholder.hasMatch(text),
-            document == LegalDocument.impressum,
+            parseMarkdown(text)[1].text,
+            matches(RegExp(r'^(Last updated|Stand): \d')),
+            reason: reason,
+          );
+          // No Impressum (a free hobby app): nothing may point to one.
+          expect(text, isNot(contains('Impressum')), reason: reason);
+          expect(
+            RegExp(r'\[(PLATZHALTER|PLACEHOLDER):').hasMatch(text),
+            isFalse,
             reason: reason,
           );
           expect(RegExp(r'\[[A-ZÄÖÜ -]+\]').hasMatch(text), isFalse);
@@ -102,8 +99,6 @@ Last.
       const base = 'https://shawnmuktadir.github.io/ruhr_transit';
       expect(online(LegalDocument.privacy, 'de'), '$base/privacy-de.html');
       expect(online(LegalDocument.terms, 'en'), '$base/terms-en.html');
-      expect(online(LegalDocument.impressum, 'de'), '$base/impressum.html');
-      expect(online(LegalDocument.impressum, 'en'), '$base/impressum-en.html');
       // Each of them exists in docs/.
       for (final document in LegalDocument.values) {
         for (final language in AppLanguages.all) {

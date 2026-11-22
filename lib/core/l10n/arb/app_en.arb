@@ -133,7 +133,6 @@
   "accessibilityOpenIos": "Open Settings",
   "accessibilityOpenHintIos": "You will find VoiceOver and Reduce Motion there under Accessibility. The app cannot turn them on itself.",
   "settingsLegal": "Legal",
-  "impressum": "Legal notice (Impressum)",
   "legalOpenOnline": "Open online version",
   "legalOpenOnlineFailed": "Could not open the online version.",
   "privacyPolicy": "Privacy policy",

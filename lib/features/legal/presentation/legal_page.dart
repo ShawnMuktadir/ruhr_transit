@@ -14,8 +14,7 @@ import 'package:ruhr_transit/features/legal/presentation/markdown_view.dart';
 /// (`tool/build_legal_site.dart`).
 enum LegalDocument {
   privacy,
-  terms,
-  impressum;
+  terms;
 
   /// e.g. `assets/legal/privacy_de.md`.
   String assetFor(AppLanguage language) =>
@@ -24,11 +23,7 @@ enum LegalDocument {
   /// The same text on the website (GitHub Pages), e.g. `.../privacy-de.html`.
   Uri onlineFor(AppLanguage language) => Uri.https(
     'shawnmuktadir.github.io',
-    '/ruhr_transit/${switch ((this, language.code)) {
-      (impressum, 'de') => 'impressum',
-      (impressum, _) => 'impressum-en',
-      (_, final code) => '$name-$code',
-    }}.html',
+    '/ruhr_transit/$name-${language.code}.html',
   );
 }
 
@@ -82,7 +77,6 @@ class _LegalPageState extends State<LegalPage> {
         title: Text(switch (widget.document) {
           LegalDocument.privacy => l10n.privacyPolicy,
           LegalDocument.terms => l10n.termsOfUse,
-          LegalDocument.impressum => l10n.impressum,
         }),
         actions: [
           IconButton(

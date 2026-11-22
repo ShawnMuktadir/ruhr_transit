@@ -4,7 +4,7 @@ Last updated: 22 November 2026
 
 ## Who provides the app
 
-RuhrTransit is provided by Md Muktadir, email: mmuktadir778@gmail.com. The postal address is in the legal notice (Impressum). RuhrTransit is a free hobby project.
+RuhrTransit is provided by Md Muktadir, email: mmuktadir778@gmail.com. RuhrTransit is a free hobby project.
 
 ## What the app does
 

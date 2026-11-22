@@ -4,7 +4,7 @@ Last updated: 22 November 2026
 
 ## Who is responsible
 
-Md Muktadir, email: mmuktadir778@gmail.com. The postal address is in the legal notice (Impressum).
+Md Muktadir, email: mmuktadir778@gmail.com.
 
 In data protection law this person is the "controller": the one who decides why and how personal data is processed in this app.
 

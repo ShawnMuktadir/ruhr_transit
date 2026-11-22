@@ -190,6 +190,7 @@ can.
    address into a search?
 4. Bright Sky has no privacy policy of its own: acceptable, or ask the
    operator (contact on brightsky.dev)?
-5. Impressum: is it required for a free private app in your situation,
-   and which address are you comfortable publishing? Google Play and
-   Apple also display developer contact details.
+5. No Impressum for now (free, non-commercial). On Apple, declare
+   "non-trader" under the Digital Services Act; on Google Play, keep the
+   account personal and non-monetised so no address is shown. Revisit
+   both, and add an Impressum, if the app ever earns money.

@@ -714,10 +714,6 @@
   "@settingsLegal": {
     "description": "Settings section heading."
   },
-  "impressum": "Impressum",
-  "@impressum": {
-    "description": "Settings row and page title: the legal notice German law asks for."
-  },
   "legalOpenOnline": "Online-Fassung öffnen",
   "@legalOpenOnline": {
     "description": "Button on a legal page: opens the same text on the website."
