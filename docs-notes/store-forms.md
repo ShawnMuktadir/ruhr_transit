@@ -60,8 +60,9 @@ collects data (checked in `pubspec.lock`).
 | Location > Precise location | Yes | see below | Yes (by the app) | Optional | App functionality |
 | Location > Approximate location | Yes | see below | Yes (by the app) | Optional | App functionality |
 | App activity > In-app search history | Yes | see below | Yes (by the app) | Required to search | App functionality |
+| Personal info > Address | Yes | No | Yes (by the app) | Optional | App functionality |
 
-Not collected: personal info (name, email, address as a profile field),
+Not collected: other personal info (name, email),
 financial info, health, messages, photos, audio, files, calendar,
 contacts, app interactions, installed apps, web browsing, crash logs,
 diagnostics, device or other IDs. The display name, favourites and search
@@ -71,8 +72,9 @@ history list stay on the device, so they are not "collected".
 in the app. Search text leaves the device to answer the search, so it is
 collected. A typed home address is part of that search text; it is not a
 separate "Address" profile field, so "Personal info > Address" is not
-needed. Uncertain: some reviewers prefer declaring Address too when users
-may type their own. Declaring it does no harm.
+strictly needed. Decided: declare Address anyway (optional, not shared,
+App functionality), because users may type their own home address and
+over-declaring does no harm.
 
 **Shared or not?** VRR, Bright Sky and BKG are independent services, not
 service providers acting on the developer's instructions.
@@ -145,6 +147,8 @@ Two readings:
      the user's identity; **not used for tracking**.
    - **Location > Coarse Location** (weather, 2 decimals): same answers.
    - **Search History**: App Functionality; not linked; not tracking.
+   - **Contact Info > Physical Address**: same answers; a search can
+     contain a home address (matches the Address answer on Google Play).
 
 **Recommendation:** the cautious reading. Location is part of the app's
 main features, and after the permission is granted it is used on an
@@ -181,15 +185,20 @@ can.
   are a "trader" (free app, no income: usually not) when App Store Connect
   asks.
 
-## Open questions to decide
+## Decisions (2026-11-22)
 
-1. Location to VRR and Bright Sky: declare as shared on Play (recommended)
-   or argue the user-initiated exception?
-2. Apple: cautious declaration (recommended) or "Data Not Collected"?
-3. Add "Personal info > Address" on Play because users may type their home
-   address into a search?
-4. Bright Sky has no privacy policy of its own: acceptable, or ask the
-   operator (contact on brightsky.dev)?
+1. Google Play: declare **Location (precise and approximate) as shared**,
+   purpose App functionality, optional. Search history and Address:
+   collected, not shared.
+2. Apple: the **cautious declaration**: Precise Location, Coarse
+   Location, Search History and Physical Address, App Functionality, not
+   linked to the user, not used for tracking.
+3. Google Play: **declare Personal info > Address** (optional, not shared,
+   App functionality), since a search can contain a home address.
+4. Bright Sky: **acceptable as it is.** The privacy policy names it, says
+   it has no privacy policy of its own, and the app sends only
+   coordinates rounded to about 1 km. No contact with the operator
+   needed for now.
 5. No Impressum for now (free, non-commercial). On Apple, declare
    "non-trader" under the Digital Services Act; on Google Play, keep the
    account personal and non-monetised so no address is shown. Revisit
